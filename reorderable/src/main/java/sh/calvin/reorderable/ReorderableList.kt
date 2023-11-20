@@ -22,19 +22,20 @@ import androidx.compose.animation.core.spring
 import androidx.compose.foundation.gestures.DraggableState
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -81,8 +82,8 @@ class ReorderableListState internal constructor(
     internal val itemOffsets = List(listSize) {
         Animatable(0f)
     }.toMutableStateList()
-    private var draggingItemIndex: MutableState<Int?> = mutableStateOf(null)
-    private var animatingItemIndex: MutableState<Int?> = mutableStateOf(null)
+    private var draggingItemIndex by mutableStateOf<Int?>(null)
+    private var animatingItemIndex by mutableStateOf<Int?>(null)
     internal val draggableStates = List(listSize) { i ->
         DraggableState {
             if (!isItemDragging(i).value) return@DraggableState
@@ -101,18 +102,19 @@ class ReorderableListState internal constructor(
 
             itemIntervals.forEachIndexed { j, interval ->
                 if (j != i) {
-                    val targetOffset =  if (currentStart < originalStart && interval.center in currentStart..originalStart) {
-                        size.toFloat() + spacing
-                    } else if (currentStart > originalStart && interval.center in originalEnd..currentEnd) {
-                        -(size.toFloat() + spacing)
-                    } else {
-                       0f
-                    }
+                    val targetOffset =
+                        if (currentStart < originalStart && interval.center in currentStart..originalStart) {
+                            size.toFloat() + spacing
+                        } else if (currentStart > originalStart && interval.center in originalEnd..currentEnd) {
+                            -(size.toFloat() + spacing)
+                        } else {
+                            0f
+                        }
 
                     if (itemOffsets[j].targetValue != targetOffset) {
                         scope.launch {
-                        itemOffsets[j].animateTo(targetOffset, animationSpec)
-                    }
+                            itemOffsets[j].animateTo(targetOffset, animationSpec)
+                        }
                         moved = true
                     }
                 }
@@ -126,25 +128,25 @@ class ReorderableListState internal constructor(
 
     internal fun isAnItemDragging(): State<Boolean> {
         return derivedStateOf {
-            draggingItemIndex.value != null
+            draggingItemIndex != null
         }
     }
 
     internal fun isItemDragging(i: Int): State<Boolean> {
         return derivedStateOf {
-            i == draggingItemIndex.value
+            i == draggingItemIndex
         }
     }
 
     internal fun isItemAnimating(i: Int): State<Boolean> {
         return derivedStateOf {
-            i == animatingItemIndex.value
+            i == animatingItemIndex
         }
     }
 
     internal fun startDrag(i: Int) {
-        draggingItemIndex.value = i
-        animatingItemIndex.value = i
+        draggingItemIndex = i
+        animatingItemIndex = i
     }
 
     internal suspend fun settle(i: Int, velocity: Float) {
@@ -170,7 +172,7 @@ class ReorderableListState internal constructor(
                 return@lastIndexOfIndexed false
             } else null
 
-        draggingItemIndex.value = null
+        draggingItemIndex = null
 
         if (targetIndex != null) {
             val offsetToTarget = (itemIntervals[targetIndex].start - itemIntervals[i].start).let {
@@ -184,12 +186,21 @@ class ReorderableListState internal constructor(
             itemOffsets[i].animateTo(0f, animationSpec, initialVelocity = velocity)
         }
 
-        animatingItemIndex.value = null
+        animatingItemIndex = null
     }
 }
 
 interface ReorderableScope {
+    /**
+     * Make the UI element the draggable handle for the reorderable item.
+     *
+     * @param enabled Whether or not drag is enabled
+     * @param interactionSource [MutableInteractionSource] that will be used to emit [DragInteraction.Start] when this draggable is being dragged.
+     * @param onDragStarted The function that is called when the item starts being dragged
+     * @param onDragStopped The function that is called when the item stops being dragged
+     */
     fun Modifier.draggableHandle(
+        enabled: Boolean = true,
         onDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit = {},
         onDragStopped: suspend CoroutineScope.(velocity: Float) -> Unit = {},
         interactionSource: MutableInteractionSource? = null,
@@ -203,13 +214,14 @@ internal class ReorderableScopeImpl(
 ) : ReorderableScope {
 
     override fun Modifier.draggableHandle(
+        enabled: Boolean,
         onDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit,
         onDragStopped: suspend CoroutineScope.(velocity: Float) -> Unit,
         interactionSource: MutableInteractionSource?,
     ) = draggable(
         state = state.draggableStates[index],
         orientation = orientation,
-        enabled = state.isItemDragging(index).value || !state.isAnItemDragging().value,
+        enabled = enabled && (state.isItemDragging(index).value || !state.isAnItemDragging().value),
         interactionSource = interactionSource,
         onDragStarted = {
             state.startDrag(index)
@@ -222,6 +234,15 @@ internal class ReorderableScopeImpl(
     )
 }
 
+/**
+ * A vertically list that can be reordered by dragging and dropping.
+ *
+ * @param list The list of items to display.
+ * @param onEdit The function that is called when the list is reordered.
+ * @param verticalArrangement The vertical arrangement of the layout's children.
+ * @param horizontalAlignment The horizontal alignment of the layout's children.
+ * @param onMove The function that is called when an item is moved.
+ */
 @Composable
 fun <T> ReorderableColumn(
     list: List<T>,
@@ -272,6 +293,15 @@ fun <T> ReorderableColumn(
     }
 }
 
+/**
+ * A horizontally list that can be reordered by dragging and dropping.
+ *
+ * @param list The list of items to display.
+ * @param onEdit The function that is called when the list is reordered.
+ * @param horizontalArrangement The horizontal arrangement of the layout's children.
+ * @param verticalAlignment The vertical alignment of the layout's children.
+ * @param onMove The function that is called when an item is moved.
+ */
 @Composable
 fun <T> ReorderableRow(
     list: List<T>,

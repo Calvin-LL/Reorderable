@@ -26,6 +26,7 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
+import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.lazy.LazyItemScope
@@ -33,12 +34,15 @@ import androidx.compose.foundation.lazy.LazyListItemInfo
 import androidx.compose.foundation.lazy.LazyListLayoutInfo
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -55,15 +59,15 @@ import kotlinx.coroutines.launch
 
 object ReorderableLazyListDefaults {
     val ScrollThreshold = 48.dp
-    val ScrollSpeed = 0.05f
-    val IgnoreContentPaddingForScroll = false
+    const val ScrollSpeed = 0.05f
+    const val IgnoreContentPaddingForScroll = false
 }
 
 /**
  * Creates a [ReorderableLazyListState] that is remembered across compositions.
  *
- * Changes to the provided initial values will **not** result in the state being recreated or
- * changed in any way if it has already been created.
+ * Changes to [lazyListState], [scrollThreshold], [scrollSpeed], and [ignoreContentPaddingForScroll] will result in [ReorderableLazyListState] being updated.
+ *
  * @param lazyListState The return value of [rememberLazyListState](androidx.compose.foundation.lazy.LazyListStateKt.rememberLazyListState)
  * @param scrollThreshold The distance in dp from the top or bottom of the list that will trigger scrolling
  * @param scrollSpeed The fraction of the Column's size that will be scrolled when dragging an item within the scrollThreshold
@@ -89,8 +93,8 @@ fun rememberReorderableLazyColumnState(
 /**
  * Creates a [ReorderableLazyListState] that is remembered across compositions.
  *
- * Changes to the provided initial values will **not** result in the state being recreated or
- * changed in any way if it has already been created.
+ * Changes to [lazyListState], [scrollThreshold], [scrollSpeed], and [ignoreContentPaddingForScroll] will result in [ReorderableLazyListState] being updated.
+ *
  * @param lazyListState The return value of [rememberLazyListState](androidx.compose.foundation.lazy.LazyListStateKt.rememberLazyListState)
  * @param scrollThreshold The distance in dp from the left or right of the list that will trigger scrolling
  * @param scrollSpeed The fraction of the Row's size that will be scrolled when dragging an item within the scrollThreshold
@@ -126,11 +130,14 @@ internal fun rememberReorderableLazyListState(
     val scrollThresholdPx = with(density) { scrollThreshold.toPx() }
 
     val scope = rememberCoroutineScope()
-    val state = remember(lazyListState) {
+    val onMoveState = rememberUpdatedState(onMove)
+    val state = remember(
+        scope, lazyListState, scrollThreshold, scrollSpeed, ignoreContentPaddingForScroll
+    ) {
         ReorderableLazyListState(
             state = lazyListState,
             scope = scope,
-            onMove = onMove,
+            onMoveState = onMoveState,
             ignoreContentPaddingForScroll = ignoreContentPaddingForScroll,
             scrollThreshold = scrollThresholdPx,
             scrollSpeed = scrollSpeed,
@@ -291,7 +298,7 @@ private class ProgrammaticScroller(
 class ReorderableLazyListState internal constructor(
     private val state: LazyListState,
     private val scope: CoroutineScope,
-    private val onMove: (from: LazyListItemInfo, to: LazyListItemInfo) -> Unit,
+    private val onMoveState: State<(from: LazyListItemInfo, to: LazyListItemInfo) -> Unit>,
     internal val orientation: Orientation,
 
     /**
@@ -307,8 +314,7 @@ class ReorderableLazyListState internal constructor(
     private val scrollThreshold: Float,
     scrollSpeed: Float,
 ) {
-    internal var draggingItemKey by mutableStateOf<Any?>(null)
-        private set
+    private var draggingItemKey by mutableStateOf<Any?>(null)
     private val draggingItemIndex: Int?
         get() = draggingItemLayoutInfo?.index
 
@@ -444,10 +450,22 @@ class ReorderableLazyListState internal constructor(
             scope.launch {
                 // this is needed to neutralize automatic keeping the first item first.
                 state.scrollToItem(scrollToIndex, state.firstVisibleItemScrollOffset)
-                onMove(draggingItem, targetItem)
+                onMoveState.value(draggingItem, targetItem)
             }
         } else {
-            onMove(draggingItem, targetItem)
+            onMoveState.value(draggingItem, targetItem)
+        }
+    }
+
+    internal fun isAnItemDragging(): State<Boolean> {
+        return derivedStateOf {
+            draggingItemKey != null
+        }
+    }
+
+    internal fun isItemDragging(key: Any): State<Boolean> {
+        return derivedStateOf {
+            key == draggingItemKey
         }
     }
 
@@ -464,10 +482,13 @@ interface ReorderableItemScope {
     /**
      * Make the UI element the draggable handle for the reorderable item.
      *
+     * @param enabled Whether or not drag is enabled
+     * @param interactionSource [MutableInteractionSource] that will be used to emit [DragInteraction.Start] when this draggable is being dragged.
      * @param onDragStarted The function that is called when the item starts being dragged
      * @param onDragStopped The function that is called when the item stops being dragged
      */
     fun Modifier.draggableHandle(
+        enabled: Boolean = true,
         onDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit = {},
         onDragStopped: suspend CoroutineScope.(velocity: Float) -> Unit = {},
         interactionSource: MutableInteractionSource? = null,
@@ -480,6 +501,7 @@ internal class ReorderableItemScopeImpl(
     private val orientation: Orientation,
 ) : ReorderableItemScope {
     override fun Modifier.draggableHandle(
+        enabled: Boolean,
         onDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit,
         onDragStopped: suspend CoroutineScope.(velocity: Float) -> Unit,
         interactionSource: MutableInteractionSource?,
@@ -487,6 +509,7 @@ internal class ReorderableItemScopeImpl(
         draggable(
             state = rememberDraggableState { reorderableLazyListState.onDrag(offset = it) },
             orientation = orientation,
+            enabled = enabled && (reorderableLazyListState.isItemDragging(key).value || !reorderableLazyListState.isAnItemDragging().value),
             interactionSource = interactionSource,
             onDragStarted = {
                 reorderableLazyListState.onDragStart(key)
@@ -517,7 +540,7 @@ fun LazyItemScope.ReorderableItem(
     reorderableLazyListState.reorderableKeys.add(key)
 
     val orientation = reorderableLazyListState.orientation
-    val dragging = key == reorderableLazyListState.draggingItemKey
+    val dragging by reorderableLazyListState.isItemDragging(key)
     val draggingModifier = if (dragging) {
         Modifier
             .zIndex(1f)
