@@ -37,7 +37,7 @@ android {
 }
 
 dependencies {
-    compileOnly(platform("androidx.compose:compose-bom:2023.10.01"))
+    implementation(platform("androidx.compose:compose-bom:2023.10.01"))
     implementation("androidx.compose.animation:animation")
     implementation("androidx.compose.foundation:foundation")
 
