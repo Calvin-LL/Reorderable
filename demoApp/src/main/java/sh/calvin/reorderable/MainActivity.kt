@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -49,28 +51,32 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen(navController: NavController) {
     Column(
-        Modifier.fillMaxSize(),
+        Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text("Column", Modifier.padding(8.dp), color = MaterialTheme.colorScheme.onBackground)
+        Text("LazyColumn", Modifier.padding(8.dp), color = MaterialTheme.colorScheme.onBackground)
         Button(onClick = { navController.navigate("SimpleReorderableLazyColumn") }) {
             Text("Simple ReorderableLazyColumn")
         }
         Button(onClick = { navController.navigate("ComplexReorderableLazyColumn") }) {
             Text("Complex ReorderableLazyColumn")
         }
+        Text("Column", Modifier.padding(8.dp), color = MaterialTheme.colorScheme.onBackground)
         Button(onClick = { navController.navigate("ReorderableColumn") }) {
             Text("ReorderableColumn")
         }
 
-        Text("Row", Modifier.padding(8.dp), color = MaterialTheme.colorScheme.onBackground)
+        Text("LazyRow", Modifier.padding(8.dp), color = MaterialTheme.colorScheme.onBackground)
         Button(onClick = { navController.navigate("SimpleReorderableLazyRow") }) {
             Text("Simple ReorderableLazyRow")
         }
         Button(onClick = { navController.navigate("ComplexReorderableLazyRow") }) {
             Text("Complex ReorderableLazyRow")
         }
+        Text("Row", Modifier.padding(8.dp), color = MaterialTheme.colorScheme.onBackground)
         Button(onClick = { navController.navigate("ReorderableRow") }) {
             Text("ReorderableRow")
         }
