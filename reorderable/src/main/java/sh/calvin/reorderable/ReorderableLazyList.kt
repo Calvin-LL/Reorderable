@@ -34,6 +34,7 @@ import androidx.compose.foundation.lazy.LazyListItemInfo
 import androidx.compose.foundation.lazy.LazyListLayoutInfo
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -528,6 +529,7 @@ internal class ReorderableItemScopeImpl(
  *
  * @param state The return value of [rememberReorderableLazyColumnState] or [rememberReorderableLazyRowState]
  * @param key The key of the item, must be the same as the key passed to [LazyColumn.item](androidx.compose.foundation.lazy.LazyDsl.item), [LazyRow.item](androidx.compose.foundation.lazy.LazyDsl.item) or similar functions in [LazyListScope](androidx.compose.foundation.lazy.LazyListScope)
+ * @param enabled Whether or this item is reorderable
  */
 @ExperimentalFoundationApi
 @Composable
@@ -535,10 +537,9 @@ fun LazyItemScope.ReorderableItem(
     reorderableLazyListState: ReorderableLazyListState,
     key: Any,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     content: @Composable ReorderableItemScope.(isDragging: Boolean) -> Unit
 ) {
-    reorderableLazyListState.reorderableKeys.add(key)
-
     val orientation = reorderableLazyListState.orientation
     val dragging by reorderableLazyListState.isItemDragging(key)
     val draggingModifier = if (dragging) {
@@ -568,9 +569,18 @@ fun LazyItemScope.ReorderableItem(
     } else {
         Modifier.animateItemPlacement()
     }
+
     Column(modifier = modifier.then(draggingModifier)) {
         ReorderableItemScopeImpl(
             reorderableLazyListState, key, orientation
         ).content(dragging)
+    }
+
+    LaunchedEffect(enabled) {
+        if (enabled) {
+            reorderableLazyListState.reorderableKeys.add(key)
+        } else {
+            reorderableLazyListState.reorderableKeys.remove(key)
+        }
     }
 }
