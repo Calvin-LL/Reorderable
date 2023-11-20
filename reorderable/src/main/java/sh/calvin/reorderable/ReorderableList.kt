@@ -238,7 +238,7 @@ internal class ReorderableScopeImpl(
  * A vertically list that can be reordered by dragging and dropping.
  *
  * @param list The list of items to display.
- * @param onEdit The function that is called when the list is reordered.
+ * @param onEdit The function that is called when the list is reordered. This function is only called when the item is dropped.
  * @param verticalArrangement The vertical arrangement of the layout's children.
  * @param horizontalAlignment The horizontal alignment of the layout's children.
  * @param onMove The function that is called when an item is moved.
