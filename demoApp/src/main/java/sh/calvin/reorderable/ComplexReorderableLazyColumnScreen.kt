@@ -55,7 +55,7 @@ fun ComplexReorderableLazyColumnScreen() {
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         item {
-            Text("Header", Modifier.padding(8.dp))
+            Text("Header", Modifier.padding(8.dp), MaterialTheme.colorScheme.onBackground)
         }
         list.chunked(5).forEachIndexed { index, subList ->
             stickyHeader {
@@ -66,6 +66,7 @@ fun ComplexReorderableLazyColumnScreen() {
                         .fillMaxWidth()
                         .background(MaterialTheme.colorScheme.secondaryContainer)
                         .padding(8.dp),
+                    MaterialTheme.colorScheme.onSecondaryContainer,
                 )
             }
             items(subList, key = { it.id }) {
@@ -101,7 +102,7 @@ fun ComplexReorderableLazyColumnScreen() {
             }
         }
         item {
-            Text("Footer", Modifier.padding(8.dp))
+            Text("Footer", Modifier.padding(8.dp), MaterialTheme.colorScheme.onBackground)
         }
     }
 }

@@ -62,6 +62,7 @@ fun ComplexReorderableLazyRowScreen() {
                 Modifier
                     .height(144.dp)
                     .padding(8.dp),
+                MaterialTheme.colorScheme.onBackground,
             )
         }
         list.chunked(5).forEachIndexed { index, subList ->
@@ -73,6 +74,7 @@ fun ComplexReorderableLazyRowScreen() {
                         .height(144.dp)
                         .background(MaterialTheme.colorScheme.secondaryContainer)
                         .padding(8.dp),
+                    MaterialTheme.colorScheme.onSecondaryContainer,
                 )
             }
             items(subList, key = { it.id }) {
@@ -115,7 +117,7 @@ fun ComplexReorderableLazyRowScreen() {
             }
         }
         item {
-            Text("Footer", Modifier.padding(8.dp))
+            Text("Footer", Modifier.padding(8.dp), MaterialTheme.colorScheme.onBackground)
         }
     }
 }
