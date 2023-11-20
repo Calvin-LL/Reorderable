@@ -483,6 +483,8 @@ interface ReorderableItemScope {
     /**
      * Make the UI element the draggable handle for the reorderable item.
      *
+     * This modifier can only be used on the UI element that is a child of [LazyItemScope.ReorderableItem].
+     *
      * @param enabled Whether or not drag is enabled
      * @param interactionSource [MutableInteractionSource] that will be used to emit [DragInteraction.Start] when this draggable is being dragged.
      * @param onDragStarted The function that is called when the item starts being dragged
