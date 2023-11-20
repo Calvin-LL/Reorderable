@@ -41,6 +41,26 @@ See [demo app code](demoApp/src/main/java/sh/calvin/reorderable) for more exampl
 #### [`LazyColumn`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/lazy/package-summary#LazyColumn(androidx.compose.ui.Modifier,androidx.compose.foundation.lazy.LazyListState,androidx.compose.foundation.layout.PaddingValues,kotlin.Boolean,androidx.compose.foundation.layout.Arrangement.Vertical,androidx.compose.ui.Alignment.Horizontal,androidx.compose.foundation.gestures.FlingBehavior,kotlin.Boolean,kotlin.Function1)>)
 
 ```kotlin
+val lazyListState = rememberLazyListState()
+val reorderableLazyColumnState = rememberReorderableLazyColumnState(lazyListState) { from, to ->
+    // Update the list
+}
+
+LazyColumn(state = lazyListState) {
+    items(list, key = { /* item key */ }) {
+        ReorderableItem(reorderableLazyColumnState, key = /* item key */) { isDragging ->
+            // Item content
+
+            IconButton(modifier = Modifier.draggableHandle(), /* ... */)
+        }
+    }
+}
+
+```
+
+Here's a more complete example with (with haptic feedback):
+
+```kotlin
 val view = LocalView.current
 
 var list by remember { mutableStateOf(items) }
@@ -88,6 +108,23 @@ LazyColumn(
 ```
 
 #### [`Column`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/package-summary#Column(androidx.compose.ui.Modifier,androidx.compose.foundation.layout.Arrangement.Vertical,androidx.compose.ui.Alignment.Horizontal,kotlin.Function1)>)
+
+```kotlin
+ReorderableColumn(
+    list = list,
+    onEdit = { fromIndex, toIndex ->
+        // Update the list
+    },
+) { _, item, isDragging ->
+    key(item.id) {
+        // Item content
+
+        IconButton(modifier = Modifier.draggableHandle(), /* ... */)
+    }
+}
+```
+
+Here's a more complete example (with haptic feedback):
 
 ```kotlin
 val view = LocalView.current
