@@ -40,6 +40,8 @@ See [demo app code](demoApp/src/main/java/sh/calvin/reorderable) for more exampl
 
 #### [`LazyColumn`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/lazy/package-summary#LazyColumn(androidx.compose.ui.Modifier,androidx.compose.foundation.lazy.LazyListState,androidx.compose.foundation.layout.PaddingValues,kotlin.Boolean,androidx.compose.foundation.layout.Arrangement.Vertical,androidx.compose.ui.Alignment.Horizontal,androidx.compose.foundation.gestures.FlingBehavior,kotlin.Boolean,kotlin.Function1)>)
 
+Find more examples in [`SimpleReorderableLazyColumnScreen.kt`](demoApp/src/main/java/sh/calvin/reorderable/SimpleReorderableLazyColumnScreen.kt) and [`ComplexReorderableLazyColumnScreen.kt`](demoApp/src/main/java/sh/calvin/reorderable/ComplexReorderableLazyColumnScreen.kt) in the demo app.
+
 ```kotlin
 val lazyListState = rememberLazyListState()
 val reorderableLazyColumnState = rememberReorderableLazyColumnState(lazyListState) { from, to ->
@@ -109,6 +111,8 @@ LazyColumn(
 
 #### [`Column`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/package-summary#Column(androidx.compose.ui.Modifier,androidx.compose.foundation.layout.Arrangement.Vertical,androidx.compose.ui.Alignment.Horizontal,kotlin.Function1)>)
 
+Find more examples in [`ReorderableColumnScreen.kt`](demoApp/src/main/java/sh/calvin/reorderable/ReorderableColumnScreen.kt) in the demo app.
+
 ```kotlin
 ReorderableColumn(
     list = list,
@@ -171,6 +175,14 @@ ReorderableColumn(
     }
 }
 ```
+
+#### LazyRow
+
+See [`SimpleReorderableLazyRowScreen.kt`](demoApp/src/main/java/sh/calvin/reorderable/SimpleReorderableLazyRowScreen.kt) and [`ComplexReorderableLazyRowScreen.kt`](demoApp/src/main/java/sh/calvin/reorderable/ComplexReorderableLazyRowScreen.kt) in the demo app.
+
+#### Row
+
+See [`ReorderableRowScreen.kt`](demoApp/src/main/java/sh/calvin/reorderable/ReorderableRowScreen.kt) in the demo app.
 
 ## API
 
