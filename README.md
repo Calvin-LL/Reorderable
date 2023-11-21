@@ -89,7 +89,7 @@ Here's a more complete example with (with haptic feedback):
 ```kotlin
 val view = LocalView.current
 
-var list by remember { mutableStateOf(items) }
+var list by remember { mutableStateOf(List(100) { "Item $it" }) }
 val lazyListState = rememberLazyListState()
 val reorderableLazyColumnState = rememberReorderableLazyColumnState(lazyListState) { from, to ->
     list = list.toMutableList().apply {
@@ -105,15 +105,12 @@ LazyColumn(
     contentPadding = PaddingValues(8.dp),
     verticalArrangement = Arrangement.spacedBy(8.dp)
 ) {
-    items(list, key = { it.id }) {
-        ReorderableItem(reorderableLazyColumnState, it.id) { isDragging ->
+    items(list, key = { it }) {
+        ReorderableItem(reorderableLazyColumnState, key = it) { isDragging ->
             val elevation by animateDpAsState(if (isDragging) 4.dp else 1.dp)
 
-            Card(
-                modifier = Modifier.height(it.size.dp),
-                shadowElevation = elevation,
-            ) {
-                Text(it.text, Modifier.padding(horizontal = 8.dp))
+            Card(modifier = Modifier.shadow(elevation)) {
+                Text(it, Modifier.padding(horizontal = 8.dp))
                 IconButton(
                     modifier = Modifier.draggableHandle(
                         onDragStarted = {
@@ -184,7 +181,7 @@ Here's a more complete example (with haptic feedback):
 ```kotlin
 val view = LocalView.current
 
-var list by remember { mutableStateOf(items) }
+var list by remember { mutableStateOf(List(4) { "Item $it" }) }
 
 ReorderableColumn(
     modifier = Modifier
@@ -201,14 +198,11 @@ ReorderableColumn(
     },
     verticalArrangement = Arrangement.spacedBy(8.dp),
 ) { _, item, isDragging ->
-    key(item.id) {
+    key(item) {
         val elevation by animateDpAsState(if (isDragging) 4.dp else 1.dp)
 
-        Card(
-            modifier = Modifier.height(item.size.dp),
-            shadowElevation = elevation,
-        ) {
-            Text(item.text, Modifier.padding(horizontal = 8.dp))
+        Card(modifier = Modifier.shadow(elevation)) {
+            Text(item, Modifier.padding(horizontal = 8.dp))
             IconButton(
                 modifier = Modifier.draggableHandle(
                     onDragStarted = {
