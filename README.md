@@ -137,7 +137,7 @@ Find more examples in [`ReorderableColumnScreen.kt`](demoApp/src/main/java/sh/ca
 ```kotlin
 ReorderableColumn(
     list = list,
-    onEdit = { fromIndex, toIndex ->
+    onSettle = { fromIndex, toIndex ->
         // Update the list
     },
 ) { index, item, isDragging ->
@@ -158,7 +158,7 @@ fun List() {
 
     ReorderableColumn(
         list = list,
-        onEdit = { fromIndex, toIndex ->
+        onSettle = { fromIndex, toIndex ->
             // Update the list
         },
     ) { index, item, isDragging ->
@@ -188,7 +188,7 @@ ReorderableColumn(
         .fillMaxSize()
         .padding(8.dp),
     list = list,
-    onEdit = { fromIndex, toIndex ->
+    onSettle = { fromIndex, toIndex ->
         list = list.toMutableList().apply {
             add(toIndex, removeAt(fromIndex))
         }

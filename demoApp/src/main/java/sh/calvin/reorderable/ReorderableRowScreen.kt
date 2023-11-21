@@ -36,7 +36,7 @@ fun ReorderableRowScreen() {
             .fillMaxSize()
             .padding(8.dp),
         list = list,
-        onEdit = { fromIndex, toIndex ->
+        onSettle = { fromIndex, toIndex ->
             list = list.toMutableList().apply {
                 add(toIndex, removeAt(fromIndex))
             }

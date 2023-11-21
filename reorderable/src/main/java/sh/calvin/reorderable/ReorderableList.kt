@@ -238,7 +238,7 @@ internal class ReorderableScopeImpl(
  * A vertically list that can be reordered by dragging and dropping.
  *
  * @param list The list of items to display.
- * @param onEdit The function that is called when the list is reordered. This function is only called when the item is dropped.
+ * @param onSettle The function that is called when the list is reordered. This function is only called when the item is dropped.
  * @param verticalArrangement The vertical arrangement of the layout's children.
  * @param horizontalAlignment The horizontal alignment of the layout's children.
  * @param onMove The function that is called when an item is moved.
@@ -246,7 +246,7 @@ internal class ReorderableScopeImpl(
 @Composable
 fun <T> ReorderableColumn(
     list: List<T>,
-    onEdit: (fromIndex: Int, toIndex: Int) -> Unit,
+    onSettle: (fromIndex: Int, toIndex: Int) -> Unit,
     modifier: Modifier = Modifier,
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
@@ -257,9 +257,7 @@ fun <T> ReorderableColumn(
     val density = LocalDensity.current
     val spacing = with(density) { verticalArrangement.spacing.toPx() }
     val reorderableListState = remember(list, spacing) {
-        ReorderableListState(list.size, spacing, onMove, { fromIndex, toIndex ->
-            onEdit(fromIndex, toIndex)
-        }, coroutineScope)
+        ReorderableListState(list.size, spacing, onMove, onSettle, coroutineScope)
     }
 
     Column(
@@ -297,7 +295,7 @@ fun <T> ReorderableColumn(
  * A horizontally list that can be reordered by dragging and dropping.
  *
  * @param list The list of items to display.
- * @param onEdit The function that is called when the list is reordered.
+ * @param onSettle The function that is called when the list is reordered.
  * @param horizontalArrangement The horizontal arrangement of the layout's children.
  * @param verticalAlignment The vertical alignment of the layout's children.
  * @param onMove The function that is called when an item is moved.
@@ -305,7 +303,7 @@ fun <T> ReorderableColumn(
 @Composable
 fun <T> ReorderableRow(
     list: List<T>,
-    onEdit: (fromIndex: Int, toIndex: Int) -> Unit,
+    onSettle: (fromIndex: Int, toIndex: Int) -> Unit,
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
     verticalAlignment: Alignment.Vertical = Alignment.Top,
@@ -316,9 +314,7 @@ fun <T> ReorderableRow(
     val density = LocalDensity.current
     val spacing = with(density) { horizontalArrangement.spacing.toPx() }
     val reorderableListState = remember(list, spacing) {
-        ReorderableListState(list.size, spacing, onMove, { fromIndex, toIndex ->
-            onEdit(fromIndex, toIndex)
-        }, coroutineScope)
+        ReorderableListState(list.size, spacing, onMove, onSettle, coroutineScope)
     }
 
     Row(
