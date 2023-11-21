@@ -60,6 +60,30 @@ LazyColumn(state = lazyListState) {
 
 ```
 
+Since `Modifier.draggableHandle` can only be used in `ReorderableItemScope`, you may need to pass `ReorderableItemScope` to a child composable. For example:
+
+```kotlin
+@Composable
+fun List() {
+    // ...
+
+    LazyColumn(state = lazyListState) {
+        items(list, key = { /* item key */ }) {
+            ReorderableItem(reorderableLazyColumnState, key = /* item key */) { isDragging ->
+                // Item content
+
+                DragHandle(this)
+            }
+        }
+    }
+}
+
+@Composable
+fun DragHandle(scope: ReorderableItemScope) {
+    IconButton(modifier = with(scope) { Modifier.draggableHandle() }, /* ... */)
+}
+```
+
 Here's a more complete example with (with haptic feedback):
 
 ```kotlin
@@ -119,12 +143,39 @@ ReorderableColumn(
     onEdit = { fromIndex, toIndex ->
         // Update the list
     },
-) { _, item, isDragging ->
+) { index, item, isDragging ->
     key(item.id) {
         // Item content
 
         IconButton(modifier = Modifier.draggableHandle(), /* ... */)
     }
+}
+```
+
+Since `Modifier.draggableHandle` can only be used in `ReorderableScope`, you may need to pass `ReorderableScope` to a child composable. For example:
+
+```kotlin
+@Composable
+fun List() {
+    // ...
+
+    ReorderableColumn(
+        list = list,
+        onEdit = { fromIndex, toIndex ->
+            // Update the list
+        },
+    ) { index, item, isDragging ->
+        key(item.id) {
+            // Item content
+
+            DragHandle(this)
+        }
+    }
+}
+
+@Composable
+fun DragHandle(scope: ReorderableScope) {
+    IconButton(modifier = with(scope) { Modifier.draggableHandle() }, /* ... */)
 }
 ```
 
@@ -180,9 +231,13 @@ ReorderableColumn(
 
 See [`SimpleReorderableLazyRowScreen.kt`](demoApp/src/main/java/sh/calvin/reorderable/SimpleReorderableLazyRowScreen.kt) and [`ComplexReorderableLazyRowScreen.kt`](demoApp/src/main/java/sh/calvin/reorderable/ComplexReorderableLazyRowScreen.kt) in the demo app.
 
+You can just replace `Column` with `Row` in the `LazyColumn` examples above.
+
 #### Row
 
 See [`ReorderableRowScreen.kt`](demoApp/src/main/java/sh/calvin/reorderable/ReorderableRowScreen.kt) in the demo app.
+
+You can just replace `Column` with `Row` in the `Column` examples above.
 
 ## API
 
