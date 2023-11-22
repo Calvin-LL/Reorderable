@@ -15,7 +15,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Reorder
+import androidx.compose.material.icons.rounded.DragHandle
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -82,7 +82,7 @@ fun SimpleReorderableLazyRowScreen() {
                             ),
                             onClick = {},
                         ) {
-                            Icon(Icons.Rounded.Reorder, contentDescription = "Reorder")
+                            Icon(Icons.Rounded.DragHandle, contentDescription = "Reorder")
                         }
 
                         Text(it.text, Modifier.padding(8.dp))

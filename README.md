@@ -122,7 +122,7 @@ LazyColumn(
                     ),
                     onClick = {},
                 ) {
-                    Icon(Icons.Rounded.Reorder, contentDescription = "Reorder")
+                    Icon(Icons.Rounded.DragHandle, contentDescription = "Reorder")
                 }
             }
         }
@@ -214,7 +214,7 @@ ReorderableColumn(
                 ),
                 onClick = {},
             ) {
-                Icon(Icons.Rounded.Reorder, contentDescription = "Reorder")
+                Icon(Icons.Rounded.DragHandle, contentDescription = "Reorder")
             }
         }
     }
