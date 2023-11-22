@@ -46,7 +46,7 @@ fun ReorderableColumnScreen() {
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) { _, item, isDragging ->
         key(item.id) {
-            val elevation by animateDpAsState(if (isDragging) 4.dp else 1.dp)
+            val elevation by animateDpAsState(if (isDragging) 4.dp else 0.dp)
 
             Card(
                 modifier = Modifier.height(item.size.dp),

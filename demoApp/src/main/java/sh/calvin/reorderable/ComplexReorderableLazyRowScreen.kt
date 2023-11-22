@@ -79,7 +79,7 @@ fun ComplexReorderableLazyRowScreen() {
             }
             items(subList, key = { it.id }) {
                 ReorderableItem(reorderableLazyRowState, it.id) { isDragging ->
-                    val elevation by animateDpAsState(if (isDragging) 4.dp else 1.dp)
+                    val elevation by animateDpAsState(if (isDragging) 4.dp else 0.dp)
 
                     Card(
                         modifier = Modifier

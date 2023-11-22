@@ -71,7 +71,7 @@ fun ComplexReorderableLazyColumnScreen() {
             }
             items(subList, key = { it.id }) {
                 ReorderableItem(reorderableLazyColumnState, it.id) { isDragging ->
-                    val elevation by animateDpAsState(if (isDragging) 4.dp else 1.dp)
+                    val elevation by animateDpAsState(if (isDragging) 4.dp else 0.dp)
 
                     Card(
                         modifier = Modifier

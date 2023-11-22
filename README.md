@@ -107,9 +107,9 @@ LazyColumn(
 ) {
     items(list, key = { it }) {
         ReorderableItem(reorderableLazyColumnState, key = it) { isDragging ->
-            val elevation by animateDpAsState(if (isDragging) 4.dp else 1.dp)
+            val elevation by animateDpAsState(if (isDragging) 4.dp else 0.dp)
 
-            Card(modifier = Modifier.shadow(elevation)) {
+            Card(shadowElevation = elevation) {
                 Text(it, Modifier.padding(horizontal = 8.dp))
                 IconButton(
                     modifier = Modifier.draggableHandle(
@@ -199,9 +199,9 @@ ReorderableColumn(
     verticalArrangement = Arrangement.spacedBy(8.dp),
 ) { _, item, isDragging ->
     key(item) {
-        val elevation by animateDpAsState(if (isDragging) 4.dp else 1.dp)
+        val elevation by animateDpAsState(if (isDragging) 4.dp else 0.dp)
 
-        Card(modifier = Modifier.shadow(elevation)) {
+        Card(shadowElevation = elevation) {
             Text(item, Modifier.padding(horizontal = 8.dp))
             IconButton(
                 modifier = Modifier.draggableHandle(

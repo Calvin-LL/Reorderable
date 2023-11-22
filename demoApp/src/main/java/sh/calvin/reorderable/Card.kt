@@ -19,8 +19,7 @@ fun Card(
     content: @Composable RowScope.() -> Unit,
 ) {
     Surface(
-        modifier = modifier
-            .fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.medium,
         shadowElevation = shadowElevation,
         color = MaterialTheme.colorScheme.primaryContainer,
