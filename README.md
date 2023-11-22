@@ -109,20 +109,22 @@ LazyColumn(
         ReorderableItem(reorderableLazyColumnState, key = it) { isDragging ->
             val elevation by animateDpAsState(if (isDragging) 4.dp else 0.dp)
 
-            Card(shadowElevation = elevation) {
-                Text(it, Modifier.padding(horizontal = 8.dp))
-                IconButton(
-                    modifier = Modifier.draggableHandle(
-                        onDragStarted = {
-                            view.performHapticFeedback(HapticFeedbackConstants.DRAG_START)
-                        },
-                        onDragStopped = {
-                            view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
-                        },
-                    ),
-                    onClick = {},
-                ) {
-                    Icon(Icons.Rounded.DragHandle, contentDescription = "Reorder")
+            Surface(shadowElevation = elevation) {
+                Row {
+                    Text(it, Modifier.padding(horizontal = 8.dp))
+                    IconButton(
+                        modifier = Modifier.draggableHandle(
+                            onDragStarted = {
+                                view.performHapticFeedback(HapticFeedbackConstants.DRAG_START)
+                            },
+                            onDragStopped = {
+                                view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
+                            },
+                        ),
+                        onClick = {},
+                    ) {
+                        Icon(Icons.Rounded.DragHandle, contentDescription = "Reorder")
+                    }
                 }
             }
         }
@@ -201,20 +203,22 @@ ReorderableColumn(
     key(item) {
         val elevation by animateDpAsState(if (isDragging) 4.dp else 0.dp)
 
-        Card(shadowElevation = elevation) {
-            Text(item, Modifier.padding(horizontal = 8.dp))
-            IconButton(
-                modifier = Modifier.draggableHandle(
-                    onDragStarted = {
-                        view.performHapticFeedback(HapticFeedbackConstants.DRAG_START)
-                    },
-                    onDragStopped = {
-                        view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
-                    },
-                ),
-                onClick = {},
-            ) {
-                Icon(Icons.Rounded.DragHandle, contentDescription = "Reorder")
+        Surface(shadowElevation = elevation) {
+            Row {
+                Text(item, Modifier.padding(horizontal = 8.dp))
+                IconButton(
+                    modifier = Modifier.draggableHandle(
+                        onDragStarted = {
+                            view.performHapticFeedback(HapticFeedbackConstants.DRAG_START)
+                        },
+                        onDragStopped = {
+                            view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
+                        },
+                    ),
+                    onClick = {},
+                ) {
+                    Icon(Icons.Rounded.DragHandle, contentDescription = "Reorder")
+                }
             }
         }
     }
