@@ -351,9 +351,9 @@ class ReorderableLazyListState internal constructor(
         this::swapItems
     )
 
-    internal var previousKeyOfDraggedItem by mutableStateOf<Any?>(null)
+    internal var previousDraggingItemKey by mutableStateOf<Any?>(null)
         private set
-    internal var previousItemOffset = Animatable(0f)
+    internal var previousDraggingItemOffset = Animatable(0f)
         private set
 
     internal fun onDragStart(key: Any) {
@@ -367,16 +367,16 @@ class ReorderableLazyListState internal constructor(
 
     internal fun onDragStop() {
         if (draggingItemIndex != null) {
-            previousKeyOfDraggedItem = draggingItemKey
+            previousDraggingItemKey = draggingItemKey
             val startOffset = draggingItemOffset
             scope.launch {
-                previousItemOffset.snapTo(startOffset)
-                previousItemOffset.animateTo(
+                previousDraggingItemOffset.snapTo(startOffset)
+                previousDraggingItemOffset.animateTo(
                     0f, spring(
                         stiffness = Spring.StiffnessMediumLow, visibilityThreshold = 1f
                     )
                 )
-                previousKeyOfDraggedItem = null
+                previousDraggingItemKey = null
             }
         }
         draggingItemDraggedDelta = 0f
@@ -556,16 +556,16 @@ fun LazyItemScope.ReorderableItem(
                     translationX = reorderableLazyListState.draggingItemOffset
                 }
             })
-    } else if (key == reorderableLazyListState.previousKeyOfDraggedItem) {
+    } else if (key == reorderableLazyListState.previousDraggingItemKey) {
         Modifier
             .zIndex(1f)
             .then(when (orientation) {
                 Orientation.Vertical -> Modifier.graphicsLayer {
-                    translationY = reorderableLazyListState.previousItemOffset.value
+                    translationY = reorderableLazyListState.previousDraggingItemOffset.value
                 }
 
                 Orientation.Horizontal -> Modifier.graphicsLayer {
-                    translationX = reorderableLazyListState.previousItemOffset.value
+                    translationX = reorderableLazyListState.previousDraggingItemOffset.value
                 }
             })
     } else {
