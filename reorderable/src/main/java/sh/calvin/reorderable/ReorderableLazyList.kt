@@ -361,16 +361,19 @@ class ReorderableLazyListState internal constructor(
     internal var previousDraggingItemOffset = Animatable(0f)
         private set
 
-    internal fun onDragStart(key: Any, handleOffset: Float) {
+    internal suspend fun onDragStart(key: Any, handleOffset: Float) {
         state.layoutInfo.visibleItemsInfo.firstOrNull { item ->
             item.key == key
         }?.also {
+            if (it.offset < 0) {
+                // if item is not fully in view, scroll to it
+                state.animateScrollBy(it.offset.toFloat(), spring())
+            }
+
             draggingItemKey = key
             draggingItemInitialOffset = it.offset
             draggingItemHandleOffset = handleOffset
         }
-
-        // TODO: if item isn't fully in view, scroll to it
     }
 
     internal fun onDragStop() {
@@ -535,10 +538,12 @@ internal class ReorderableItemScopeImpl(
             enabled = enabled && (reorderableLazyListState.isItemDragging(key).value || !reorderableLazyListState.isAnItemDragging().value),
             interactionSource = interactionSource,
             onDragStarted = {
-                val handleOffsetRelativeToItem = handleOffset - itemPositionProvider()
-                val handleCenter = handleOffsetRelativeToItem + handleSize / 2f
+                launch {
+                    val handleOffsetRelativeToItem = handleOffset - itemPositionProvider()
+                    val handleCenter = handleOffsetRelativeToItem + handleSize / 2f
 
-                reorderableLazyListState.onDragStart(key, handleCenter)
+                    reorderableLazyListState.onDragStart(key, handleCenter)
+                }
                 onDragStarted(it)
             },
             onDragStopped = {
