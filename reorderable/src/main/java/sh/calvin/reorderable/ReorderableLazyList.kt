@@ -49,6 +49,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -339,6 +341,9 @@ class ReorderableLazyListState internal constructor(
             draggingItemInitialOffset + draggingItemDraggedDelta - offset
         } ?: 0f
 
+    // the offset of the handle center from the top or left of the dragging item when dragging starts
+    private var draggingItemHandleOffset = 0f
+
     internal val reorderableKeys = HashSet<Any?>()
 
     private val programmaticScroller = ProgrammaticScroller(
@@ -356,13 +361,16 @@ class ReorderableLazyListState internal constructor(
     internal var previousDraggingItemOffset = Animatable(0f)
         private set
 
-    internal fun onDragStart(key: Any) {
+    internal fun onDragStart(key: Any, handleOffset: Float) {
         state.layoutInfo.visibleItemsInfo.firstOrNull { item ->
             item.key == key
         }?.also {
             draggingItemKey = key
             draggingItemInitialOffset = it.offset
+            draggingItemHandleOffset = handleOffset
         }
+
+        // TODO: if item isn't fully in view, scroll to it
     }
 
     internal fun onDragStop() {
@@ -407,9 +415,9 @@ class ReorderableLazyListState internal constructor(
             }
         }
 
-        // check if the dragging item is in the scroll threshold
-        val distanceFromStart = startOffset - contentStartOffset
-        val distanceFromEnd = contentEndOffset - endOffset
+        // check if the handle center is in the scroll threshold
+        val distanceFromStart = (startOffset + draggingItemHandleOffset) - contentStartOffset
+        val distanceFromEnd = contentEndOffset - (startOffset + draggingItemHandleOffset)
 
         if (distanceFromStart < scrollThreshold) {
             programmaticScroller.start(
@@ -502,6 +510,7 @@ internal class ReorderableItemScopeImpl(
     private val reorderableLazyListState: ReorderableLazyListState,
     private val key: Any,
     private val orientation: Orientation,
+    private val itemPositionProvider: () -> Float
 ) : ReorderableItemScope {
     override fun Modifier.draggableHandle(
         enabled: Boolean,
@@ -509,13 +518,27 @@ internal class ReorderableItemScopeImpl(
         onDragStopped: suspend CoroutineScope.(velocity: Float) -> Unit,
         interactionSource: MutableInteractionSource?,
     ) = composed {
-        draggable(
+        var handleOffset = remember { 0f }
+        var handleSize = remember { 0 }
+        onGloballyPositioned {
+            handleOffset = when (orientation) {
+                Orientation.Vertical -> it.positionInRoot().y
+                Orientation.Horizontal -> it.positionInRoot().x
+            }
+            handleSize = when (orientation) {
+                Orientation.Vertical -> it.size.height
+                Orientation.Horizontal -> it.size.width
+            }
+        }.draggable(
             state = rememberDraggableState { reorderableLazyListState.onDrag(offset = it) },
             orientation = orientation,
             enabled = enabled && (reorderableLazyListState.isItemDragging(key).value || !reorderableLazyListState.isAnItemDragging().value),
             interactionSource = interactionSource,
             onDragStarted = {
-                reorderableLazyListState.onDragStart(key)
+                val handleOffsetRelativeToItem = handleOffset - itemPositionProvider()
+                val handleCenter = handleOffsetRelativeToItem + handleSize / 2f
+
+                reorderableLazyListState.onDragStart(key, handleCenter)
                 onDragStarted(it)
             },
             onDragStopped = {
@@ -544,6 +567,7 @@ fun LazyItemScope.ReorderableItem(
 ) {
     val orientation = reorderableLazyListState.orientation
     val dragging by reorderableLazyListState.isItemDragging(key)
+    var itemPosition = remember { 0f }
     val draggingModifier = if (dragging) {
         Modifier
             .zIndex(1f)
@@ -570,12 +594,19 @@ fun LazyItemScope.ReorderableItem(
             })
     } else {
         Modifier.animateItemPlacement()
+    }.onGloballyPositioned {
+        itemPosition = when (orientation) {
+            Orientation.Vertical -> it.positionInRoot().y
+            Orientation.Horizontal -> it.positionInRoot().x
+        }
     }
 
     Column(modifier = modifier.then(draggingModifier)) {
         ReorderableItemScopeImpl(
-            reorderableLazyListState, key, orientation
-        ).content(dragging)
+            reorderableLazyListState,
+            key,
+            orientation,
+            { itemPosition }).content(dragging)
     }
 
     LaunchedEffect(enabled) {
