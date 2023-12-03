@@ -411,7 +411,7 @@ class ReorderableLazyListState internal constructor(
         if (!programmaticScroller.isScrolling) {
             // find a target item to swap with
             val targetItem = state.layoutInfo.visibleItemsInfo.find { item ->
-                item.offsetMiddle in startOffset..endOffset && draggingItem.index != item.index && item.key in reorderableKeys
+                item.offsetMiddle in startOffset..endOffset && draggingItem.index != item.index && item.key in reorderableKeys && item.offset >= contentStartOffset && item.offset + item.size <= contentEndOffset
             }
             if (targetItem != null) {
                 swapItems(draggingItem, targetItem)
