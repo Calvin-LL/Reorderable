@@ -531,7 +531,6 @@ internal class ReorderableItemScopeImpl(
     ) = composed {
         var handleOffset = remember { 0f }
         var handleSize = remember { 0 }
-        val localDensity = LocalDensity.current
         onGloballyPositioned {
             handleOffset = when (orientation) {
                 Orientation.Vertical -> it.positionInRoot().y
