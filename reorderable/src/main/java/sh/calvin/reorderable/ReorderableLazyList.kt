@@ -402,13 +402,16 @@ class ReorderableLazyListState internal constructor(
         draggingItemDraggedDelta += offset
 
         val draggingItem = draggingItemLayoutInfo ?: return
+        // draggingItem.offset is the distance of the start of the dragging item from the top or left of the list
+        // state.layoutInfo.mainAxisItemSpacing is included in the offset
+        // (e.g. the first item's offset is 0, despite being state.layoutInfo.mainAxisItemSpacing pixels from the top or left of the list)
         val startOffset = draggingItem.offset + draggingItemOffset
-        val endOffset = startOffset + draggingItem.size
         val (contentStartOffset, contentEndOffset) = state.layoutInfo.getContentOffset(
             orientation, ignoreContentPaddingForScroll
         )
 
         if (!programmaticScroller.isScrolling) {
+            val endOffset = startOffset + draggingItem.size
             // find a target item to swap with
             val targetItem = state.layoutInfo.visibleItemsInfo.find { item ->
                 item.offsetMiddle in startOffset..endOffset && draggingItem.index != item.index && item.key in reorderableKeys && item.offset >= contentStartOffset && item.offset + item.size <= contentEndOffset
@@ -418,9 +421,14 @@ class ReorderableLazyListState internal constructor(
             }
         }
 
+        // the actual distance from the top or left of the list to the top or left of the dragging item
+        val startOffsetWithSpacing = startOffset + state.layoutInfo.mainAxisItemSpacing
+        // the distance from the top or left of the list to the center of the dragging item handle
+        val handleOffset = startOffsetWithSpacing + draggingItemHandleOffset
+
         // check if the handle center is in the scroll threshold
-        val distanceFromStart = (startOffset + draggingItemHandleOffset) - contentStartOffset
-        val distanceFromEnd = contentEndOffset - (startOffset + draggingItemHandleOffset)
+        val distanceFromStart = handleOffset - contentStartOffset
+        val distanceFromEnd = contentEndOffset - handleOffset
 
         if (distanceFromStart < scrollThreshold) {
             programmaticScroller.start(
@@ -523,6 +531,7 @@ internal class ReorderableItemScopeImpl(
     ) = composed {
         var handleOffset = remember { 0f }
         var handleSize = remember { 0 }
+        val localDensity = LocalDensity.current
         onGloballyPositioned {
             handleOffset = when (orientation) {
                 Orientation.Vertical -> it.positionInRoot().y
@@ -611,7 +620,8 @@ fun LazyItemScope.ReorderableItem(
             reorderableLazyListState,
             key,
             orientation,
-            { itemPosition }).content(dragging)
+            { itemPosition },
+        ).content(dragging)
     }
 
     LaunchedEffect(enabled) {
