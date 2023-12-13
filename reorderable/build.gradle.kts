@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "sh.calvin.reorderable"
-version = "1.1.0"
+version = "1.2.0"
 
 android {
     namespace = project.group.toString()
