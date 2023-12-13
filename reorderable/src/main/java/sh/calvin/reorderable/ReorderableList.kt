@@ -39,8 +39,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.util.VelocityTracker
+import androidx.compose.ui.input.pointer.util.addPointerInputChange
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalDensity
@@ -205,6 +208,19 @@ interface ReorderableScope {
         onDragStopped: suspend CoroutineScope.(velocity: Float) -> Unit = {},
         interactionSource: MutableInteractionSource? = null,
     ): Modifier
+
+    /**
+     * Make the UI element the draggable handle for the reorderable item. Drag will start only after a long press.
+     *
+     * @param enabled Whether or not drag is enabled
+     * @param onDragStarted The function that is called when the item starts being dragged
+     * @param onDragStopped The function that is called when the item stops being dragged
+     */
+    fun Modifier.longPressDraggableHandle(
+        enabled: Boolean = true,
+        onDragStarted: (startedPosition: Offset) -> Unit = {},
+        onDragStopped: (velocity: Float) -> Unit = {},
+    ): Modifier
 }
 
 internal class ReorderableScopeImpl(
@@ -232,6 +248,44 @@ internal class ReorderableScopeImpl(
             onDragStopped(velocity)
         },
     )
+
+    override fun Modifier.longPressDraggableHandle(
+        enabled: Boolean,
+        onDragStarted: (startedPosition: Offset) -> Unit,
+        onDragStopped: (velocity: Float) -> Unit,
+    ) = composed {
+        val velocityTracker = remember { VelocityTracker() }
+        val coroutineScope = rememberCoroutineScope()
+
+        longPressDraggable(
+            enabled = enabled && (state.isItemDragging(index).value || !state.isAnItemDragging().value),
+            onDragStarted = {
+                state.startDrag(index)
+                onDragStarted(it)
+            },
+            onDragStopped = {
+                val velocity = velocityTracker.calculateVelocity()
+                velocityTracker.resetTracking()
+
+                val velocityVal = when (orientation) {
+                    Orientation.Vertical -> velocity.y
+                    Orientation.Horizontal -> velocity.x
+                }
+                coroutineScope.launch { state.settle(index, velocityVal) }
+                onDragStopped(velocityVal)
+            },
+            onDrag = { change, dragAmount ->
+                velocityTracker.addPointerInputChange(change)
+
+                state.draggableStates[index].dispatchRawDelta(
+                    when (orientation) {
+                        Orientation.Vertical -> dragAmount.y
+                        Orientation.Horizontal -> dragAmount.x
+                    }
+                )
+            },
+        )
+    }
 }
 
 /**

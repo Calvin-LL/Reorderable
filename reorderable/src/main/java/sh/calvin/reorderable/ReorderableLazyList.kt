@@ -469,6 +469,7 @@ class ReorderableLazyListState internal constructor(
         if (scrollToIndex != null) {
             scope.launch {
                 // this is needed to neutralize automatic keeping the first item first.
+                // see https://github.com/Calvin-LL/Reorderable/issues/4
                 state.scrollToItem(scrollToIndex, state.firstVisibleItemScrollOffset)
                 onMoveState.value(draggingItem, targetItem)
             }
@@ -515,6 +516,22 @@ interface ReorderableItemScope {
         onDragStopped: suspend CoroutineScope.(velocity: Float) -> Unit = {},
         interactionSource: MutableInteractionSource? = null,
     ): Modifier
+
+
+    /**
+     * Make the UI element the draggable handle for the reorderable item. Drag will start only after a long press.
+     *
+     * This modifier can only be used on the UI element that is a child of [LazyItemScope.ReorderableItem].
+     *
+     * @param enabled Whether or not drag is enabled
+     * @param onDragStarted The function that is called when the item starts being dragged
+     * @param onDragStopped The function that is called when the item stops being dragged
+     */
+    fun Modifier.longPressDraggableHandle(
+        enabled: Boolean = true,
+        onDragStarted: (startedPosition: Offset) -> Unit = {},
+        onDragStopped: () -> Unit = {},
+    ): Modifier
 }
 
 internal class ReorderableItemScopeImpl(
@@ -523,6 +540,7 @@ internal class ReorderableItemScopeImpl(
     private val orientation: Orientation,
     private val itemPositionProvider: () -> Float
 ) : ReorderableItemScope {
+
     override fun Modifier.draggableHandle(
         enabled: Boolean,
         onDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit,
@@ -557,6 +575,51 @@ internal class ReorderableItemScopeImpl(
             onDragStopped = {
                 reorderableLazyListState.onDragStop()
                 onDragStopped(it)
+            },
+        )
+    }
+
+    override fun Modifier.longPressDraggableHandle(
+        enabled: Boolean,
+        onDragStarted: (startedPosition: Offset) -> Unit,
+        onDragStopped: () -> Unit,
+    ) = composed {
+        var handleOffset = remember { 0f }
+        var handleSize = remember { 0 }
+
+        val coroutineScope = rememberCoroutineScope()
+
+        onGloballyPositioned {
+            handleOffset = when (orientation) {
+                Orientation.Vertical -> it.positionInRoot().y
+                Orientation.Horizontal -> it.positionInRoot().x
+            }
+            handleSize = when (orientation) {
+                Orientation.Vertical -> it.size.height
+                Orientation.Horizontal -> it.size.width
+            }
+        }.longPressDraggable(
+            enabled = enabled && (reorderableLazyListState.isItemDragging(key).value || !reorderableLazyListState.isAnItemDragging().value),
+            onDragStarted = {
+                coroutineScope.launch {
+                    val handleOffsetRelativeToItem = handleOffset - itemPositionProvider()
+                    val handleCenter = handleOffsetRelativeToItem + handleSize / 2f
+
+                    reorderableLazyListState.onDragStart(key, handleCenter)
+                }
+                onDragStarted(it)
+            },
+            onDragStopped = {
+                reorderableLazyListState.onDragStop()
+                onDragStopped()
+            },
+            onDrag = { _, dragAmount ->
+                reorderableLazyListState.onDrag(
+                    offset = when (orientation) {
+                        Orientation.Vertical -> dragAmount.y
+                        Orientation.Horizontal -> dragAmount.x
+                    }
+                )
             },
         )
     }
