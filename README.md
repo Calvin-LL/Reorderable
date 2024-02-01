@@ -88,7 +88,7 @@ fun DragHandle(scope: ReorderableItemScope) {
 Here's a more complete example with (with haptic feedback):
 
 ```kotlin
-val view = LocalView.current
+val haptic = LocalHapticFeedback.current
 
 var list by remember { mutableStateOf(List(100) { "Item $it" }) }
 val lazyListState = rememberLazyListState()
@@ -97,7 +97,7 @@ val reorderableLazyColumnState = rememberReorderableLazyColumnState(lazyListStat
         add(to.index, removeAt(from.index))
     }
 
-    view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
+    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
 }
 
 LazyColumn(
@@ -116,10 +116,10 @@ LazyColumn(
                     IconButton(
                         modifier = Modifier.draggableHandle(
                             onDragStarted = {
-                                view.performHapticFeedback(HapticFeedbackConstants.DRAG_START)
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                             },
                             onDragStopped = {
-                                view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                             },
                         ),
                         onClick = {},
@@ -182,7 +182,7 @@ fun DragHandle(scope: ReorderableScope) {
 Here's a more complete example (with haptic feedback):
 
 ```kotlin
-val view = LocalView.current
+val haptic = LocalHapticFeedback.current
 
 var list by remember { mutableStateOf(List(4) { "Item $it" }) }
 
@@ -197,7 +197,7 @@ ReorderableColumn(
         }
     },
     onMove = {
-        view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
+        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
     },
     verticalArrangement = Arrangement.spacedBy(8.dp),
 ) { _, item, isDragging ->
@@ -210,10 +210,10 @@ ReorderableColumn(
                 IconButton(
                     modifier = Modifier.draggableHandle(
                         onDragStarted = {
-                            view.performHapticFeedback(HapticFeedbackConstants.DRAG_START)
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                         },
                         onDragStopped = {
-                            view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                         },
                     ),
                     onClick = {},

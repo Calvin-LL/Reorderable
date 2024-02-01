@@ -10,6 +10,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/demoApp" />
+            <option value="$PROJECT_DIR$/demoApp/composeApp" />
             <option value="$PROJECT_DIR$/reorderable" />
           </set>
         </option>
