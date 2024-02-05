@@ -256,6 +256,10 @@ You can just replace `Column` with `Row` in the `Column` examples above.
 - [`Modifier.draggableHandle`](reorderable/src/commonMain/kotlin/sh/calvin/reorderable/ReorderableList.kt)
 - [`Modifier.longPressDraggableHandle`](reorderable/src/commonMain/kotlin/sh/calvin/reorderable/ReorderableList.kt)
 
+## Contributing
+
+You'll want to install the [Kotlin Multiplatform Mobile plugin](https://plugins.jetbrains.com/plugin/14936-kotlin-multiplatform-mobile) in Android Studio before you open this project.
+
 ## License
 
 ```
