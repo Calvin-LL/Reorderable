@@ -6,6 +6,7 @@ Reorderable is a simple library that allows you to reorder items in [`LazyColumn
 
 ## Features
 
+- Supports Compose Multiplatform
 - Supports items of different sizes
 - Some items can be made non-reorderable
 - Supports dragging immediately or long press to start dragging
@@ -37,11 +38,11 @@ dependencies {
 
 ### Code
 
-See [demo app code](demoApp/src/main/java/sh/calvin/reorderable) for more examples.
+See [demo app code](demoApp/composeApp/src/commonMain/kotlin/sh/calvin/reorderable) for more examples.
 
 #### [`LazyColumn`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/lazy/package-summary#LazyColumn(androidx.compose.ui.Modifier,androidx.compose.foundation.lazy.LazyListState,androidx.compose.foundation.layout.PaddingValues,kotlin.Boolean,androidx.compose.foundation.layout.Arrangement.Vertical,androidx.compose.ui.Alignment.Horizontal,androidx.compose.foundation.gestures.FlingBehavior,kotlin.Boolean,kotlin.Function1)>)
 
-Find more examples in [`SimpleReorderableLazyColumnScreen.kt`](demoApp/src/main/java/sh/calvin/reorderable/SimpleReorderableLazyColumnScreen.kt), [`SimpleLongPressHandleReorderableLazyColumnScreen.kt`](demoApp/src/main/java/sh/calvin/reorderable/SimpleLongPressHandleReorderableLazyColumnScreen.kt) and [`ComplexReorderableLazyColumnScreen.kt`](demoApp/src/main/java/sh/calvin/reorderable/ComplexReorderableLazyColumnScreen.kt) in the demo app.
+Find more examples in [`SimpleReorderableLazyColumnScreen.kt`](demoApp/composeApp/src/commonMain/kotlin/sh/calvin/reorderable/SimpleReorderableLazyColumnScreen.kt), [`SimpleLongPressHandleReorderableLazyColumnScreen.kt`](demoApp/composeApp/src/commonMain/kotlin/sh/calvin/reorderable/SimpleLongPressHandleReorderableLazyColumnScreen.kt) and [`ComplexReorderableLazyColumnScreen.kt`](demoApp/composeApp/src/commonMain/kotlin/sh/calvin/reorderable/ComplexReorderableLazyColumnScreen.kt) in the demo app.
 
 ```kotlin
 val lazyListState = rememberLazyListState()
@@ -135,7 +136,7 @@ LazyColumn(
 
 #### [`Column`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/package-summary#Column(androidx.compose.ui.Modifier,androidx.compose.foundation.layout.Arrangement.Vertical,androidx.compose.ui.Alignment.Horizontal,kotlin.Function1)>)
 
-Find more examples in [`ReorderableColumnScreen.kt`](demoApp/src/main/java/sh/calvin/reorderable/ReorderableColumnScreen.kt) and [`LongPressHandleReorderableColumnScreen.kt`](demoApp/src/main/java/sh/calvin/reorderable/LongPressHandleReorderableColumnScreen.kt) in the demo app.
+Find more examples in [`ReorderableColumnScreen.kt`](demoApp/composeApp/src/commonMain/kotlin/sh/calvin/reorderable/ReorderableColumnScreen.kt) and [`LongPressHandleReorderableColumnScreen.kt`](demoApp/composeApp/src/commonMain/kotlin/sh/calvin/reorderable/LongPressHandleReorderableColumnScreen.kt) in the demo app.
 
 ```kotlin
 ReorderableColumn(
@@ -228,13 +229,13 @@ ReorderableColumn(
 
 #### LazyRow
 
-See [`SimpleReorderableLazyRowScreen.kt`](demoApp/src/main/java/sh/calvin/reorderable/SimpleReorderableLazyRowScreen.kt) and [`ComplexReorderableLazyRowScreen.kt`](demoApp/src/main/java/sh/calvin/reorderable/ComplexReorderableLazyRowScreen.kt) in the demo app.
+See [`SimpleReorderableLazyRowScreen.kt`](demoApp/composeApp/src/commonMain/kotlin/sh/calvin/reorderable/SimpleReorderableLazyRowScreen.kt) and [`ComplexReorderableLazyRowScreen.kt`](demoApp/composeApp/src/commonMain/kotlin/sh/calvin/reorderable/ComplexReorderableLazyRowScreen.kt) in the demo app.
 
 You can just replace `Column` with `Row` in the `LazyColumn` examples above.
 
 #### Row
 
-See [`ReorderableRowScreen.kt`](demoApp/src/main/java/sh/calvin/reorderable/ReorderableRowScreen.kt) in the demo app.
+See [`ReorderableRowScreen.kt`](demoApp/composeApp/src/commonMain/kotlin/sh/calvin/reorderable/ReorderableRowScreen.kt) in the demo app.
 
 You can just replace `Column` with `Row` in the `Column` examples above.
 
@@ -242,18 +243,18 @@ You can just replace `Column` with `Row` in the `Column` examples above.
 
 ### [`LazyColumn`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/lazy/package-summary#LazyColumn(androidx.compose.ui.Modifier,androidx.compose.foundation.lazy.LazyListState,androidx.compose.foundation.layout.PaddingValues,kotlin.Boolean,androidx.compose.foundation.layout.Arrangement.Vertical,androidx.compose.ui.Alignment.Horizontal,androidx.compose.foundation.gestures.FlingBehavior,kotlin.Boolean,kotlin.Function1)>) / [`LazyRow`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/lazy/package-summary#LazyRow(androidx.compose.ui.Modifier,androidx.compose.foundation.lazy.LazyListState,androidx.compose.foundation.layout.PaddingValues,kotlin.Boolean,androidx.compose.foundation.layout.Arrangement.Horizontal,androidx.compose.ui.Alignment.Vertical,androidx.compose.foundation.gestures.FlingBehavior,kotlin.Boolean,kotlin.Function1)>)
 
-- [`rememberReorderableLazyColumnState`](reorderable/src/main/java/sh/calvin/reorderable/ReorderableLazyList.kt)
-- [`rememberReorderableLazyRowState`](reorderable/src/main/java/sh/calvin/reorderable/ReorderableLazyList.kt)
-- [`ReorderableItem`](reorderable/src/main/java/sh/calvin/reorderable/ReorderableLazyList.kt)
-- [`Modifier.draggableHandle`](reorderable/src/main/java/sh/calvin/reorderable/ReorderableLazyList.kt)
-- [`Modifier.longPressDraggableHandle`](reorderable/src/main/java/sh/calvin/reorderable/ReorderableLazyList.kt)
+- [`rememberReorderableLazyColumnState`](reorderable/src/commonMain/kotlin/sh/calvin/reorderable/ReorderableLazyList.kt)
+- [`rememberReorderableLazyRowState`](reorderable/src/commonMain/kotlin/sh/calvin/reorderable/ReorderableLazyList.kt)
+- [`ReorderableItem`](reorderable/src/commonMain/kotlin/sh/calvin/reorderable/ReorderableLazyList.kt)
+- [`Modifier.draggableHandle`](reorderable/src/commonMain/kotlin/sh/calvin/reorderable/ReorderableLazyList.kt)
+- [`Modifier.longPressDraggableHandle`](reorderable/src/commonMain/kotlin/sh/calvin/reorderable/ReorderableLazyList.kt)
 
 ### [`Column`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/package-summary#Column(androidx.compose.ui.Modifier,androidx.compose.foundation.layout.Arrangement.Vertical,androidx.compose.ui.Alignment.Horizontal,kotlin.Function1)>) / [`Row`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/package-summary#Row(androidx.compose.ui.Modifier,androidx.compose.foundation.layout.Arrangement.Horizontal,androidx.compose.ui.Alignment.Vertical,kotlin.Function1)>)
 
-- [`ReorderableColumn`](reorderable/src/main/java/sh/calvin/reorderable/ReorderableList.kt)
-- [`ReorderableRow`](reorderable/src/main/java/sh/calvin/reorderable/ReorderableList.kt)
-- [`Modifier.draggableHandle`](reorderable/src/main/java/sh/calvin/reorderable/ReorderableList.kt)
-- [`Modifier.longPressDraggableHandle`](reorderable/src/main/java/sh/calvin/reorderable/ReorderableList.kt)
+- [`ReorderableColumn`](reorderable/src/commonMain/kotlin/sh/calvin/reorderable/ReorderableList.kt)
+- [`ReorderableRow`](reorderable/src/commonMain/kotlin/sh/calvin/reorderable/ReorderableList.kt)
+- [`Modifier.draggableHandle`](reorderable/src/commonMain/kotlin/sh/calvin/reorderable/ReorderableList.kt)
+- [`Modifier.longPressDraggableHandle`](reorderable/src/commonMain/kotlin/sh/calvin/reorderable/ReorderableList.kt)
 
 ## License
 

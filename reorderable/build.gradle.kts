@@ -1,12 +1,55 @@
+import org.jetbrains.compose.ExperimentalComposeLibrary
+
 plugins {
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("org.jetbrains.kotlin.multiplatform")
+    id("org.jetbrains.compose")
     id("maven-publish")
     id("signing")
 }
 
 group = "sh.calvin.reorderable"
 version = "1.2.0"
+
+kotlin {
+    androidTarget {
+        compilations.all {
+            kotlinOptions {
+                jvmTarget = "1.8"
+            }
+        }
+    }
+
+    jvm()
+
+    iosX64()
+    iosArm64()
+    iosSimulatorArm64()
+
+    sourceSets {
+        commonMain.dependencies {
+            implementation(compose.runtime)
+            implementation(compose.material3)
+            @OptIn(ExperimentalComposeLibrary::class)
+            implementation(compose.components.resources)
+        }
+
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+        }
+
+        androidMain.dependencies {
+            implementation("androidx.appcompat:appcompat:1.6.1")
+            implementation("androidx.activity:activity-compose:1.8.0")
+            implementation("androidx.compose.ui:ui-tooling:1.5.4")
+        }
+
+        jvmMain.dependencies {
+            implementation(compose.desktop.common)
+            implementation(compose.desktop.currentOs)
+        }
+    }
+}
 
 android {
     namespace = project.group.toString()
@@ -36,9 +79,6 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
 
     publishing {
         singleVariant("release") {
@@ -46,14 +86,6 @@ android {
             withJavadocJar()
         }
     }
-}
-
-dependencies {
-    implementation(platform("androidx.compose:compose-bom:2023.10.01"))
-    implementation("androidx.compose.animation:animation")
-    implementation("androidx.compose.foundation:foundation")
-
-    testImplementation("junit:junit:4.13.2")
 }
 
 publishing {
