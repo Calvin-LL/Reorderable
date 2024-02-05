@@ -4,8 +4,8 @@ plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.multiplatform")
     id("org.jetbrains.compose")
-    id("maven-publish")
-    id("signing")
+    id("org.jetbrains.dokka")
+    id("com.vanniktech.maven.publish")
 }
 
 group = "sh.calvin.reorderable"
@@ -30,8 +30,7 @@ kotlin {
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.material3)
-            @OptIn(ExperimentalComposeLibrary::class)
-            implementation(compose.components.resources)
+            @OptIn(ExperimentalComposeLibrary::class) implementation(compose.components.resources)
         }
 
         commonTest.dependencies {
@@ -88,54 +87,31 @@ android {
     }
 }
 
-publishing {
-    publications {
-        register<MavenPublication>("release") {
-            groupId = project.group.toString()
-            artifactId = "reorderable"
-            version = project.version.toString()
-            afterEvaluate {
-                from(components["release"])
+mavenPublishing {
+    pom {
+        name = "Reorderable"
+        description = "A library for reordering items in a LazyColumn"
+        url = "https://github.com/Calvin-LL/Reorderable"
+        inceptionYear = "2023"
+
+        licenses {
+            license {
+                name = "The Apache Software License, Version 2.0"
+                url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                distribution = "http://www.apache.org/licenses/LICENSE-2.0.txt"
             }
-
-            pom {
-                name = "Reorderable"
-                description = "A library for reordering items in a LazyColumn"
-                url = "https://github.com/Calvin-LL/Reorderable"
-
-                licenses {
-                    license {
-                        name = "The Apache Software License, Version 2.0"
-                        url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
-                        distribution = "repo"
-                    }
-                }
-                scm {
-                    connection = "scm:git:git://github.com/Calvin-LL/Reorderable.git"
-                    developerConnection = "scm:git:ssh://github.com/Calvin-LL/Reorderable.git"
-                    url = "https://github.com/Calvin-LL/Reorderable"
-                }
-                developers {
-                    developer {
-                        name = "Calvin Liang"
-                        email = "me@calvin.sh"
-                    }
-                }
+        }
+        scm {
+            connection = "scm:git:git://github.com/Calvin-LL/Reorderable.git"
+            developerConnection = "scm:git:ssh://github.com/Calvin-LL/Reorderable.git"
+            url = "https://github.com/Calvin-LL/Reorderable"
+        }
+        developers {
+            developer {
+                name = "Calvin Liang"
+                email = "me@calvin.sh"
+                url = "https://calvin.sh"
             }
         }
     }
-    repositories {
-        maven {
-            name = "sonatype"
-            url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
-            credentials {
-                username = project.properties["ossrhUsername"].toString()
-                password = project.properties["ossrhPassword"].toString()
-            }
-        }
-    }
-}
-
-signing {
-    sign(publishing.publications)
 }
