@@ -24,7 +24,7 @@ Add the following to your `build.gradle` file:
 
 ```kotlin
 dependencies {
-    implementation("sh.calvin.reorderable:reorderable:1.3.0")
+    implementation("sh.calvin.reorderable:reorderable:1.3.1")
 }
 ```
 
@@ -32,7 +32,7 @@ dependencies {
 
 ```groovy
 dependencies {
-    implementation 'sh.calvin.reorderable:reorderable:1.3.0'
+    implementation 'sh.calvin.reorderable:reorderable:1.3.1'
 }
 ```
 
