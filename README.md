@@ -6,7 +6,7 @@ Reorderable is a simple library that allows you to reorder items in [`LazyColumn
 
 ## Features
 
-- Supports Compose Multiplatform
+- Supports Compose Multiplatform (Android, iOS, Desktop/JVM)
 - Supports items of different sizes
 - Some items can be made non-reorderable
 - Supports dragging immediately or long press to start dragging
