@@ -1,10 +1,7 @@
-import org.jetbrains.compose.ExperimentalComposeLibrary
-
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.multiplatform")
     id("org.jetbrains.compose")
-    id("org.jetbrains.dokka")
     id("com.vanniktech.maven.publish")
 }
 
@@ -29,23 +26,8 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(compose.runtime)
-            implementation(compose.material3)
-            @OptIn(ExperimentalComposeLibrary::class) implementation(compose.components.resources)
-        }
-
-        commonTest.dependencies {
-            implementation(kotlin("test"))
-        }
-
-        androidMain.dependencies {
-            implementation("androidx.appcompat:appcompat:1.6.1")
-            implementation("androidx.activity:activity-compose:1.8.0")
-            implementation("androidx.compose.ui:ui-tooling:1.5.4")
-        }
-
-        jvmMain.dependencies {
-            implementation(compose.desktop.common)
-            implementation(compose.desktop.currentOs)
+            implementation(compose.animation)
+            implementation(compose.foundation)
         }
     }
 }
