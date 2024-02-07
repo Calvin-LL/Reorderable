@@ -2,15 +2,24 @@ package sh.calvin.reorderable
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -21,28 +30,48 @@ import moe.tlaster.precompose.navigation.Navigator
 import moe.tlaster.precompose.navigation.rememberNavigator
 import sh.calvin.reorderable.ui.theme.ReorderableTheme
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun App() {
     PreComposeApp {
         ReorderableTheme {
             val navController = rememberNavigator()
-
-            NavHost(
-                navController,
-                modifier = Modifier.background(MaterialTheme.colorScheme.background),
-                initialRoute = "main",
-            ) {
-                scene("main") { MainScreen(navController) }
-                scene("SimpleReorderableLazyColumn") { SimpleReorderableLazyColumnScreen() }
-                scene("ComplexReorderableLazyColumn") { ComplexReorderableLazyColumnScreen() }
-                scene("SimpleLongPressHandleReorderableLazyColumn") { SimpleLongPressHandleReorderableLazyColumnScreen() }
-                scene("ReorderableColumn") { ReorderableColumnScreen() }
-                scene("LongPressHandleReorderableColumn") { LongPressHandleReorderableColumnScreen() }
-                scene("SimpleReorderableLazyRow") { SimpleReorderableLazyRowScreen() }
-                scene("ComplexReorderableLazyRow") { ComplexReorderableLazyRowScreen() }
-                scene("ReorderableRow") { ReorderableRowScreen() }
-            }
+            val showBackButton = navController.canGoBack.collectAsState(false)
+            Scaffold(
+                topBar = {
+                    CenterAlignedTopAppBar(
+                        title = { Text("Reorderable Demo") },
+                        navigationIcon = { if (showBackButton.value) BackArrow(navController::popBackStack) },
+                    )
+                },
+                content = {
+                    Box(modifier = Modifier.padding(it)) {
+                        NavHost(
+                            navController,
+                            modifier = Modifier.background(MaterialTheme.colorScheme.background),
+                            initialRoute = "main",
+                        ) {
+                            scene("main") { MainScreen(navController) }
+                            scene("SimpleReorderableLazyColumn") { SimpleReorderableLazyColumnScreen() }
+                            scene("ComplexReorderableLazyColumn") { ComplexReorderableLazyColumnScreen() }
+                            scene("SimpleLongPressHandleReorderableLazyColumn") { SimpleLongPressHandleReorderableLazyColumnScreen() }
+                            scene("ReorderableColumn") { ReorderableColumnScreen() }
+                            scene("LongPressHandleReorderableColumn") { LongPressHandleReorderableColumnScreen() }
+                            scene("SimpleReorderableLazyRow") { SimpleReorderableLazyRowScreen() }
+                            scene("ComplexReorderableLazyRow") { ComplexReorderableLazyRowScreen() }
+                            scene("ReorderableRow") { ReorderableRowScreen() }
+                        }
+                    }
+                }
+            )
         }
+    }
+}
+
+@Composable
+private fun BackArrow(onBackAction: () -> Unit) {
+    IconButton(onClick = onBackAction) {
+        Icon(Icons.Rounded.ArrowBack, contentDescription = "Back")
     }
 }
 
