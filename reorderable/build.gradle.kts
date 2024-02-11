@@ -1,6 +1,6 @@
 plugins {
-    id("com.android.library")
     id("org.jetbrains.kotlin.multiplatform")
+    id("com.android.library")
     id("org.jetbrains.compose")
     id("com.vanniktech.maven.publish")
 }
@@ -20,9 +20,21 @@ kotlin {
 
     jvm()
 
-    iosX64()
-    iosArm64()
-    iosSimulatorArm64()
+    wasmJs {
+        browser()
+        binaries.executable()
+    }
+
+    listOf(
+        iosX64(),
+        iosArm64(),
+        iosSimulatorArm64()
+    ).forEach {
+        it.binaries.framework {
+            baseName = "reorderable"
+            isStatic = true
+        }
+    }
 
     sourceSets {
         commonMain.dependencies {
