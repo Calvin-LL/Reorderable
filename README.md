@@ -258,6 +258,16 @@ You can just replace `Column` with `Row` in the `Column` examples above.
 - [`Modifier.draggableHandle`](reorderable/src/commonMain/kotlin/sh/calvin/reorderable/demo/ReorderableList.kt)
 - [`Modifier.longPressDraggableHandle`](reorderable/src/commonMain/kotlin/sh/calvin/reorderable/demo/ReorderableList.kt)
 
+## Running the demo app
+
+To run the Android demo app, open the project in Android Studio and run the app.
+
+To run the iOS, open the iosApp project in Xcode and run the app.
+
+To run the web demo app, run `./gradlew :composeApp:wasmJsBrowserDevelopmentRun`.
+
+To run the desktop demo app, run `./gradlew :demoApp:ComposeApp:run`.
+
 ## Contributing
 
 Open this project with Android Studio Preview.
