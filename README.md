@@ -407,7 +407,9 @@ You can just replace `Column` with `Row` in the `Column` examples above.
 
 To run the Android demo app, open the project in Android Studio and run the app.
 
-To run the iOS, open the iosApp project in Xcode and run the app.
+To run the iOS demo app, open the iosApp project in Xcode and run the app or add the following Configuration to the Android Studio project, you may need to install the [Kotlin Multiplatform Mobile plugin](https://plugins.jetbrains.com/plugin/14936-kotlin-multiplatform-mobile) first.
+
+![Screenshot 2024-02-10 at 20 58 54](https://github.com/Calvin-LL/Reorderable/assets/8357970/817a17bf-360f-4a0b-9a18-219f9f9eba28)
 
 To run the web demo app, run `./gradlew :composeApp:wasmJsBrowserDevelopmentRun`.
 
