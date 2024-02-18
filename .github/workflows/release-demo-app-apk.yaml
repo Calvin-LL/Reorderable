@@ -1,0 +1,33 @@
+name: Release demo app APK
+# add demo app APK to the latest release
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: Build APK
+        run: ./gradlew assembleDebug --stacktrace
+      - name: Get latest release
+        id: latest_release
+        uses: pozetroninc/github-action-get-latest-release@master
+        with:
+          repository: ${{ github.repository }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          excludes: prerelease, draft
+      - name: Upload APK
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload ${{ steps.latest_release.outputs.release }} demoApp/composeApp/build/outputs/apk/debug/composeApp-debug.apk%#%demoApp.apk --clobber
