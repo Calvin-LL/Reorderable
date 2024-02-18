@@ -30,4 +30,4 @@ jobs:
       - name: Upload APK
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload ${{ steps.latest_release.outputs.release }} demoApp/composeApp/build/outputs/apk/debug/composeApp-debug.apk%#%demoApp.apk --clobber
+        run: gh release upload ${{ steps.latest_release.outputs.release }} demoApp/composeApp/build/outputs/apk/debug/composeApp-debug.apk#demoApp.apk --clobber
