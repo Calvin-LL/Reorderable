@@ -1,4 +1,4 @@
-package sh.calvin.reorderable
+package sh.calvin.reorderable.demo
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -17,13 +17,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
+import sh.calvin.reorderable.ReorderableColumn
 
 @Composable
-fun LongPressHandleReorderableColumnScreen() {
-    val haptic = LocalHapticFeedback.current
+fun ReorderableColumnScreen() {
+    val haptic = rememberReorderHapticFeedback()
 
     var list by remember { mutableStateOf(items.take(5)) }
 
@@ -38,7 +37,7 @@ fun LongPressHandleReorderableColumnScreen() {
             }
         },
         onMove = {
-            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+            haptic.performHapticFeedback(ReorderHapticFeedbackType.MOVE)
         },
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) { _, item, isDragging ->
@@ -51,12 +50,12 @@ fun LongPressHandleReorderableColumnScreen() {
             ) {
                 Text(item.text, Modifier.padding(horizontal = 8.dp))
                 IconButton(
-                    modifier = Modifier.longPressDraggableHandle(
+                    modifier = Modifier.draggableHandle(
                         onDragStarted = {
-                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            haptic.performHapticFeedback(ReorderHapticFeedbackType.START)
                         },
                         onDragStopped = {
-                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            haptic.performHapticFeedback(ReorderHapticFeedbackType.END)
                         },
                     ),
                     onClick = {},

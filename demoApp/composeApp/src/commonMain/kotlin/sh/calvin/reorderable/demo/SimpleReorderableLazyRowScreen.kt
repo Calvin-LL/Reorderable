@@ -1,4 +1,4 @@
-package sh.calvin.reorderable
+package sh.calvin.reorderable.demo
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -24,14 +24,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
+import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.rememberReorderableLazyRowState
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SimpleReorderableLazyRowScreen() {
-    val haptic = LocalHapticFeedback.current
+    val haptic = rememberReorderHapticFeedback()
 
     var list by remember { mutableStateOf(items) }
     val lazyListState = rememberLazyListState()
@@ -40,7 +40,7 @@ fun SimpleReorderableLazyRowScreen() {
             add(to.index, removeAt(from.index))
         }
 
-        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+        haptic.performHapticFeedback(ReorderHapticFeedbackType.MOVE)
     }
 
     LazyRow(
@@ -67,10 +67,10 @@ fun SimpleReorderableLazyRowScreen() {
                         IconButton(
                             modifier = Modifier.draggableHandle(
                                 onDragStarted = {
-                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    haptic.performHapticFeedback(ReorderHapticFeedbackType.START)
                                 },
                                 onDragStopped = {
-                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    haptic.performHapticFeedback(ReorderHapticFeedbackType.END)
                                 },
                             ),
                             onClick = {},

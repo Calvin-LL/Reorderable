@@ -1,4 +1,4 @@
-package sh.calvin.reorderable
+package sh.calvin.reorderable.demo
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -21,14 +21,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
+import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.rememberReorderableLazyColumnState
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun SimpleReorderableLazyColumnScreen() {
-    val haptic = LocalHapticFeedback.current
+fun SimpleLongPressHandleReorderableLazyColumnScreen() {
+    val haptic = rememberReorderHapticFeedback()
 
     var list by remember { mutableStateOf(items) }
     val lazyListState = rememberLazyListState()
@@ -37,7 +37,7 @@ fun SimpleReorderableLazyColumnScreen() {
             add(to.index, removeAt(from.index))
         }
 
-        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+        haptic.performHapticFeedback(ReorderHapticFeedbackType.MOVE)
     }
 
     LazyColumn(
@@ -56,12 +56,12 @@ fun SimpleReorderableLazyColumnScreen() {
                 ) {
                     Text(it.text, Modifier.padding(horizontal = 8.dp))
                     IconButton(
-                        modifier = Modifier.draggableHandle(
+                        modifier = Modifier.longPressDraggableHandle(
                             onDragStarted = {
-                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                haptic.performHapticFeedback(ReorderHapticFeedbackType.START)
                             },
                             onDragStopped = {
-                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                haptic.performHapticFeedback(ReorderHapticFeedbackType.END)
                             },
                         ),
                         onClick = {},

@@ -1,4 +1,4 @@
-package sh.calvin.reorderable
+package sh.calvin.reorderable.demo
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity

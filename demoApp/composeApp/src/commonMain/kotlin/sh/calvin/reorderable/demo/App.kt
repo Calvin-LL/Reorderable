@@ -1,4 +1,4 @@
-package sh.calvin.reorderable
+package sh.calvin.reorderable.demo
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -28,7 +28,7 @@ import moe.tlaster.precompose.PreComposeApp
 import moe.tlaster.precompose.navigation.NavHost
 import moe.tlaster.precompose.navigation.Navigator
 import moe.tlaster.precompose.navigation.rememberNavigator
-import sh.calvin.reorderable.ui.theme.ReorderableTheme
+import sh.calvin.reorderable.demo.ui.theme.ReorderableTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

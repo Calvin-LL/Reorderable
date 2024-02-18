@@ -1,4 +1,4 @@
-package sh.calvin.reorderable
+package sh.calvin.reorderable.demo
 
 data class Item(val id: Int, val text: String, val size: Int)
 

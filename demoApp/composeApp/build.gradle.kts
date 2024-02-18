@@ -57,11 +57,11 @@ kotlin {
 }
 
 android {
-    namespace = "sh.calvin.reorderable"
+    namespace = "sh.calvin.reorderable.demo"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "sh.calvin.reorderable"
+        applicationId = "sh.calvin.reorderable.demo"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
@@ -108,7 +108,7 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "sh.calvin.reorderable"
+            packageName = "sh.calvin.reorderable.demo"
             packageVersion = "1.0.0"
         }
     }

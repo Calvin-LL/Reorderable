@@ -1,15 +1,14 @@
-package sh.calvin.reorderable
+package sh.calvin.reorderable.demo
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
@@ -23,20 +22,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
+import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.rememberReorderableLazyColumnState
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ComplexReorderableLazyRowScreen() {
-    val haptic = LocalHapticFeedback.current
+fun ComplexReorderableLazyColumnScreen() {
+    val haptic = rememberReorderHapticFeedback()
 
     var list by remember { mutableStateOf(items) }
     val lazyListState = rememberLazyListState()
-    val reorderableLazyRowState = rememberReorderableLazyRowState(lazyListState) { from, to ->
+    val reorderableLazyColumnState = rememberReorderableLazyColumnState(lazyListState) { from, to ->
         list = list.toMutableList().apply {
             // can't use .index because there are other items in the list (headers, footers, etc)
             val fromIndex = indexOfFirst { it.id == from.key }
@@ -45,65 +43,52 @@ fun ComplexReorderableLazyRowScreen() {
             add(toIndex, removeAt(fromIndex))
         }
 
-        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+        haptic.performHapticFeedback(ReorderHapticFeedbackType.MOVE)
     }
 
-    LazyRow(
+    LazyColumn(
         modifier = Modifier.fillMaxSize(),
         state = lazyListState,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         item {
-            Text(
-                "Header",
-                Modifier
-                    .height(144.dp)
-                    .padding(8.dp),
-                MaterialTheme.colorScheme.onBackground,
-            )
+            Text("Header", Modifier.padding(8.dp), MaterialTheme.colorScheme.onBackground)
         }
         list.chunked(5).forEachIndexed { index, subList ->
             stickyHeader {
                 Text(
-                    "$index",
+                    "Sticky Header $index",
                     Modifier
                         .animateItemPlacement()
-                        .height(144.dp)
+                        .fillMaxWidth()
                         .background(MaterialTheme.colorScheme.secondaryContainer)
                         .padding(8.dp),
                     MaterialTheme.colorScheme.onSecondaryContainer,
                 )
             }
             items(subList, key = { it.id }) {
-                ReorderableItem(reorderableLazyRowState, it.id) { isDragging ->
+                ReorderableItem(reorderableLazyColumnState, it.id) { isDragging ->
                     val elevation by animateDpAsState(if (isDragging) 4.dp else 0.dp)
 
                     Card(
                         modifier = Modifier
-                            .width(it.size.dp)
-                            .height(128.dp)
-                            .padding(vertical = 8.dp),
+                            .height(it.size.dp)
+                            .padding(horizontal = 8.dp),
                         shadowElevation = elevation,
                     ) {
-                        Column(
-                            Modifier.fillMaxSize(),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.SpaceBetween,
+                        Text(it.text, Modifier.padding(horizontal = 8.dp))
+                        IconButton(
+                            modifier = Modifier.draggableHandle(
+                                onDragStarted = {
+                                    haptic.performHapticFeedback(ReorderHapticFeedbackType.START)
+                                },
+                                onDragStopped = {
+                                    haptic.performHapticFeedback(ReorderHapticFeedbackType.END)
+                                },
+                            ),
+                            onClick = {},
                         ) {
-                            IconButton(
-                                modifier = Modifier.draggableHandle(
-                                    onDragStarted = {
-                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                    },
-                                    onDragStopped = {
-                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                    },
-                                ),
-                                onClick = {},
-                            ) {
-                                Icon(Icons.Rounded.DragHandle, contentDescription = "Reorder")
-                            }
-                            Text(it.text, Modifier.padding(8.dp))
+                            Icon(Icons.Rounded.DragHandle, contentDescription = "Reorder")
                         }
                     }
                 }
