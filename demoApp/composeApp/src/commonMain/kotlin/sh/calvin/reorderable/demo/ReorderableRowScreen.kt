@@ -1,6 +1,7 @@
 package sh.calvin.reorderable.demo
 
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,6 +10,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.DragHandle
+import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -23,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import sh.calvin.reorderable.ReorderableRow
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReorderableRowScreen() {
     val haptic = rememberReorderHapticFeedback()
@@ -43,15 +47,16 @@ fun ReorderableRowScreen() {
             haptic.performHapticFeedback(ReorderHapticFeedbackType.MOVE)
         },
         horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) { _, item, isDragging ->
+    ) { _, item, _ ->
         key(item.id) {
-            val elevation by animateDpAsState(if (isDragging) 4.dp else 0.dp)
+            val interactionSource = remember { MutableInteractionSource() }
 
             Card(
+                onClick = {},
                 modifier = Modifier
                     .width(item.size.dp)
                     .height(128.dp),
-                shadowElevation = elevation,
+                interactionSource = interactionSource,
             ) {
                 Column(
                     Modifier.fillMaxSize(),
@@ -66,6 +71,7 @@ fun ReorderableRowScreen() {
                             onDragStopped = {
                                 haptic.performHapticFeedback(ReorderHapticFeedbackType.END)
                             },
+                            interactionSource = interactionSource,
                         ),
                         onClick = {},
                     ) {
