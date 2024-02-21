@@ -220,6 +220,7 @@ interface ReorderableScope {
         enabled: Boolean = true,
         onDragStarted: (startedPosition: Offset) -> Unit = {},
         onDragStopped: (velocity: Float) -> Unit = {},
+        interactionSource: MutableInteractionSource? = null,
     ): Modifier
 }
 
@@ -253,12 +254,14 @@ internal class ReorderableScopeImpl(
         enabled: Boolean,
         onDragStarted: (startedPosition: Offset) -> Unit,
         onDragStopped: (velocity: Float) -> Unit,
+        interactionSource: MutableInteractionSource?,
     ) = composed {
         val velocityTracker = remember { VelocityTracker() }
         val coroutineScope = rememberCoroutineScope()
 
         longPressDraggable(
             enabled = enabled && (state.isItemDragging(index).value || !state.isAnItemDragging().value),
+            interactionSource = interactionSource,
             onDragStarted = {
                 state.startDrag(index)
                 onDragStarted(it)

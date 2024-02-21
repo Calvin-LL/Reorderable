@@ -531,6 +531,7 @@ interface ReorderableItemScope {
         enabled: Boolean = true,
         onDragStarted: (startedPosition: Offset) -> Unit = {},
         onDragStopped: () -> Unit = {},
+        interactionSource: MutableInteractionSource? = null,
     ): Modifier
 }
 
@@ -583,6 +584,7 @@ internal class ReorderableItemScopeImpl(
         enabled: Boolean,
         onDragStarted: (startedPosition: Offset) -> Unit,
         onDragStopped: () -> Unit,
+        interactionSource: MutableInteractionSource?,
     ) = composed {
         var handleOffset = remember { 0f }
         var handleSize = remember { 0 }
@@ -600,6 +602,7 @@ internal class ReorderableItemScopeImpl(
             }
         }.longPressDraggable(
             enabled = enabled && (reorderableLazyListState.isItemDragging(key).value || !reorderableLazyListState.isAnItemDragging().value),
+            interactionSource = interactionSource,
             onDragStarted = {
                 coroutineScope.launch {
                     val handleOffsetRelativeToItem = handleOffset - itemPositionProvider()
