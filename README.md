@@ -38,13 +38,22 @@ dependencies {
 }
 ```
 
-### Code
+### Examples
 
 See [demo app code](demoApp/composeApp/src/commonMain/kotlin/sh/calvin/reorderable/demo) for more examples.
+
+#### Table of Contents
+
+- [`LazyColumn`](#lazycolumn)
+- [`Column`](#column)
+- [`LazyRow`](#lazyrow)
+- [`Row`](#row)
 
 #### [`LazyColumn`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/lazy/package-summary#LazyColumn(androidx.compose.ui.Modifier,androidx.compose.foundation.lazy.LazyListState,androidx.compose.foundation.layout.PaddingValues,kotlin.Boolean,androidx.compose.foundation.layout.Arrangement.Vertical,androidx.compose.ui.Alignment.Horizontal,androidx.compose.foundation.gestures.FlingBehavior,kotlin.Boolean,kotlin.Function1)>)
 
 Find more examples in [`SimpleReorderableLazyColumnScreen.kt`](demoApp/composeApp/src/commonMain/kotlin/sh/calvin/reorderable/demo/SimpleReorderableLazyColumnScreen.kt), [`SimpleLongPressHandleReorderableLazyColumnScreen.kt`](demoApp/composeApp/src/commonMain/kotlin/sh/calvin/reorderable/demo/SimpleLongPressHandleReorderableLazyColumnScreen.kt) and [`ComplexReorderableLazyColumnScreen.kt`](demoApp/composeApp/src/commonMain/kotlin/sh/calvin/reorderable/demo/ComplexReorderableLazyColumnScreen.kt) in the demo app.
+
+To use this library with [`LazyColumn`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/lazy/package-summary#LazyColumn(androidx.compose.ui.Modifier,androidx.compose.foundation.lazy.LazyListState,androidx.compose.foundation.layout.PaddingValues,kotlin.Boolean,androidx.compose.foundation.layout.Arrangement.Vertical,androidx.compose.ui.Alignment.Horizontal,androidx.compose.foundation.gestures.FlingBehavior,kotlin.Boolean,kotlin.Function1)>), follow this basic structure:
 
 ```kotlin
 val lazyListState = rememberLazyListState()
@@ -57,7 +66,10 @@ LazyColumn(state = lazyListState) {
         ReorderableItem(reorderableLazyColumnState, key = /* item key */) { isDragging ->
             // Item content
 
-            IconButton(modifier = Modifier.draggableHandle(), /* ... */)
+            IconButton(
+                modifier = Modifier.draggableHandle(),
+                /* ... */
+            )
         }
     }
 }
@@ -84,7 +96,12 @@ fun List() {
 
 @Composable
 fun DragHandle(scope: ReorderableItemScope) {
-    IconButton(modifier = with(scope) { Modifier.draggableHandle() }, /* ... */)
+    IconButton(
+        modifier = with(scope) {
+            Modifier.draggableHandle()
+        },
+        /* ... */
+    )
 }
 ```
 
@@ -136,9 +153,63 @@ LazyColumn(
 }
 ```
 
+If you want to use the [material3's Clickable Card](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>), you can create a [`MutableInteractionSource`](https://developer.android.com/reference/kotlin/androidx/compose/foundation/interaction/MutableInteractionSource) and pass it to both the [`Card`](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>) and the `Modifier.draggableHandle` (or `Modifier.longPressDraggableHandle`), `Modifier.draggableHandle` will emit drag events to the [`MutableInteractionSource`](https://developer.android.com/reference/kotlin/androidx/compose/foundation/interaction/MutableInteractionSource) so that the [`Card`](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>) can respond to the drag events:
+
+```kotlin
+val view = LocalView.current
+
+var list by remember { mutableStateOf(List(100) { "Item $it" }) }
+val lazyListState = rememberLazyListState()
+val reorderableLazyColumnState = rememberReorderableLazyColumnState(lazyListState) { from, to ->
+    list = list.toMutableList().apply {
+        add(to.index, removeAt(from.index))
+    }
+
+    view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
+}
+
+LazyColumn(
+    modifier = Modifier.fillMaxSize(),
+    state = lazyListState,
+    contentPadding = PaddingValues(8.dp),
+    verticalArrangement = Arrangement.spacedBy(8.dp)
+) {
+    items(list, key = { it }) { item ->
+        ReorderableItem(reorderableLazyColumnState, key = item) {
+            val interactionSource = remember { MutableInteractionSource() }
+
+            Card(
+                onClick = {},
+                interactionSource = interactionSource,
+            ) {
+                Row {
+                    Text(item, Modifier.padding(horizontal = 8.dp))
+                    IconButton(
+                        modifier = Modifier.draggableHandle(
+                            onDragStarted = {
+                                view.performHapticFeedback(HapticFeedbackConstants.DRAG_START)
+                            },
+                            onDragStopped = {
+                                view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
+                            },
+                            interactionSource = interactionSource,
+                        ),
+                        onClick = {},
+                    ) {
+                        Icon(Icons.Rounded.DragHandle, contentDescription = "Reorder")
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
 #### [`Column`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/package-summary#Column(androidx.compose.ui.Modifier,androidx.compose.foundation.layout.Arrangement.Vertical,androidx.compose.ui.Alignment.Horizontal,kotlin.Function1)>)
 
 Find more examples in [`ReorderableColumnScreen.kt`](demoApp/composeApp/src/commonMain/kotlin/sh/calvin/reorderable/demo/ReorderableColumnScreen.kt) and [`LongPressHandleReorderableColumnScreen.kt`](demoApp/composeApp/src/commonMain/kotlin/sh/calvin/reorderable/demo/LongPressHandleReorderableColumnScreen.kt) in the demo app.
+
+To use this library with [`Column`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/package-summary#Column(androidx.compose.ui.Modifier,androidx.compose.foundation.layout.Arrangement.Vertical,androidx.compose.ui.Alignment.Horizontal,kotlin.Function1)>), follow this basic structure:
 
 ```kotlin
 ReorderableColumn(
@@ -218,6 +289,57 @@ ReorderableColumn(
                         onDragStopped = {
                             view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
                         },
+                    ),
+                    onClick = {},
+                ) {
+                    Icon(Icons.Rounded.DragHandle, contentDescription = "Reorder")
+                }
+            }
+        }
+    }
+}
+```
+
+If you want to use the [material3's Clickable Card](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>), you can create a [`MutableInteractionSource`](https://developer.android.com/reference/kotlin/androidx/compose/foundation/interaction/MutableInteractionSource) and pass it to both the [`Card`](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>) and the `Modifier.draggableHandle` (or `Modifier.longPressDraggableHandle`), `Modifier.draggableHandle` will emit drag events to the [`MutableInteractionSource`](https://developer.android.com/reference/kotlin/androidx/compose/foundation/interaction/MutableInteractionSource) so that the [`Card`](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>) can respond to the drag events:
+
+```kotlin
+val view = LocalView.current
+
+var list by remember { mutableStateOf(List(4) { "Item $it" }) }
+
+ReorderableColumn(
+    modifier = Modifier
+        .fillMaxSize()
+        .padding(8.dp),
+    list = list,
+    onSettle = { fromIndex, toIndex ->
+        list = list.toMutableList().apply {
+            add(toIndex, removeAt(fromIndex))
+        }
+    },
+    onMove = {
+        view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
+    },
+    verticalArrangement = Arrangement.spacedBy(8.dp),
+) { _, item, _ ->
+    key(item) {
+        val interactionSource = remember { MutableInteractionSource() }
+
+        Card(
+            onClick = {},
+            interactionSource = interactionSource,
+        ) {
+            Row {
+                Text(item, Modifier.padding(horizontal = 8.dp))
+                IconButton(
+                    modifier = Modifier.draggableHandle(
+                        onDragStarted = {
+                            view.performHapticFeedback(HapticFeedbackConstants.DRAG_START)
+                        },
+                        onDragStopped = {
+                            view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
+                        },
+                        interactionSource = interactionSource,
                     ),
                     onClick = {},
                 ) {
