@@ -19,9 +19,31 @@ The latest demo app APK can be found in the [releases](https://github.com/Calvin
 
 ## Usage
 
+### Version Catalog
+
+If you're using Version Catalog, add the following to your `libs.versions.toml` file:
+
+```toml
+[versions]
+#...
+reorderable = "1.3.3"
+
+[libraries]
+#...
+reorderable = { module = "sh.calvin.reorderable:reorderable", version.ref = "reorderable" }
+```
+
+or
+
+```toml
+[libraries]
+#...
+reorderable = { module = "sh.calvin.reorderable:reorderable", version = "1.3.3" }
+```
+
 ### Gradle
 
-Add the following to your `build.gradle` file:
+If you're using Gradle instead, add the following to your `build.gradle` file:
 
 #### Kotlin DSL
 
