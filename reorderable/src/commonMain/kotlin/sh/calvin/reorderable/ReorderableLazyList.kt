@@ -459,6 +459,21 @@ class ReorderableLazyListState internal constructor(
         }
         draggingItemTargetIndex = targetItem.index
 
+        // TODO: when `requestScrollToItem` is released uncomment this and remove `scrollToIndex` and the following `if` block
+        // see https://android-review.googlesource.com/c/platform/frameworks/support/+/2987293
+        // see https://github.com/Calvin-LL/Reorderable/issues/4
+//        if (
+//            draggingItem.index == state.firstVisibleItemIndex ||
+//            targetItem.index == state.firstVisibleItemIndex
+//        ) {
+//            state.requestScrollToItem(
+//                state.firstVisibleItemIndex,
+//                state.firstVisibleItemScrollOffset
+//            )
+//        }
+//
+//        onMoveState.value(draggingItem, targetItem)
+
         val scrollToIndex = if (targetItem.index == state.firstVisibleItemIndex) {
             draggingItem.index
         } else if (draggingItem.index == state.firstVisibleItemIndex) {
