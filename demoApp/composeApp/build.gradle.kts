@@ -44,13 +44,13 @@ kotlin {
             implementation(compose.material3)
             implementation(compose.materialIconsExtended)
             implementation(compose.components.resources)
-            implementation("moe.tlaster:precompose:1.6.0-beta02")
+            implementation("moe.tlaster:precompose:1.6.0-rc04")
             implementation(project(":reorderable"))
         }
 
         androidMain.dependencies {
             implementation("androidx.activity:activity-compose:1.8.2")
-            implementation("androidx.compose.ui:ui-tooling:1.6.2")
+            implementation("androidx.compose.ui:ui-tooling:1.6.4")
         }
 
         jvmMain.dependencies {
