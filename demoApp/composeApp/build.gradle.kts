@@ -1,4 +1,3 @@
-import org.jetbrains.compose.ExperimentalComposeLibrary
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
@@ -18,6 +17,16 @@ kotlin {
 
     jvm()
 
+    wasmJs {
+        moduleName = "composeApp"
+        browser {
+            commonWebpackConfig {
+                outputFileName = "composeApp.js"
+            }
+        }
+        binaries.executable()
+    }
+
     listOf(
         iosX64(),
         iosArm64(),
@@ -34,19 +43,14 @@ kotlin {
             implementation(compose.runtime)
             implementation(compose.material3)
             implementation(compose.materialIconsExtended)
-            @OptIn(ExperimentalComposeLibrary::class)
             implementation(compose.components.resources)
-            implementation("moe.tlaster:precompose:1.5.10")
+            implementation("moe.tlaster:precompose:1.6.0-rc04")
             implementation(project(":reorderable"))
-        }
-
-        commonTest.dependencies {
-            implementation(kotlin("test"))
         }
 
         androidMain.dependencies {
             implementation("androidx.activity:activity-compose:1.8.2")
-            implementation("androidx.compose.ui:ui-tooling:1.6.2")
+            implementation("androidx.compose.ui:ui-tooling:1.6.4")
         }
 
         jvmMain.dependencies {
@@ -73,7 +77,7 @@ android {
     }
     sourceSets["main"].apply {
         manifest.srcFile("src/androidMain/AndroidManifest.xml")
-        res.srcDirs("src/androidMain/resources")
+        res.srcDirs("src/androidMain/res")
         resources.srcDirs("src/commonMain/resources")
     }
     buildTypes {
@@ -112,4 +116,8 @@ compose.desktop {
             packageVersion = "1.0.0"
         }
     }
+}
+
+compose.experimental {
+    web.application {}
 }

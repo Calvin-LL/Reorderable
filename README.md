@@ -8,14 +8,13 @@ The latest demo app APK can be found in the [releases](https://github.com/Calvin
 
 ## Features
 
-- Supports Compose Multiplatform (Android, iOS, Desktop/JVM)
+- Supports Compose Multiplatform (Android, iOS, Desktop/JVM, Wasm)
 - Supports items of different sizes
 - Some items can be made non-reorderable
 - Supports dragging immediately or long press to start dragging
 - Scrolls when dragging to the edge of the screen (only for [`LazyColumn`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/lazy/package-summary#LazyColumn(androidx.compose.ui.Modifier,androidx.compose.foundation.lazy.LazyListState,androidx.compose.foundation.layout.PaddingValues,kotlin.Boolean,androidx.compose.foundation.layout.Arrangement.Vertical,androidx.compose.ui.Alignment.Horizontal,androidx.compose.foundation.gestures.FlingBehavior,kotlin.Boolean,kotlin.Function1)>) and [`LazyRow`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/lazy/package-summary#LazyRow(androidx.compose.ui.Modifier,androidx.compose.foundation.lazy.LazyListState,androidx.compose.foundation.layout.PaddingValues,kotlin.Boolean,androidx.compose.foundation.layout.Arrangement.Horizontal,androidx.compose.ui.Alignment.Vertical,androidx.compose.foundation.gestures.FlingBehavior,kotlin.Boolean,kotlin.Function1)>)) The scroll speed is based on the distance from the edge of the screen
 - Uses the new [`Modifier.animateItemPlacement`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/lazy/LazyItemScope#(androidx.compose.ui.Modifier).animateItemPlacement(androidx.compose.animation.core.FiniteAnimationSpec)>) API to animate item movement in [`LazyColumn`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/lazy/package-summary#LazyColumn(androidx.compose.ui.Modifier,androidx.compose.foundation.lazy.LazyListState,androidx.compose.foundation.layout.PaddingValues,kotlin.Boolean,androidx.compose.foundation.layout.Arrangement.Vertical,androidx.compose.ui.Alignment.Horizontal,androidx.compose.foundation.gestures.FlingBehavior,kotlin.Boolean,kotlin.Function1)>) and [`LazyRow`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/lazy/package-summary#LazyRow(androidx.compose.ui.Modifier,androidx.compose.foundation.lazy.LazyListState,androidx.compose.foundation.layout.PaddingValues,kotlin.Boolean,androidx.compose.foundation.layout.Arrangement.Horizontal,androidx.compose.ui.Alignment.Vertical,androidx.compose.foundation.gestures.FlingBehavior,kotlin.Boolean,kotlin.Function1)>)
 - Supports using a child of an item as the drag handle
-- Supports Wasm in [`1.4.0-beta02`](https://github.com/Calvin-LL/Reorderable/tree/beta/v1.4.0-beta02)
 
 ## Usage
 
@@ -26,7 +25,7 @@ If you're using Version Catalog, add the following to your `libs.versions.toml` 
 ```toml
 [versions]
 #...
-reorderable = "1.3.3"
+reorderable = "1.4.0"
 
 [libraries]
 #...
@@ -38,7 +37,7 @@ or
 ```toml
 [libraries]
 #...
-reorderable = { module = "sh.calvin.reorderable:reorderable", version = "1.3.3" }
+reorderable = { module = "sh.calvin.reorderable:reorderable", version = "1.4.0" }
 ```
 
 ### Gradle
@@ -49,7 +48,7 @@ If you're using Gradle instead, add the following to your `build.gradle` file:
 
 ```kotlin
 dependencies {
-    implementation("sh.calvin.reorderable:reorderable:1.3.3")
+    implementation("sh.calvin.reorderable:reorderable:1.4.0")
 }
 ```
 
@@ -57,7 +56,7 @@ dependencies {
 
 ```groovy
 dependencies {
-    implementation 'sh.calvin.reorderable:reorderable:1.3.3'
+    implementation 'sh.calvin.reorderable:reorderable:1.4.0'
 }
 ```
 
@@ -402,6 +401,18 @@ You can just replace `Column` with `Row` in the `Column` examples above.
 - [`ReorderableRow`](reorderable/src/commonMain/kotlin/sh/calvin/reorderable/demo/ReorderableList.kt)
 - [`Modifier.draggableHandle`](reorderable/src/commonMain/kotlin/sh/calvin/reorderable/demo/ReorderableList.kt)
 - [`Modifier.longPressDraggableHandle`](reorderable/src/commonMain/kotlin/sh/calvin/reorderable/demo/ReorderableList.kt)
+
+## Running the demo app
+
+To run the Android demo app, open the project in Android Studio and run the app.
+
+To run the iOS demo app, open the iosApp project in Xcode and run the app or add the following Configuration to the Android Studio project, you may need to install the [Kotlin Multiplatform Mobile plugin](https://plugins.jetbrains.com/plugin/14936-kotlin-multiplatform-mobile) first.
+
+![Screenshot 2024-02-10 at 20 58 54](https://github.com/Calvin-LL/Reorderable/assets/8357970/817a17bf-360f-4a0b-9a18-219f9f9eba28)
+
+To run the web demo app, run `./gradlew :composeApp:wasmJsBrowserDevelopmentRun`.
+
+To run the desktop demo app, run `./gradlew :demoApp:ComposeApp:run`.
 
 ## Contributing
 
