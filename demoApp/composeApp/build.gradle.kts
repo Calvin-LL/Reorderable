@@ -1,9 +1,10 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 
 plugins {
-    id("org.jetbrains.kotlin.multiplatform")
-    id("org.jetbrains.compose")
-    id("com.android.application")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.compose)
 }
 
 kotlin {
@@ -17,6 +18,7 @@ kotlin {
 
     jvm()
 
+    @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         moduleName = "composeApp"
         browser {
@@ -44,13 +46,13 @@ kotlin {
             implementation(compose.material3)
             implementation(compose.materialIconsExtended)
             implementation(compose.components.resources)
-            implementation("moe.tlaster:precompose:1.6.0-rc04")
+            implementation(libs.precompose)
             implementation(project(":reorderable"))
         }
 
         androidMain.dependencies {
-            implementation("androidx.activity:activity-compose:1.8.2")
-            implementation("androidx.compose.ui:ui-tooling:1.6.4")
+            implementation(libs.androidx.activity.compose)
+            implementation(libs.androidx.ui.tooling)
         }
 
         jvmMain.dependencies {

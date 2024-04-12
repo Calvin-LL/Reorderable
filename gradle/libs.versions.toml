@@ -1,0 +1,20 @@
+[versions]
+activityCompose = "1.8.2"
+agp = "8.2.2"
+compose = "1.6.1"
+kotlin = "1.9.23"
+mavenPublish = "0.27.0"
+precompose = "1.6.0"
+uiTooling = "1.6.5"
+
+[libraries]
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
+androidx-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "uiTooling" }
+precompose = { module = "moe.tlaster:precompose", version.ref = "precompose" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+compose = { id = "org.jetbrains.compose", version.ref = "compose" }
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "mavenPublish" }
