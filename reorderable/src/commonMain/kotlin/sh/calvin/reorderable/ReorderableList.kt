@@ -87,6 +87,9 @@ class ReorderableListState internal constructor(
     }.toMutableStateList()
     private var draggingItemIndex by mutableStateOf<Int?>(null)
     private var animatingItemIndex by mutableStateOf<Int?>(null)
+    internal val isAnyItemDragging by derivedStateOf {
+        draggingItemIndex != null
+    }
     internal val draggableStates = List(listSize) { i ->
         DraggableState {
             if (!isItemDragging(i).value) return@DraggableState
@@ -129,11 +132,6 @@ class ReorderableListState internal constructor(
         }
     }.toMutableStateList()
 
-    internal fun isAnItemDragging(): State<Boolean> {
-        return derivedStateOf {
-            draggingItemIndex != null
-        }
-    }
 
     internal fun isItemDragging(i: Int): State<Boolean> {
         return derivedStateOf {
@@ -238,7 +236,7 @@ internal class ReorderableScopeImpl(
     ) = draggable(
         state = state.draggableStates[index],
         orientation = orientation,
-        enabled = enabled && (state.isItemDragging(index).value || !state.isAnItemDragging().value),
+        enabled = enabled && (state.isItemDragging(index).value || !state.isAnyItemDragging),
         interactionSource = interactionSource,
         onDragStarted = {
             state.startDrag(index)
@@ -260,7 +258,7 @@ internal class ReorderableScopeImpl(
         val coroutineScope = rememberCoroutineScope()
 
         longPressDraggable(
-            enabled = enabled && (state.isItemDragging(index).value || !state.isAnItemDragging().value),
+            enabled = enabled && (state.isItemDragging(index).value || !state.isAnyItemDragging),
             interactionSource = interactionSource,
             onDragStarted = {
                 state.startDrag(index)
