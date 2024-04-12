@@ -321,6 +321,13 @@ class ReorderableLazyListState internal constructor(
     private val draggingItemIndex: Int?
         get() = draggingItemLayoutInfo?.index
 
+    /**
+     * Whether any item is being dragged. This property is observable.
+     */
+    val isAnyItemDragging by derivedStateOf {
+        draggingItemKey != null
+    }
+
     private var draggingItemDraggedDelta by mutableFloatStateOf(0f)
     private var draggingItemInitialOffset by mutableIntStateOf(0)
 
@@ -493,12 +500,6 @@ class ReorderableLazyListState internal constructor(
         }
     }
 
-    internal fun isAnItemDragging(): State<Boolean> {
-        return derivedStateOf {
-            draggingItemKey != null
-        }
-    }
-
     internal fun isItemDragging(key: Any): State<Boolean> {
         return derivedStateOf {
             key == draggingItemKey
@@ -577,7 +578,7 @@ internal class ReorderableItemScopeImpl(
         }.draggable(
             state = rememberDraggableState { reorderableLazyListState.onDrag(offset = it) },
             orientation = orientation,
-            enabled = enabled && (reorderableLazyListState.isItemDragging(key).value || !reorderableLazyListState.isAnItemDragging().value),
+            enabled = enabled && (reorderableLazyListState.isItemDragging(key).value || !reorderableLazyListState.isAnyItemDragging),
             interactionSource = interactionSource,
             onDragStarted = {
                 launch {
@@ -616,7 +617,7 @@ internal class ReorderableItemScopeImpl(
                 Orientation.Horizontal -> it.size.width
             }
         }.longPressDraggable(
-            enabled = enabled && (reorderableLazyListState.isItemDragging(key).value || !reorderableLazyListState.isAnItemDragging().value),
+            enabled = enabled && (reorderableLazyListState.isItemDragging(key).value || !reorderableLazyListState.isAnyItemDragging),
             interactionSource = interactionSource,
             onDragStarted = {
                 coroutineScope.launch {
