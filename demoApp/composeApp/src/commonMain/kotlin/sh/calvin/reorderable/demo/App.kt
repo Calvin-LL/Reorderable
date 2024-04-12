@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -71,7 +71,7 @@ internal fun App() {
 @Composable
 private fun BackArrow(onBackAction: () -> Unit) {
     IconButton(onClick = onBackAction) {
-        Icon(Icons.Rounded.ArrowBack, contentDescription = "Back")
+        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Back")
     }
 }
 
