@@ -1,4 +1,4 @@
-package sh.calvin.reorderable.demo
+package sh.calvin.reorderable.demo.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

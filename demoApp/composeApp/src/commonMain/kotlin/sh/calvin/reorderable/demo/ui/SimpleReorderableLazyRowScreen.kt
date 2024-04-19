@@ -1,4 +1,4 @@
-package sh.calvin.reorderable.demo
+package sh.calvin.reorderable.demo.ui
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -31,6 +31,9 @@ import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.demo.ReorderHapticFeedbackType
+import sh.calvin.reorderable.demo.items
+import sh.calvin.reorderable.demo.rememberReorderHapticFeedback
 import sh.calvin.reorderable.rememberReorderableLazyRowState
 
 @OptIn(ExperimentalFoundationApi::class)

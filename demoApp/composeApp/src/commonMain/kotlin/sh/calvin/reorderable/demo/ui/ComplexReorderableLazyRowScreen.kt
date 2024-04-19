@@ -1,15 +1,15 @@
-package sh.calvin.reorderable.demo
+package sh.calvin.reorderable.demo.ui
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
@@ -32,16 +32,19 @@ import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import sh.calvin.reorderable.ReorderableItem
-import sh.calvin.reorderable.rememberReorderableLazyColumnState
+import sh.calvin.reorderable.demo.ReorderHapticFeedbackType
+import sh.calvin.reorderable.demo.items
+import sh.calvin.reorderable.demo.rememberReorderHapticFeedback
+import sh.calvin.reorderable.rememberReorderableLazyRowState
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ComplexReorderableLazyColumnScreen() {
+fun ComplexReorderableLazyRowScreen() {
     val haptic = rememberReorderHapticFeedback()
 
     var list by remember { mutableStateOf(items) }
     val lazyListState = rememberLazyListState()
-    val reorderableLazyColumnState = rememberReorderableLazyColumnState(lazyListState) { from, to ->
+    val reorderableLazyRowState = rememberReorderableLazyRowState(lazyListState) { from, to ->
         list = list.toMutableList().apply {
             // can't use .index because there are other items in the list (headers, footers, etc)
             val fromIndex = indexOfFirst { it.id == from.key }
@@ -53,39 +56,46 @@ fun ComplexReorderableLazyColumnScreen() {
         haptic.performHapticFeedback(ReorderHapticFeedbackType.MOVE)
     }
 
-    LazyColumn(
+    LazyRow(
         modifier = Modifier.fillMaxSize(),
         state = lazyListState,
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         item {
-            Text("Header", Modifier.padding(8.dp), MaterialTheme.colorScheme.onBackground)
+            Text(
+                "Header",
+                Modifier
+                    .height(144.dp)
+                    .padding(8.dp),
+                MaterialTheme.colorScheme.onBackground,
+            )
         }
         list.chunked(5).forEachIndexed { group, subList ->
             stickyHeader {
                 Text(
-                    "Sticky Header $group",
+                    "$group",
                     Modifier
                         .animateItemPlacement()
-                        .fillMaxWidth()
+                        .height(144.dp)
                         .background(MaterialTheme.colorScheme.secondaryContainer)
                         .padding(8.dp),
                     MaterialTheme.colorScheme.onSecondaryContainer,
                 )
             }
             itemsIndexed(subList, key = { _, item -> item.id }) { subListIndex, item ->
-                ReorderableItem(reorderableLazyColumnState, item.id) {
+                ReorderableItem(reorderableLazyRowState, item.id) {
                     val interactionSource = remember { MutableInteractionSource() }
 
                     Card(
                         onClick = {},
                         modifier = Modifier
-                            .height(item.size.dp)
-                            .padding(horizontal = 8.dp)
+                            .width(item.size.dp)
+                            .height(128.dp)
+                            .padding(vertical = 8.dp)
                             .semantics {
                                 customActions = listOf(
                                     CustomAccessibilityAction(
-                                        label = "Move Up",
+                                        label = "Move Left",
                                         action = {
                                             val index = subListIndex + group * 5
 
@@ -100,7 +110,7 @@ fun ComplexReorderableLazyColumnScreen() {
                                         }
                                     ),
                                     CustomAccessibilityAction(
-                                        label = "Move Down",
+                                        label = "Move Right",
                                         action = {
                                             val index = subListIndex + group * 5
 
@@ -118,12 +128,11 @@ fun ComplexReorderableLazyColumnScreen() {
                             },
                         interactionSource = interactionSource,
                     ) {
-                        Row(
+                        Column(
                             Modifier.fillMaxSize(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.SpaceBetween,
                         ) {
-                            Text(item.text, Modifier.padding(horizontal = 8.dp))
                             IconButton(
                                 modifier = Modifier
                                     .draggableHandle(
@@ -140,6 +149,7 @@ fun ComplexReorderableLazyColumnScreen() {
                             ) {
                                 Icon(Icons.Rounded.DragHandle, contentDescription = "Reorder")
                             }
+                            Text(item.text, Modifier.padding(8.dp))
                         }
                     }
                 }
