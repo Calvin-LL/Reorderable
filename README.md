@@ -70,6 +70,7 @@ See [demo app code](demoApp/composeApp/src/commonMain/kotlin/sh/calvin/reorderab
 - [`Column`](#column)
 - [`LazyRow`](#lazyrow)
 - [`Row`](#row)
+- [Accessibility](#accessibility)
 
 #### [`LazyColumn`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/lazy/package-summary#LazyColumn(androidx.compose.ui.Modifier,androidx.compose.foundation.lazy.LazyListState,androidx.compose.foundation.layout.PaddingValues,kotlin.Boolean,androidx.compose.foundation.layout.Arrangement.Vertical,androidx.compose.ui.Alignment.Horizontal,androidx.compose.foundation.gestures.FlingBehavior,kotlin.Boolean,kotlin.Function1)>)
 
@@ -384,6 +385,12 @@ You can just replace `Column` with `Row` in the `LazyColumn` examples above.
 See [`ReorderableRowScreen.kt`](demoApp/composeApp/src/commonMain/kotlin/sh/calvin/reorderable/demo/ReorderableRowScreen.kt) in the demo app.
 
 You can just replace `Column` with `Row` in the `Column` examples above.
+
+#### Accessibility
+
+See the demo app for examples of how to make the reorderable list accessible.
+
+If the items in the list do not contain any button besides the drag handle, I recommend adding "Move Up"/"Move Down"/"Move Left"/"Move Right" actions to the TalkBack menu in each item via [`SemanticsPropertyReceiver.customActions`](<https://developer.android.com/reference/kotlin/androidx/compose/ui/semantics/package-summary#(androidx.compose.ui.semantics.SemanticsPropertyReceiver).customActions()>) and applying [`Modifier.clearAndSetSemantics`](<https://developer.android.com/reference/kotlin/androidx/compose/ui/semantics/package-summary#(androidx.compose.ui.Modifier).clearAndSetSemantics(kotlin.Function1)>) to the drag handle button to make the drag handle button not focusable for TalkBack. For more information, see [Key steps to improve Compose accessibility](https://developer.android.com/develop/ui/compose/accessibility/key-steps#custom-actions).
 
 ## API
 
