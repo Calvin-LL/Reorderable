@@ -296,7 +296,7 @@ internal class ReorderableScopeImpl(
  * @param onSettle The function that is called when the list is reordered. This function is only called when the item is dropped.
  * @param verticalArrangement The vertical arrangement of the layout's children.
  * @param horizontalAlignment The horizontal alignment of the layout's children.
- * @param onMove The function that is called when an item is moved.
+ * @param onMove The function that is called when an item is moved to a new position while dragging.
  */
 @Composable
 fun <T> ReorderableColumn(
