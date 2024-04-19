@@ -1,6 +1,5 @@
 package sh.calvin.reorderable.demo
 
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -11,12 +10,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.DragHandle
 import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -28,11 +26,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyRowState
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ComplexReorderableLazyRowScreen() {
     val haptic = rememberReorderHapticFeedback()
@@ -65,10 +67,10 @@ fun ComplexReorderableLazyRowScreen() {
                 MaterialTheme.colorScheme.onBackground,
             )
         }
-        list.chunked(5).forEachIndexed { index, subList ->
+        list.chunked(5).forEachIndexed { group, subList ->
             stickyHeader {
                 Text(
-                    "$index",
+                    "$group",
                     Modifier
                         .animateItemPlacement()
                         .height(144.dp)
@@ -77,7 +79,7 @@ fun ComplexReorderableLazyRowScreen() {
                     MaterialTheme.colorScheme.onSecondaryContainer,
                 )
             }
-            items(subList, key = { it.id }) { item ->
+            itemsIndexed(subList, key = { _, item -> item.id }) { subListIndex, item ->
                 ReorderableItem(reorderableLazyRowState, item.id) {
                     val interactionSource = remember { MutableInteractionSource() }
 
@@ -86,7 +88,41 @@ fun ComplexReorderableLazyRowScreen() {
                         modifier = Modifier
                             .width(item.size.dp)
                             .height(128.dp)
-                            .padding(vertical = 8.dp),
+                            .padding(vertical = 8.dp)
+                            .semantics {
+                                customActions = listOf(
+                                    CustomAccessibilityAction(
+                                        label = "Move Left",
+                                        action = {
+                                            val index = subListIndex + group * 5
+
+                                            if (index > 0) {
+                                                list = list.toMutableList().apply {
+                                                    add(index - 1, removeAt(index))
+                                                }
+                                                true
+                                            } else {
+                                                false
+                                            }
+                                        }
+                                    ),
+                                    CustomAccessibilityAction(
+                                        label = "Move Right",
+                                        action = {
+                                            val index = subListIndex + group * 5
+
+                                            if (index < list.size - 1) {
+                                                list = list.toMutableList().apply {
+                                                    add(index + 1, removeAt(index))
+                                                }
+                                                true
+                                            } else {
+                                                false
+                                            }
+                                        }
+                                    ),
+                                )
+                            },
                         interactionSource = interactionSource,
                     ) {
                         Column(
@@ -95,15 +131,17 @@ fun ComplexReorderableLazyRowScreen() {
                             verticalArrangement = Arrangement.SpaceBetween,
                         ) {
                             IconButton(
-                                modifier = Modifier.draggableHandle(
-                                    onDragStarted = {
-                                        haptic.performHapticFeedback(ReorderHapticFeedbackType.START)
-                                    },
-                                    onDragStopped = {
-                                        haptic.performHapticFeedback(ReorderHapticFeedbackType.END)
-                                    },
-                                    interactionSource = interactionSource,
-                                ),
+                                modifier = Modifier
+                                    .draggableHandle(
+                                        onDragStarted = {
+                                            haptic.performHapticFeedback(ReorderHapticFeedbackType.START)
+                                        },
+                                        onDragStopped = {
+                                            haptic.performHapticFeedback(ReorderHapticFeedbackType.END)
+                                        },
+                                        interactionSource = interactionSource,
+                                    )
+                                    .clearAndSetSemantics { },
                                 onClick = {},
                             ) {
                                 Icon(Icons.Rounded.DragHandle, contentDescription = "Reorder")
