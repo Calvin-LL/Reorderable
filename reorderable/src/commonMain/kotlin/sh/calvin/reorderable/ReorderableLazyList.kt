@@ -83,7 +83,7 @@ fun rememberReorderableLazyColumnState(
     scrollThreshold: Dp = ReorderableLazyListDefaults.ScrollThreshold,
     scrollSpeed: Float = ReorderableLazyListDefaults.ScrollSpeed,
     ignoreContentPaddingForScroll: Boolean = ReorderableLazyListDefaults.IgnoreContentPaddingForScroll,
-    onMove: (from: LazyListItemInfo, to: LazyListItemInfo) -> Unit
+    onMove: (from: LazyListItemInfo, to: LazyListItemInfo) -> Unit,
 ) = rememberReorderableLazyListState(
     lazyListState,
     scrollThreshold,
@@ -110,7 +110,7 @@ fun rememberReorderableLazyRowState(
     scrollThreshold: Dp = ReorderableLazyListDefaults.ScrollThreshold,
     scrollSpeed: Float = ReorderableLazyListDefaults.ScrollSpeed,
     ignoreContentPaddingForScroll: Boolean = ReorderableLazyListDefaults.IgnoreContentPaddingForScroll,
-    onMove: (from: LazyListItemInfo, to: LazyListItemInfo) -> Unit
+    onMove: (from: LazyListItemInfo, to: LazyListItemInfo) -> Unit,
 ) = rememberReorderableLazyListState(
     lazyListState,
     scrollThreshold,
@@ -127,7 +127,7 @@ internal fun rememberReorderableLazyListState(
     scrollSpeed: Float,
     orientation: Orientation,
     ignoreContentPaddingForScroll: Boolean,
-    onMove: (from: LazyListItemInfo, to: LazyListItemInfo) -> Unit
+    onMove: (from: LazyListItemInfo, to: LazyListItemInfo) -> Unit,
 ): ReorderableLazyListState {
     val density = LocalDensity.current
     val scrollThresholdPx = with(density) { scrollThreshold.toPx() }
@@ -151,7 +151,7 @@ internal fun rememberReorderableLazyListState(
 }
 
 private fun LazyListLayoutInfo.getContentOffset(
-    orientation: Orientation, ignoreContentPadding: Boolean
+    orientation: Orientation, ignoreContentPadding: Boolean,
 ): Pair<Int, Int> {
     val contentStartOffset = 0
     val contentPadding = if (!ignoreContentPadding) {
@@ -175,7 +175,7 @@ private class ProgrammaticScroller(
     private val scrollSpeed: Float,
     private val reorderableKeys: HashSet<Any?>,
     private val swapItems: (
-        draggingItem: LazyListItemInfo, targetItem: LazyListItemInfo
+        draggingItem: LazyListItemInfo, targetItem: LazyListItemInfo,
     ) -> Unit,
 ) {
     enum class ProgrammaticScrollDirection {
@@ -286,7 +286,7 @@ private class ProgrammaticScroller(
     }
 
     private fun LazyListLayoutInfo.getItemsInContentArea(
-        orientation: Orientation, ignoreContentPadding: Boolean
+        orientation: Orientation, ignoreContentPadding: Boolean,
     ): List<LazyListItemInfo> {
         val (contentStartOffset, contentEndOffset) = getContentOffset(
             orientation, ignoreContentPadding
@@ -455,7 +455,7 @@ class ReorderableLazyListState internal constructor(
     }
 
     private fun swapItems(
-        draggingItem: LazyListItemInfo, targetItem: LazyListItemInfo
+        draggingItem: LazyListItemInfo, targetItem: LazyListItemInfo,
     ) {
         if (draggingItem.index == targetItem.index) return
 
@@ -555,7 +555,7 @@ internal class ReorderableItemScopeImpl(
     private val reorderableLazyListState: ReorderableLazyListState,
     private val key: Any,
     private val orientation: Orientation,
-    private val itemPositionProvider: () -> Float
+    private val itemPositionProvider: () -> Float,
 ) : ReorderableItemScope {
 
     override fun Modifier.draggableHandle(
@@ -659,7 +659,7 @@ fun LazyItemScope.ReorderableItem(
     key: Any,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    content: @Composable ReorderableItemScope.(isDragging: Boolean) -> Unit
+    content: @Composable ReorderableItemScope.(isDragging: Boolean) -> Unit,
 ) {
     val orientation = reorderableLazyListState.orientation
     val dragging by reorderableLazyListState.isItemDragging(key)

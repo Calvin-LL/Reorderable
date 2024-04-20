@@ -79,7 +79,7 @@ class ReorderableListState internal constructor(
     spacing: Float = 0f,
     private val onMove: () -> Unit,
     private val onSettle: (fromIndex: Int, toIndex: Int) -> Unit,
-    scope: CoroutineScope
+    scope: CoroutineScope,
 ) {
     internal val itemIntervals = MutableList(listSize) { ItemInterval() }
     internal val itemOffsets = List(listSize) {

@@ -20,7 +20,7 @@ internal fun Modifier.longPressDraggable(
     interactionSource: MutableInteractionSource? = null,
     onDragStarted: (Offset) -> Unit = { },
     onDragStopped: () -> Unit = { },
-    onDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit
+    onDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit,
 ) = composed {
     val coroutineScope = rememberCoroutineScope()
     var dragInteractionStart by remember { mutableStateOf<DragInteraction.Start?>(null) }
