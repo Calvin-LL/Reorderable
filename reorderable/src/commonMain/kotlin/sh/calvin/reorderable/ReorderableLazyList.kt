@@ -28,7 +28,7 @@ import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListItemInfo
 import androidx.compose.foundation.lazy.LazyListLayoutInfo
@@ -697,7 +697,7 @@ fun LazyItemScope.ReorderableItem(
         }
     }
 
-    Column(modifier = modifier.then(draggingModifier)) {
+    Box(modifier = modifier.then(draggingModifier)) {
         ReorderableItemScopeImpl(
             reorderableLazyListState,
             key,
