@@ -564,8 +564,9 @@ internal class ReorderableItemScopeImpl(
         onDragStopped: suspend CoroutineScope.(velocity: Float) -> Unit,
         interactionSource: MutableInteractionSource?,
     ) = composed {
-        var handleOffset = remember { 0f }
-        var handleSize = remember { 0 }
+        var handleOffset by remember { mutableStateOf(0f) }
+        var handleSize by remember { mutableStateOf(0) }
+
         onGloballyPositioned {
             handleOffset = when (orientation) {
                 Orientation.Vertical -> it.positionInRoot().y
@@ -602,8 +603,8 @@ internal class ReorderableItemScopeImpl(
         onDragStopped: () -> Unit,
         interactionSource: MutableInteractionSource?,
     ) = composed {
-        var handleOffset = remember { 0f }
-        var handleSize = remember { 0 }
+        var handleOffset by remember { mutableStateOf(0f) }
+        var handleSize by remember { mutableStateOf(0) }
 
         val coroutineScope = rememberCoroutineScope()
 
@@ -662,7 +663,7 @@ fun LazyItemScope.ReorderableItem(
 ) {
     val orientation = reorderableLazyListState.orientation
     val dragging by reorderableLazyListState.isItemDragging(key)
-    var itemPosition = remember { 0f }
+    var itemPosition by remember { mutableStateOf(0f) }
     val draggingModifier = if (dragging) {
         Modifier
             .zIndex(1f)

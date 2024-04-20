@@ -3,8 +3,11 @@ package sh.calvin.reorderable
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
@@ -20,8 +23,8 @@ internal fun Modifier.longPressDraggable(
     onDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit
 ) = composed {
     val coroutineScope = rememberCoroutineScope()
-    var dragInteractionStart = remember<DragInteraction.Start?> { null }
-    var dragStarted = remember { false }
+    var dragInteractionStart by remember { mutableStateOf<DragInteraction.Start?>(null) }
+    var dragStarted by remember { mutableStateOf(false) }
 
     pointerInput(enabled) {
         if (enabled) {
