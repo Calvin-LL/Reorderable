@@ -331,21 +331,12 @@ class ReorderableLazyListState internal constructor(
     private var draggingItemDraggedDelta by mutableFloatStateOf(0f)
     private var draggingItemInitialOffset by mutableIntStateOf(0)
 
-    // visibleItemsInfo doesn't update immediately after onMove, draggingItemLayoutInfo.item may be outdated for a short time.
-    // not a clean solution, but it works.
     private var draggingItemTargetIndex: Int? = null
-    private var predictedDraggingItemOffset: Int? = null
     private val draggingItemLayoutInfo: LazyListItemInfo?
         get() = state.layoutInfo.visibleItemsInfo.firstOrNull { it.key == draggingItemKey }
     internal val draggingItemOffset: Float
         get() = draggingItemLayoutInfo?.let { item ->
-            val offset = if (item.index == draggingItemTargetIndex) {
-                predictedDraggingItemOffset = null
-                item.offset
-            } else {
-                predictedDraggingItemOffset ?: item.offset
-            }
-            draggingItemInitialOffset + draggingItemDraggedDelta - offset
+            draggingItemInitialOffset + draggingItemDraggedDelta - item.offset
         } ?: 0f
 
     // the offset of the handle center from the top or left of the dragging item when dragging starts
@@ -402,7 +393,6 @@ class ReorderableLazyListState internal constructor(
         draggingItemInitialOffset = 0
         programmaticScroller.stop()
         draggingItemTargetIndex = null
-        predictedDraggingItemOffset = null
     }
 
     internal fun onDrag(offset: Float) {
@@ -459,11 +449,6 @@ class ReorderableLazyListState internal constructor(
     ) {
         if (draggingItem.index == targetItem.index) return
 
-        predictedDraggingItemOffset = if (targetItem.index > draggingItem.index) {
-            targetItem.size + targetItem.offset - draggingItem.size
-        } else {
-            targetItem.offset
-        }
         draggingItemTargetIndex = targetItem.index
 
         // TODO: when `requestScrollToItem` is released uncomment this and remove `scrollToIndex` and the following `if` block
