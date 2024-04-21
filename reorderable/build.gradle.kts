@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "sh.calvin.reorderable"
-version = "1.5.1"
+version = "1.5.2"
 
 kotlin {
     androidTarget {
