@@ -17,10 +17,8 @@
 package sh.calvin.reorderable
 
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.animateScrollBy
@@ -29,6 +27,9 @@ import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListItemInfo
 import androidx.compose.foundation.lazy.LazyListLayoutInfo
@@ -52,81 +53,86 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 object ReorderableLazyListDefaults {
     val ScrollThreshold = 48.dp
-    const val ScrollSpeed = 0.05f
-    const val IgnoreContentPaddingForScroll = false
 }
+
+private const val ScrollAmountMultiplier = 0.05f
 
 /**
  * Creates a [ReorderableLazyListState] that is remembered across compositions.
  *
- * Changes to [lazyListState], [scrollThreshold], [scrollSpeed], and [ignoreContentPaddingForScroll] will result in [ReorderableLazyListState] being updated.
+ * Changes to [lazyListState], [scrollThreshold], [scrollThresholdPadding], and [scroller] will result in [ReorderableLazyListState] being updated.
  *
  * @param lazyListState The return value of [rememberLazyListState](androidx.compose.foundation.lazy.LazyListStateKt.rememberLazyListState)
+ * @param scrollThresholdPadding The padding that will be added to the top and bottom of the list to determine the scrollThreshold
  * @param scrollThreshold The distance in dp from the top or bottom of the list that will trigger scrolling
- * @param scrollSpeed The fraction of the Column's size that will be scrolled when dragging an item within the scrollThreshold
- * @param ignoreContentPaddingForScroll Whether to ignore content padding for scrollThreshold
+ * @param scroller The [Scroller] that will be used to scroll the list. Use [rememberScroller](sh.calvin.reorderable.ScrollerKt.rememberScroller) to create a [Scroller].
  * @param onMove The function that is called when an item is moved
  */
 @Composable
 fun rememberReorderableLazyColumnState(
     lazyListState: LazyListState,
+    scrollThresholdPadding: PaddingValues = PaddingValues(0.dp),
     scrollThreshold: Dp = ReorderableLazyListDefaults.ScrollThreshold,
-    scrollSpeed: Float = ReorderableLazyListDefaults.ScrollSpeed,
-    ignoreContentPaddingForScroll: Boolean = ReorderableLazyListDefaults.IgnoreContentPaddingForScroll,
+    scroller: Scroller = rememberScroller(
+        scrollableState = lazyListState,
+        pixelAmount = lazyListState.layoutInfo.viewportSize.height * ScrollAmountMultiplier,
+    ),
     onMove: (from: LazyListItemInfo, to: LazyListItemInfo) -> Unit,
 ) = rememberReorderableLazyListState(
     lazyListState,
+    scrollThresholdPadding,
     scrollThreshold,
-    scrollSpeed,
+    scroller,
     Orientation.Vertical,
-    ignoreContentPaddingForScroll,
     onMove,
 )
 
 /**
  * Creates a [ReorderableLazyListState] that is remembered across compositions.
  *
- * Changes to [lazyListState], [scrollThreshold], [scrollSpeed], and [ignoreContentPaddingForScroll] will result in [ReorderableLazyListState] being updated.
+ * Changes to [lazyListState], [scrollThreshold], [scrollSpeed], and [scrollThresholdPadding] will result in [scroller] being updated.
  *
  * @param lazyListState The return value of [rememberLazyListState](androidx.compose.foundation.lazy.LazyListStateKt.rememberLazyListState)
+ * @param scrollThresholdPadding The padding that will be added to the left and right of the list to determine the scrollThreshold
  * @param scrollThreshold The distance in dp from the left or right of the list that will trigger scrolling
- * @param scrollSpeed The fraction of the Row's size that will be scrolled when dragging an item within the scrollThreshold
- * @param ignoreContentPaddingForScroll Whether to ignore content padding for scrollThreshold
+ * @param scroller The [Scroller] that will be used to scroll the list. Use [rememberScroller](sh.calvin.reorderable.ScrollerKt.rememberScroller) to create a [Scroller].
  * @param onMove The function that is called when an item is moved
  */
 @Composable
 fun rememberReorderableLazyRowState(
     lazyListState: LazyListState,
+    scrollThresholdPadding: PaddingValues = PaddingValues(0.dp),
     scrollThreshold: Dp = ReorderableLazyListDefaults.ScrollThreshold,
-    scrollSpeed: Float = ReorderableLazyListDefaults.ScrollSpeed,
-    ignoreContentPaddingForScroll: Boolean = ReorderableLazyListDefaults.IgnoreContentPaddingForScroll,
+    scroller: Scroller = rememberScroller(
+        scrollableState = lazyListState,
+        pixelAmount = lazyListState.layoutInfo.viewportSize.width * ScrollAmountMultiplier,
+    ),
     onMove: (from: LazyListItemInfo, to: LazyListItemInfo) -> Unit,
 ) = rememberReorderableLazyListState(
     lazyListState,
+    scrollThresholdPadding,
     scrollThreshold,
-    scrollSpeed,
+    scroller,
     Orientation.Horizontal,
-    ignoreContentPaddingForScroll,
     onMove,
 )
 
 @Composable
 internal fun rememberReorderableLazyListState(
     lazyListState: LazyListState,
+    scrollThresholdPadding: PaddingValues,
     scrollThreshold: Dp,
-    scrollSpeed: Float,
+    scroller: Scroller,
     orientation: Orientation,
-    ignoreContentPaddingForScroll: Boolean,
     onMove: (from: LazyListItemInfo, to: LazyListItemInfo) -> Unit,
 ): ReorderableLazyListState {
     val density = LocalDensity.current
@@ -134,168 +140,39 @@ internal fun rememberReorderableLazyListState(
 
     val scope = rememberCoroutineScope()
     val onMoveState = rememberUpdatedState(onMove)
+    val layoutDirection = LocalLayoutDirection.current
+    val absoluteScrollThresholdPadding = AbsolutePixelPadding(
+        start = with(density) {
+            scrollThresholdPadding.calculateStartPadding(layoutDirection).toPx()
+        },
+        end = with(density) {
+            scrollThresholdPadding.calculateEndPadding(layoutDirection).toPx()
+        },
+        top = with(density) { scrollThresholdPadding.calculateTopPadding().toPx() },
+        bottom = with(density) { scrollThresholdPadding.calculateBottomPadding().toPx() },
+    )
     val state = remember(
-        scope, lazyListState, scrollThreshold, scrollSpeed, ignoreContentPaddingForScroll
+        scope, lazyListState, scrollThreshold, scrollThresholdPadding, scroller,
     ) {
         ReorderableLazyListState(
             state = lazyListState,
             scope = scope,
             onMoveState = onMoveState,
-            ignoreContentPaddingForScroll = ignoreContentPaddingForScroll,
-            scrollThreshold = scrollThresholdPx,
-            scrollSpeed = scrollSpeed,
             orientation = orientation,
+            scrollThreshold = scrollThresholdPx,
+            scrollThresholdPadding = absoluteScrollThresholdPadding,
+            scroller = scroller,
         )
     }
     return state
 }
 
-private fun LazyListLayoutInfo.getContentOffset(
-    orientation: Orientation, ignoreContentPadding: Boolean,
-): Pair<Int, Int> {
-    val contentStartOffset = 0
-    val contentPadding = if (!ignoreContentPadding) {
-        beforeContentPadding - afterContentPadding
-    } else {
-        0
-    }
-    val contentEndOffset = when (orientation) {
-        Orientation.Vertical -> viewportSize.height
-        Orientation.Horizontal -> viewportSize.width
-    } - contentPadding
-
-    return contentStartOffset to contentEndOffset
-}
-
-private class ProgrammaticScroller(
-    private val state: LazyListState,
-    private val scope: CoroutineScope,
-    private val orientation: Orientation,
-    private val ignoreContentPaddingForScroll: Boolean,
-    private val scrollSpeed: Float,
-    private val reorderableKeys: HashSet<Any?>,
-    private val swapItems: (
-        draggingItem: LazyListItemInfo, targetItem: LazyListItemInfo,
-    ) -> Unit,
-) {
-    enum class ProgrammaticScrollDirection {
-        BACKWARD, FORWARD
-    }
-
-    private data class ScrollJobInfo(
-        val direction: ProgrammaticScrollDirection,
-        val speedMultiplier: Float,
-    )
-
-    private var programmaticScrollJobInfo: ScrollJobInfo? = null
-    private var programmaticScrollJob: Job? = null
-    val isScrolling: Boolean
-        get() = programmaticScrollJobInfo != null
-
-    fun start(
-        draggingItemProvider: () -> LazyListItemInfo?,
-        direction: ProgrammaticScrollDirection,
-        speedMultiplier: Float = 1f,
-    ) {
-        val scrollJobInfo = ScrollJobInfo(direction, speedMultiplier)
-
-        if (programmaticScrollJobInfo == scrollJobInfo) return
-
-        val viewportSize = when (orientation) {
-            Orientation.Vertical -> state.layoutInfo.viewportSize.height
-            Orientation.Horizontal -> state.layoutInfo.viewportSize.width
-        }
-        val multipliedScrollOffset = viewportSize * scrollSpeed * speedMultiplier
-
-        programmaticScrollJob?.cancel()
-        programmaticScrollJobInfo = null
-
-        if (!canScroll(direction)) return
-
-        programmaticScrollJobInfo = scrollJobInfo
-        programmaticScrollJob = scope.launch {
-            while (true) {
-                try {
-                    if (!canScroll(direction)) break
-
-                    val duration = 100L
-                    val diff = when (direction) {
-                        ProgrammaticScrollDirection.BACKWARD -> -multipliedScrollOffset
-                        ProgrammaticScrollDirection.FORWARD -> multipliedScrollOffset
-                    }
-                    launch {
-                        state.animateScrollBy(
-                            diff, tween(durationMillis = duration.toInt(), easing = LinearEasing)
-                        )
-                    }
-
-                    launch {
-                        // keep dragging item in visible area to prevent it from disappearing
-                        swapDraggingItemToEndIfNecessary(draggingItemProvider, direction)
-                    }
-
-                    delay(duration)
-                } catch (e: Exception) {
-                    break
-                }
-            }
-        }
-    }
-
-    private fun canScroll(direction: ProgrammaticScrollDirection): Boolean {
-        return when (direction) {
-            ProgrammaticScrollDirection.BACKWARD -> state.canScrollBackward
-            ProgrammaticScrollDirection.FORWARD -> state.canScrollForward
-        }
-    }
-
-    /**
-     * Swap the dragging item with first item in the visible area in the direction of scrolling.
-     */
-    private fun swapDraggingItemToEndIfNecessary(
-        draggingItemProvider: () -> LazyListItemInfo?,
-        direction: ProgrammaticScrollDirection,
-    ) {
-        val draggingItem = draggingItemProvider() ?: return
-        val itemsInContentArea = state.layoutInfo.getItemsInContentArea(
-            orientation, ignoreContentPaddingForScroll
-        )
-        val draggingItemIsAtTheEnd = when (direction) {
-            ProgrammaticScrollDirection.BACKWARD -> itemsInContentArea.firstOrNull()?.index?.let { draggingItem.index < it }
-            ProgrammaticScrollDirection.FORWARD -> itemsInContentArea.lastOrNull()?.index?.let { draggingItem.index > it }
-        } ?: false
-
-        if (draggingItemIsAtTheEnd) return
-
-        val isReorderable = { item: LazyListItemInfo -> item.key in reorderableKeys }
-
-        val targetItem = itemsInContentArea.let {
-            when (direction) {
-                ProgrammaticScrollDirection.BACKWARD -> it.find(isReorderable)
-                ProgrammaticScrollDirection.FORWARD -> it.findLast(isReorderable)
-            }
-        }
-        if (targetItem != null && targetItem.index != draggingItem.index) {
-            swapItems(draggingItem, targetItem)
-        }
-    }
-
-    fun stop() {
-        programmaticScrollJob?.cancel()
-        programmaticScrollJobInfo = null
-    }
-
-    private fun LazyListLayoutInfo.getItemsInContentArea(
-        orientation: Orientation, ignoreContentPadding: Boolean,
-    ): List<LazyListItemInfo> {
-        val (contentStartOffset, contentEndOffset) = getContentOffset(
-            orientation, ignoreContentPadding
-        )
-        return visibleItemsInfo.filter { item ->
-            item.offset >= contentStartOffset && item.offset + item.size <= contentEndOffset
-        }
-    }
-}
+internal data class AbsolutePixelPadding(
+    val start: Float,
+    val end: Float,
+    val top: Float,
+    val bottom: Float,
+)
 
 // base on https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/foundation/foundation/integration-tests/foundation-demos/src/main/java/androidx/compose/foundation/demos/LazyColumnDragAndDropDemo.kt;drc=edde6e8b9d304264598f962a3b0e5c267e1373bb
 class ReorderableLazyListState internal constructor(
@@ -305,17 +182,13 @@ class ReorderableLazyListState internal constructor(
     internal val orientation: Orientation,
 
     /**
-     * Whether to ignore content padding for scrollThreshold.
-     */
-    private val ignoreContentPaddingForScroll: Boolean,
-
-    /**
      * The threshold in pixels for scrolling the list when dragging an item.
      * If the dragged item is within this threshold of the top or bottom of the list, the list will scroll.
      * Must be greater than 0.
      */
     private val scrollThreshold: Float,
-    scrollSpeed: Float,
+    scrollThresholdPadding: AbsolutePixelPadding,
+    private val scroller: Scroller,
 ) {
     private var draggingItemKey by mutableStateOf<Any?>(null)
     private val draggingItemIndex: Int?
@@ -344,20 +217,15 @@ class ReorderableLazyListState internal constructor(
 
     internal val reorderableKeys = HashSet<Any?>()
 
-    private val programmaticScroller = ProgrammaticScroller(
-        state,
-        scope,
-        orientation,
-        ignoreContentPaddingForScroll,
-        scrollSpeed,
-        reorderableKeys,
-        this::swapItems
-    )
-
     internal var previousDraggingItemKey by mutableStateOf<Any?>(null)
         private set
     internal var previousDraggingItemOffset = Animatable(0f)
         private set
+
+    private val scrollThresholdPadding = when (orientation) {
+        Orientation.Vertical -> scrollThresholdPadding.top to scrollThresholdPadding.bottom
+        Orientation.Horizontal -> scrollThresholdPadding.start to scrollThresholdPadding.end
+    }
 
     internal suspend fun onDragStart(key: Any, handleOffset: Float) {
         state.layoutInfo.visibleItemsInfo.firstOrNull { item ->
@@ -391,7 +259,7 @@ class ReorderableLazyListState internal constructor(
         draggingItemDraggedDelta = 0f
         draggingItemKey = null
         draggingItemInitialOffset = 0
-        programmaticScroller.stop()
+        scroller.stop()
         draggingItemTargetIndex = null
     }
 
@@ -404,10 +272,10 @@ class ReorderableLazyListState internal constructor(
         // (e.g. the first item's offset is 0, despite being state.layoutInfo.mainAxisItemSpacing pixels from the top or left of the list)
         val startOffset = draggingItem.offset + draggingItemOffset
         val (contentStartOffset, contentEndOffset) = state.layoutInfo.getContentOffset(
-            orientation, ignoreContentPaddingForScroll
+            orientation, scrollThresholdPadding
         )
 
-        if (!programmaticScroller.isScrolling) {
+        if (!scroller.isScrolling) {
             val endOffset = startOffset + draggingItem.size
             // find a target item to swap with
             val targetItem = state.layoutInfo.visibleItemsInfo.find { item ->
@@ -428,20 +296,77 @@ class ReorderableLazyListState internal constructor(
         val distanceFromEnd = contentEndOffset - handleOffset
 
         if (distanceFromStart < scrollThreshold) {
-            programmaticScroller.start(
-                { draggingItemLayoutInfo },
-                ProgrammaticScroller.ProgrammaticScrollDirection.BACKWARD,
-                getScrollSpeedMultiplier(distanceFromStart)
+            scroller.start(
+                Scroller.Direction.BACKWARD,
+                getScrollSpeedMultiplier(distanceFromStart),
+                onScroll = {
+                    swapDraggingItemToEndIfNecessary(Scroller.Direction.BACKWARD)
+                }
             )
         } else if (distanceFromEnd < scrollThreshold) {
-            programmaticScroller.start(
-                { draggingItemLayoutInfo },
-                ProgrammaticScroller.ProgrammaticScrollDirection.FORWARD,
-                getScrollSpeedMultiplier(distanceFromEnd)
+            scroller.start(
+                Scroller.Direction.FORWARD,
+                getScrollSpeedMultiplier(distanceFromEnd),
+                onScroll = {
+                    swapDraggingItemToEndIfNecessary(Scroller.Direction.FORWARD)
+                }
             )
         } else {
-            programmaticScroller.stop()
+            scroller.stop()
         }
+    }
+
+    // keep dragging item in visible area to prevent it from disappearing
+    private fun swapDraggingItemToEndIfNecessary(
+        direction: Scroller.Direction,
+    ) {
+        val draggingItem = draggingItemLayoutInfo ?: return
+        val itemsInContentArea = state.layoutInfo.getItemsInContentArea(
+            orientation, scrollThresholdPadding
+        )
+        val draggingItemIsAtTheEnd = when (direction) {
+            Scroller.Direction.BACKWARD -> itemsInContentArea.firstOrNull()?.index?.let { draggingItem.index < it }
+            Scroller.Direction.FORWARD -> itemsInContentArea.lastOrNull()?.index?.let { draggingItem.index > it }
+        } ?: false
+
+        if (draggingItemIsAtTheEnd) return
+
+        val isReorderable = { item: LazyListItemInfo -> item.key in reorderableKeys }
+
+        val targetItem = itemsInContentArea.let {
+            when (direction) {
+                Scroller.Direction.BACKWARD -> it.find(isReorderable)
+                Scroller.Direction.FORWARD -> it.findLast(isReorderable)
+            }
+        }
+        if (targetItem != null && targetItem.index != draggingItem.index) {
+            swapItems(draggingItem, targetItem)
+        }
+    }
+
+    private fun LazyListLayoutInfo.getItemsInContentArea(
+        orientation: Orientation,
+        padding: Pair<Float, Float>,
+    ): List<LazyListItemInfo> {
+        val (contentStartOffset, contentEndOffset) = getContentOffset(
+            orientation, padding
+        )
+        return visibleItemsInfo.filter { item ->
+            item.offset >= contentStartOffset && item.offset + item.size <= contentEndOffset
+        }
+    }
+
+    private fun LazyListLayoutInfo.getContentOffset(
+        orientation: Orientation,
+        padding: Pair<Float, Float>,
+    ): Pair<Float, Float> {
+        val contentStartOffset = padding.first
+        val contentEndOffset = when (orientation) {
+            Orientation.Vertical -> viewportSize.height
+            Orientation.Horizontal -> viewportSize.width
+        } - padding.second
+
+        return contentStartOffset to contentEndOffset
     }
 
     private fun swapItems(
