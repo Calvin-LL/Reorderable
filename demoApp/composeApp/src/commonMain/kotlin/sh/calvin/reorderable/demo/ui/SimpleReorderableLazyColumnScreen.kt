@@ -54,7 +54,7 @@ fun SimpleReorderableLazyColumnScreen() {
         modifier = Modifier.fillMaxSize(),
         state = lazyListState,
         contentPadding = PaddingValues(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         itemsIndexed(list, key = { _, item -> item.id }) { index, item ->
             ReorderableItem(reorderableLazyColumnState, item.id) {

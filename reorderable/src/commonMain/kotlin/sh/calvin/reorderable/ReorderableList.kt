@@ -196,7 +196,7 @@ interface ReorderableScope {
      * Make the UI element the draggable handle for the reorderable item.
      *
      * @param enabled Whether or not drag is enabled
-     * @param interactionSource [MutableInteractionSource] that will be used to emit [DragInteraction.Start] when this draggable is being dragged.
+     * @param interactionSource [MutableInteractionSource] that will be used to emit [DragInteraction.Start] when this draggable is being dragged
      * @param onDragStarted The function that is called when the item starts being dragged
      * @param onDragStopped The function that is called when the item stops being dragged
      */
@@ -211,6 +211,7 @@ interface ReorderableScope {
      * Make the UI element the draggable handle for the reorderable item. Drag will start only after a long press.
      *
      * @param enabled Whether or not drag is enabled
+     * @param interactionSource [MutableInteractionSource] that will be used to emit [DragInteraction.Start] when this draggable is being dragged
      * @param onDragStarted The function that is called when the item starts being dragged
      * @param onDragStopped The function that is called when the item stops being dragged
      */
@@ -258,6 +259,7 @@ internal class ReorderableScopeImpl(
         val coroutineScope = rememberCoroutineScope()
 
         longPressDraggable(
+            key1 = state,
             enabled = enabled && (state.isItemDragging(index).value || !state.isAnyItemDragging),
             interactionSource = interactionSource,
             onDragStarted = {

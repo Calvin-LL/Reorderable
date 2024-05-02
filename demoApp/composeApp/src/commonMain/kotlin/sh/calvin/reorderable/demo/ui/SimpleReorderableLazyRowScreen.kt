@@ -55,7 +55,7 @@ fun SimpleReorderableLazyRowScreen() {
         modifier = Modifier.fillMaxSize(),
         state = lazyListState,
         contentPadding = PaddingValues(8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         itemsIndexed(list, key = { _, item -> item.id }) { index, item ->
             ReorderableItem(reorderableLazyRowState, item.id) {
