@@ -3,15 +3,15 @@ package sh.calvin.reorderable.demo.ui
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.staggeredgrid.LazyHorizontalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.itemsIndexed
+import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.DragHandle
 import androidx.compose.material3.Card
@@ -29,47 +29,50 @@ import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.demo.ReorderHapticFeedbackType
 import sh.calvin.reorderable.demo.items
 import sh.calvin.reorderable.demo.rememberReorderHapticFeedback
-import sh.calvin.reorderable.rememberReorderableLazyListState
+import sh.calvin.reorderable.rememberReorderableLazyStaggeredGridState
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun SimpleReorderableLazyRowScreen() {
+fun SimpleReorderableLazyHorizontalStaggeredGridScreen() {
     val haptic = rememberReorderHapticFeedback()
 
     var list by remember { mutableStateOf(items) }
-    val lazyListState = rememberLazyListState()
-    val reorderableLazyRowState = rememberReorderableLazyListState(lazyListState) { from, to ->
-        list = list.toMutableList().apply {
-            add(to.index, removeAt(from.index))
+    val lazyStaggeredGridState = rememberLazyStaggeredGridState()
+    val reorderableLazyStaggeredGridState =
+        rememberReorderableLazyStaggeredGridState(lazyStaggeredGridState) { from, to ->
+            list = list.toMutableList().apply {
+                add(to.index, removeAt(from.index))
+            }
+
+            haptic.performHapticFeedback(ReorderHapticFeedbackType.MOVE)
         }
 
-        haptic.performHapticFeedback(ReorderHapticFeedbackType.MOVE)
-    }
-
-    LazyRow(
+    LazyHorizontalStaggeredGrid(
+        rows = StaggeredGridCells.Adaptive(minSize = 96.dp),
         modifier = Modifier.fillMaxSize(),
-        state = lazyListState,
+        state = lazyStaggeredGridState,
         contentPadding = PaddingValues(8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalItemSpacing = 8.dp,
     ) {
         itemsIndexed(list, key = { _, item -> item.id }) { index, item ->
-            ReorderableItem(reorderableLazyRowState, item.id) {
+            ReorderableItem(reorderableLazyStaggeredGridState, item.id) {
                 val interactionSource = remember { MutableInteractionSource() }
 
                 Card(
                     onClick = {},
                     modifier = Modifier
                         .width(item.size.dp)
-                        .height(128.dp)
                         .semantics {
                             customActions = listOf(
                                 CustomAccessibilityAction(
-                                    label = "Move Left",
+                                    label = "Move Before",
                                     action = {
                                         if (index > 0) {
                                             list = list.toMutableList().apply {
@@ -82,7 +85,7 @@ fun SimpleReorderableLazyRowScreen() {
                                     }
                                 ),
                                 CustomAccessibilityAction(
-                                    label = "Move Right",
+                                    label = "Move After",
                                     action = {
                                         if (index < list.size - 1) {
                                             list = list.toMutableList().apply {
@@ -98,13 +101,10 @@ fun SimpleReorderableLazyRowScreen() {
                         },
                     interactionSource = interactionSource,
                 ) {
-                    Column(
-                        Modifier.fillMaxSize(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.SpaceBetween,
-                    ) {
+                    Box(Modifier.fillMaxSize()) {
                         IconButton(
                             modifier = Modifier
+                                .align(Alignment.TopEnd)
                                 .draggableHandle(
                                     onDragStarted = {
                                         haptic.performHapticFeedback(ReorderHapticFeedbackType.START)
@@ -119,8 +119,11 @@ fun SimpleReorderableLazyRowScreen() {
                         ) {
                             Icon(Icons.Rounded.DragHandle, contentDescription = "Reorder")
                         }
-
-                        Text(item.text, Modifier.padding(8.dp))
+                        Text(
+                            item.text,
+                            Modifier.align(Alignment.Center).padding(horizontal = 8.dp),
+                            textAlign = TextAlign.Center,
+                        )
                     }
                 }
             }

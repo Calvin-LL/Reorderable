@@ -61,10 +61,14 @@ internal fun App() {
                                 scene("SimpleReorderableLazyColumn") { SimpleReorderableLazyColumnScreen() }
                                 scene("ComplexReorderableLazyColumn") { ComplexReorderableLazyColumnScreen() }
                                 scene("SimpleLongPressHandleReorderableLazyColumn") { SimpleLongPressHandleReorderableLazyColumnScreen() }
+                                scene("SimpleReorderableLazyVerticalGrid") { SimpleReorderableLazyVerticalGridScreen() }
+                                scene("SimpleReorderableLazyVerticalStaggeredGrid") { SimpleReorderableLazyVerticalStaggeredGridScreen() }
                                 scene("ReorderableColumn") { ReorderableColumnScreen() }
                                 scene("LongPressHandleReorderableColumn") { LongPressHandleReorderableColumnScreen() }
                                 scene("SimpleReorderableLazyRow") { SimpleReorderableLazyRowScreen() }
                                 scene("ComplexReorderableLazyRow") { ComplexReorderableLazyRowScreen() }
+                                scene("SimpleReorderableLazyHorizontalGrid") { SimpleReorderableLazyHorizontalGridScreen() }
+                                scene("SimpleReorderableLazyHorizontalStaggeredGrid") { SimpleReorderableLazyHorizontalStaggeredGridScreen() }
                                 scene("ReorderableRow") { ReorderableRowScreen() }
                             }
                         }
@@ -87,7 +91,8 @@ fun MainScreen(navController: Navigator) {
     Column(
         Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState()),
+            .verticalScroll(rememberScrollState())
+            .padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
     ) {
@@ -98,18 +103,40 @@ fun MainScreen(navController: Navigator) {
             Text("LazyColumn")
 
             Button(onClick = { navController.navigate("SimpleReorderableLazyColumn") }) {
-                Text("Simple ReorderableLazyColumn")
+                Text("Simple Reorderable LazyColumn")
             }
             Button(
                 onClick = { navController.navigate("ComplexReorderableLazyColumn") }) {
-                Text("Complex ReorderableLazyColumn")
+                Text("Complex Reorderable LazyColumn")
             }
             Button(
                 onClick = { navController.navigate("SimpleLongPressHandleReorderableLazyColumn") }) {
                 Text(
-                    "Simple ReorderableLazyColumn with\n.longPressDraggableHandle",
+                    "Simple Reorderable LazyColumn with\n.longPressDraggableHandle",
                     textAlign = TextAlign.Center
                 )
+            }
+        }
+
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
+        ) {
+            Text("LazyVerticalGrid")
+
+            Button(onClick = { navController.navigate("SimpleReorderableLazyVerticalGrid") }) {
+                Text("Simple Reorderable LazyVerticalGrid")
+            }
+        }
+
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
+        ) {
+            Text("LazyVerticalStaggeredGrid")
+
+            Button(onClick = { navController.navigate("SimpleReorderableLazyVerticalStaggeredGrid") }) {
+                Text("Simple Reorderable LazyVerticalStaggeredGrid")
             }
         }
 
@@ -140,11 +167,33 @@ fun MainScreen(navController: Navigator) {
 
             Button(
                 onClick = { navController.navigate("SimpleReorderableLazyRow") }) {
-                Text("Simple ReorderableLazyRow")
+                Text("Simple Reorderable LazyRow")
             }
             Button(
                 onClick = { navController.navigate("ComplexReorderableLazyRow") }) {
-                Text("Complex ReorderableLazyRow")
+                Text("Complex Reorderable LazyRow")
+            }
+        }
+
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
+        ) {
+            Text("LazyVerticalGrid")
+
+            Button(onClick = { navController.navigate("SimpleReorderableLazyHorizontalGrid") }) {
+                Text("Simple Reorderable LazyHorizontalGrid")
+            }
+        }
+
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
+        ) {
+            Text("LazyHorizontalStaggeredGrid")
+
+            Button(onClick = { navController.navigate("SimpleReorderableLazyHorizontalStaggeredGrid") }) {
+                Text("Simple Reorderable LazyHorizontalStaggeredGrid")
             }
         }
 

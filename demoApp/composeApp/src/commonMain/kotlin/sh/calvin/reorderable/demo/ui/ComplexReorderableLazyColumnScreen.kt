@@ -4,6 +4,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -35,7 +36,7 @@ import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.demo.ReorderHapticFeedbackType
 import sh.calvin.reorderable.demo.items
 import sh.calvin.reorderable.demo.rememberReorderHapticFeedback
-import sh.calvin.reorderable.rememberReorderableLazyColumnState
+import sh.calvin.reorderable.rememberReorderableLazyListState
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -44,7 +45,7 @@ fun ComplexReorderableLazyColumnScreen() {
 
     var list by remember { mutableStateOf(items) }
     val lazyListState = rememberLazyListState()
-    val reorderableLazyColumnState = rememberReorderableLazyColumnState(lazyListState) { from, to ->
+    val reorderableLazyColumnState = rememberReorderableLazyListState(lazyListState) { from, to ->
         list = list.toMutableList().apply {
             // can't use .index because there are other items in the list (headers, footers, etc)
             val fromIndex = indexOfFirst { it.id == from.key }

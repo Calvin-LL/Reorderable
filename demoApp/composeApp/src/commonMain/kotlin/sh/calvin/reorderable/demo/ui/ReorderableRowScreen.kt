@@ -1,5 +1,6 @@
 package sh.calvin.reorderable.demo.ui
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.DragHandle
 import androidx.compose.material3.Card
@@ -40,6 +42,7 @@ fun ReorderableRowScreen() {
     ReorderableRow(
         modifier = Modifier
             .fillMaxSize()
+            .horizontalScroll(rememberScrollState())
             .padding(8.dp),
         list = list,
         onSettle = { fromIndex, toIndex ->

@@ -35,7 +35,7 @@ import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.demo.ReorderHapticFeedbackType
 import sh.calvin.reorderable.demo.items
 import sh.calvin.reorderable.demo.rememberReorderHapticFeedback
-import sh.calvin.reorderable.rememberReorderableLazyRowState
+import sh.calvin.reorderable.rememberReorderableLazyListState
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -44,7 +44,7 @@ fun ComplexReorderableLazyRowScreen() {
 
     var list by remember { mutableStateOf(items) }
     val lazyListState = rememberLazyListState()
-    val reorderableLazyRowState = rememberReorderableLazyRowState(lazyListState) { from, to ->
+    val reorderableLazyRowState = rememberReorderableLazyListState(lazyListState) { from, to ->
         list = list.toMutableList().apply {
             // can't use .index because there are other items in the list (headers, footers, etc)
             val fromIndex = indexOfFirst { it.id == from.key }

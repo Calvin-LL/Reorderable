@@ -33,7 +33,7 @@ import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.demo.ReorderHapticFeedbackType
 import sh.calvin.reorderable.demo.items
 import sh.calvin.reorderable.demo.rememberReorderHapticFeedback
-import sh.calvin.reorderable.rememberReorderableLazyColumnState
+import sh.calvin.reorderable.rememberReorderableLazyListState
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -42,7 +42,7 @@ fun SimpleReorderableLazyColumnScreen() {
 
     var list by remember { mutableStateOf(items) }
     val lazyListState = rememberLazyListState()
-    val reorderableLazyColumnState = rememberReorderableLazyColumnState(lazyListState) { from, to ->
+    val reorderableLazyColumnState = rememberReorderableLazyListState(lazyListState) { from, to ->
         list = list.toMutableList().apply {
             add(to.index, removeAt(from.index))
         }
