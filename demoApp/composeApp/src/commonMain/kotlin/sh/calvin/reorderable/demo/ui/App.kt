@@ -179,7 +179,7 @@ fun MainScreen(navController: Navigator) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
         ) {
-            Text("LazyVerticalGrid")
+            Text("LazyHorizontalGrid")
 
             Button(onClick = { navController.navigate("SimpleReorderableLazyHorizontalGrid") }) {
                 Text("Simple Reorderable LazyHorizontalGrid")
