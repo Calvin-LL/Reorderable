@@ -50,6 +50,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.unit.toSize
@@ -233,6 +234,13 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
     private val scrollThresholdPadding: AbsolutePixelPadding,
     private val scroller: Scroller,
 
+    private val layoutDirection: LayoutDirection,
+
+    /**
+     * Whether this is a LazyVerticalStaggeredGrid
+     */
+    private val lazyVerticalStaggeredGridRtlFix: Boolean = false,
+
     /**
      * A function that determines whether the `draggingItem` should be swapped with the `item`.
      * Given their bounding rectangles, return `true` if they should be swapped.
@@ -267,6 +275,7 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
             draggingItemDraggedDelta +
                     (draggingItemInitialOffset.toOffset() - it.offset.toOffset())
                         .reverseAxisIfNecessary()
+                        .reverseAxisWithLayoutDirectionIfLazyVerticalStaggeredGridRtlFix()
         }) ?: Offset.Zero
 
     // the offset of the handle center from the top left of the dragging item when dragging starts
@@ -279,10 +288,33 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
     internal var previousDraggingItemOffset = Animatable(Offset.Zero, Offset.VectorConverter)
         private set
 
-    private fun Offset.reverseAxisIfNecessary() = when (state.layoutInfo.reverseLayout) {
-        true -> reverseAxis(orientation)
-        false -> this
+    private fun Offset.reverseAxisWithReverseLayoutIfNecessary() =
+        when (state.layoutInfo.reverseLayout) {
+            true -> reverseAxis(orientation)
+            false -> this
+        }
+
+    private fun Offset.reverseAxisWithLayoutDirectionIfNecessary() = when (orientation) {
+        Orientation.Vertical -> this
+        Orientation.Horizontal -> reverseAxisWithLayoutDirection()
     }
+
+    private fun Offset.reverseAxisWithLayoutDirection() = when (layoutDirection) {
+        LayoutDirection.Ltr -> this
+        LayoutDirection.Rtl -> reverseAxis(Orientation.Horizontal)
+    }
+
+    private fun Offset.reverseAxisWithLayoutDirectionIfLazyVerticalStaggeredGridRtlFix() =
+        when (layoutDirection) {
+            LayoutDirection.Ltr -> this
+            LayoutDirection.Rtl -> if (lazyVerticalStaggeredGridRtlFix && orientation == Orientation.Vertical)
+                reverseAxis(Orientation.Horizontal)
+            else this
+        }
+
+    private fun Offset.reverseAxisIfNecessary() =
+        this.reverseAxisWithReverseLayoutIfNecessary()
+            .reverseAxisWithLayoutDirectionIfNecessary()
 
     internal suspend fun onDragStart(key: Any, handleOffset: Offset) {
         state.layoutInfo.visibleItemsInfo.firstOrNull { item ->
@@ -329,6 +361,7 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
         val draggingItem = draggingItemLayoutInfo ?: return
         val startOffset = draggingItem.offset.toOffset() +
                 draggingItemOffset.reverseAxisIfNecessary()
+                    .reverseAxisWithLayoutDirectionIfLazyVerticalStaggeredGridRtlFix()
         val endOffset = startOffset + draggingItem.size.toSize()
         val (contentStartOffset, contentEndOffset) = state.layoutInfo.getScrollAreaOffsets(
             scrollThresholdPadding
@@ -351,13 +384,16 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
         }
 
         // the distance from the top or left of the list to the center of the dragging item handle
-        val handleOffset = when (state.layoutInfo.reverseLayout) {
-            true -> endOffset - draggingItemHandleOffset
-            false -> startOffset + draggingItemHandleOffset
-        } + IntOffset.fromAxis(
-            orientation,
-            state.layoutInfo.beforeContentPadding
-        ).toOffset()
+        val handleOffset =
+            when (state.layoutInfo.reverseLayout ||
+                    (layoutDirection == LayoutDirection.Rtl &&
+                            orientation == Orientation.Horizontal)) {
+                true -> endOffset - draggingItemHandleOffset
+                false -> startOffset + draggingItemHandleOffset
+            } + IntOffset.fromAxis(
+                orientation,
+                state.layoutInfo.beforeContentPadding
+            ).toOffset()
 
         // check if the handle center is in the scroll threshold
         val distanceFromStart = handleOffset.getAxis(orientation) - contentStartOffset

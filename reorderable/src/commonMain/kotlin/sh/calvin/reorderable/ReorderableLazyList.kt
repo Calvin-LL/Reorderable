@@ -40,6 +40,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import kotlinx.coroutines.CoroutineScope
@@ -164,6 +165,7 @@ fun rememberReorderableLazyListState(
             scrollThreshold = scrollThresholdPx,
             scrollThresholdPadding = absoluteScrollThresholdPadding,
             scroller = scroller,
+            layoutDirection = layoutDirection,
         )
     }
     return state
@@ -230,6 +232,7 @@ class ReorderableLazyListState internal constructor(
     scrollThreshold: Float,
     scrollThresholdPadding: AbsolutePixelPadding,
     scroller: Scroller,
+    layoutDirection: LayoutDirection,
 ) : ReorderableLazyCollectionState<LazyListItemInfo>(
     state.toLazyCollectionState(),
     scope,

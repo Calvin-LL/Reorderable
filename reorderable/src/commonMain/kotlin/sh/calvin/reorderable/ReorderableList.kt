@@ -47,6 +47,8 @@ import androidx.compose.ui.input.pointer.util.addPointerInputChange
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.zIndex
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -80,6 +82,8 @@ class ReorderableListState internal constructor(
     private val onMove: () -> Unit,
     private val onSettle: (fromIndex: Int, toIndex: Int) -> Unit,
     scope: CoroutineScope,
+    private val orientation: Orientation,
+    private val layoutDirection: LayoutDirection,
 ) {
     internal val itemIntervals = MutableList(listSize) { ItemInterval() }
     internal val itemOffsets = List(listSize) {
@@ -156,22 +160,28 @@ class ReorderableListState internal constructor(
         val size = itemIntervals[i].size
         val currentStart = itemIntervals[i].start + itemOffsets[i].targetValue
         val currentEnd = currentStart + size
-        val targetIndex =
-            if (currentStart < originalStart) itemIntervals.firstIndexOfIndexed { j, interval ->
-                if (j != i) {
-                    if (interval.center in currentStart..originalStart) {
-                        return@firstIndexOfIndexed true
-                    }
-                }
-                return@firstIndexOfIndexed false
-            } else if (currentStart > originalStart) itemIntervals.lastIndexOfIndexed { j, interval ->
-                if (j != i) {
-                    if (interval.center in originalEnd..currentEnd) {
-                        return@lastIndexOfIndexed true
-                    }
-                }
-                return@lastIndexOfIndexed false
+
+        val targetIndexFunc =
+            if (currentStart < originalStart) { j: Int, interval: ItemInterval ->
+                j != i && interval.center in currentStart..<originalStart
+            } else if (currentStart > originalStart) { j: Int, interval: ItemInterval ->
+                j != i && interval.center in originalEnd..<currentEnd
             } else null
+        val targetIndex = targetIndexFunc?.let {
+            if (orientation == Orientation.Horizontal && layoutDirection == LayoutDirection.Rtl) {
+                if (currentStart < originalStart) {
+                    itemIntervals.lastIndexOfIndexed(it)
+                } else if (currentStart > originalStart) {
+                    itemIntervals.firstIndexOfIndexed(it)
+                } else null
+            } else {
+                if (currentStart < originalStart) {
+                    itemIntervals.firstIndexOfIndexed(it)
+                } else if (currentStart > originalStart) {
+                    itemIntervals.lastIndexOfIndexed(it)
+                } else null
+            }
+        }
 
         draggingItemIndex = null
 
@@ -313,8 +323,17 @@ fun <T> ReorderableColumn(
     val coroutineScope = rememberCoroutineScope()
     val density = LocalDensity.current
     val spacing = with(density) { verticalArrangement.spacing.toPx() }
+    val layoutDirection = LocalLayoutDirection.current
     val reorderableListState = remember(list, spacing) {
-        ReorderableListState(list.size, spacing, onMove, onSettle, coroutineScope)
+        ReorderableListState(
+            list.size,
+            spacing,
+            onMove,
+            onSettle,
+            coroutineScope,
+            Orientation.Vertical,
+            layoutDirection
+        )
     }
 
     Column(
@@ -370,8 +389,17 @@ fun <T> ReorderableRow(
     val coroutineScope = rememberCoroutineScope()
     val density = LocalDensity.current
     val spacing = with(density) { horizontalArrangement.spacing.toPx() }
+    val layoutDirection = LocalLayoutDirection.current
     val reorderableListState = remember(list, spacing) {
-        ReorderableListState(list.size, spacing, onMove, onSettle, coroutineScope)
+        ReorderableListState(
+            list.size,
+            spacing,
+            onMove,
+            onSettle,
+            coroutineScope,
+            Orientation.Horizontal,
+            layoutDirection
+        )
     }
 
     Row(
