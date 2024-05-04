@@ -237,8 +237,15 @@ class ReorderableLazyListState internal constructor(
     scrollThreshold,
     scrollThresholdPadding,
     scroller,
-    shouldItemSwap = { draggingItem, item ->
-        item.center.y in draggingItem.top..<draggingItem.bottom
+    layoutDirection,
+    shouldItemSwap = when (state.layoutInfo.orientation) {
+        Orientation.Vertical -> { draggingItem, item ->
+            item.center.y in draggingItem.top..<draggingItem.bottom
+        }
+
+        Orientation.Horizontal -> { draggingItem, item ->
+            item.center.x in draggingItem.left..<draggingItem.right
+        }
     },
 )
 
