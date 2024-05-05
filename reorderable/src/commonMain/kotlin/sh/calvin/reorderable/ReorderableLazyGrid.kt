@@ -63,7 +63,7 @@ fun rememberReorderableLazyGridState(
     scrollThreshold: Dp = ReorderableLazyCollectionDefaults.ScrollThreshold,
     scroller: Scroller = rememberScroller(
         scrollableState = lazyGridState,
-        pixelAmount = lazyGridState.layoutInfo.viewportSize.height * ScrollAmountMultiplier,
+        pixelAmountProvider = { lazyGridState.layoutInfo.viewportSize.height * ScrollAmountMultiplier },
     ),
     onMove: (from: LazyGridItemInfo, to: LazyGridItemInfo) -> Unit,
 ): ReorderableLazyGridState {

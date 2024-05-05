@@ -63,7 +63,7 @@ fun rememberReorderableLazyStaggeredGridState(
     scrollThreshold: Dp = ReorderableLazyCollectionDefaults.ScrollThreshold,
     scroller: Scroller = rememberScroller(
         scrollableState = lazyStaggeredGridState,
-        pixelAmount = lazyStaggeredGridState.layoutInfo.viewportSize.height * ScrollAmountMultiplier,
+        pixelAmountProvider = { lazyStaggeredGridState.layoutInfo.viewportSize.height * ScrollAmountMultiplier },
     ),
     onMove: (from: LazyStaggeredGridItemInfo, to: LazyStaggeredGridItemInfo) -> Unit,
 ): ReorderableLazyStaggeredGridState {

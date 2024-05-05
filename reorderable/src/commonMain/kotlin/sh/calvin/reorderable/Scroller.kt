@@ -21,8 +21,10 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -44,14 +46,36 @@ fun rememberScroller(
     val scope = rememberCoroutineScope()
 
     return remember(scrollableState, scope, pixelAmount, duration) {
-        Scroller(scrollableState, scope, pixelAmount, duration)
+        Scroller(scrollableState, scope, { pixelAmount }, duration)
     }
 }
 
+/**
+ * A utility to programmatically scroll a [ScrollableState].
+ *
+ * @param scrollableState The [ScrollableState] to scroll.
+ * @param pixelAmountProvider A function that returns the amount of pixels to scroll per duration.
+ * @param duration The duration of each scroll.
+ */
+@Composable
+fun rememberScroller(
+    scrollableState: ScrollableState,
+    pixelAmountProvider: () -> Float,
+    duration: Long = 100,
+): Scroller {
+    val scope = rememberCoroutineScope()
+    val pixelAmountProviderUpdated = rememberUpdatedState(pixelAmountProvider)
+
+    return remember(scrollableState, scope, duration) {
+        Scroller(scrollableState, scope, { pixelAmountProviderUpdated.value() }, duration)
+    }
+}
+
+@Stable
 class Scroller(
     private val scrollableState: ScrollableState,
     private val scope: CoroutineScope,
-    private val pixelAmount: Float,
+    private val pixelAmountProvider: () -> Float,
     private val duration: Long,
 ) {
     enum class Direction {
@@ -77,7 +101,7 @@ class Scroller(
 
         if (programmaticScrollJobInfo == scrollJobInfo) return
 
-        val multipliedScrollOffset = pixelAmount * speedMultiplier
+        val multipliedScrollOffset = pixelAmountProvider() * speedMultiplier
 
         programmaticScrollJob?.cancel()
         programmaticScrollJobInfo = null

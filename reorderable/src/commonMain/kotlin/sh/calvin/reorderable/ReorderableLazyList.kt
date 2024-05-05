@@ -70,7 +70,7 @@ fun rememberReorderableLazyColumnState(
     scrollThreshold: Dp = ReorderableLazyCollectionDefaults.ScrollThreshold,
     scroller: Scroller = rememberScroller(
         scrollableState = lazyListState,
-        pixelAmount = lazyListState.layoutInfo.viewportSize.height * ScrollAmountMultiplier,
+        pixelAmountProvider = { lazyListState.layoutInfo.viewportSize.height * ScrollAmountMultiplier },
     ),
     onMove: (from: LazyListItemInfo, to: LazyListItemInfo) -> Unit,
 ) = rememberReorderableLazyListState(
@@ -106,7 +106,7 @@ fun rememberReorderableLazyRowState(
     scrollThreshold: Dp = ReorderableLazyCollectionDefaults.ScrollThreshold,
     scroller: Scroller = rememberScroller(
         scrollableState = lazyListState,
-        pixelAmount = lazyListState.layoutInfo.viewportSize.width * ScrollAmountMultiplier,
+        pixelAmountProvider = { lazyListState.layoutInfo.viewportSize.height * ScrollAmountMultiplier },
     ),
     onMove: (from: LazyListItemInfo, to: LazyListItemInfo) -> Unit,
 ) = rememberReorderableLazyListState(
@@ -135,7 +135,7 @@ fun rememberReorderableLazyListState(
     scrollThreshold: Dp = ReorderableLazyCollectionDefaults.ScrollThreshold,
     scroller: Scroller = rememberScroller(
         scrollableState = lazyListState,
-        pixelAmount = lazyListState.layoutInfo.viewportSize.height * ScrollAmountMultiplier,
+        pixelAmountProvider = { lazyListState.layoutInfo.viewportSize.height * ScrollAmountMultiplier },
     ),
     onMove: (from: LazyListItemInfo, to: LazyListItemInfo) -> Unit,
 ): ReorderableLazyListState {
