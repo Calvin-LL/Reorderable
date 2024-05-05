@@ -29,11 +29,13 @@ import androidx.compose.foundation.lazy.LazyListLayoutInfo
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -155,8 +157,14 @@ fun rememberReorderableLazyListState(
         top = with(density) { scrollThresholdPadding.calculateTopPadding().toPx() },
         bottom = with(density) { scrollThresholdPadding.calculateBottomPadding().toPx() },
     )
+    val orientation by derivedStateOf { lazyListState.layoutInfo.orientation }
     val state = remember(
-        scope, lazyListState, scrollThreshold, scrollThresholdPadding, scroller,
+        scope,
+        lazyListState,
+        scrollThreshold,
+        scrollThresholdPadding,
+        scroller,
+        orientation,
     ) {
         ReorderableLazyListState(
             state = lazyListState,
@@ -166,6 +174,15 @@ fun rememberReorderableLazyListState(
             scrollThresholdPadding = absoluteScrollThresholdPadding,
             scroller = scroller,
             layoutDirection = layoutDirection,
+            shouldItemSwap = when (orientation) {
+                Orientation.Vertical -> { draggingItem, item ->
+                    item.center.y in draggingItem.top..<draggingItem.bottom
+                }
+
+                Orientation.Horizontal -> { draggingItem, item ->
+                    item.center.x in draggingItem.left..<draggingItem.right
+                }
+            },
         )
     }
     return state
@@ -233,6 +250,7 @@ class ReorderableLazyListState internal constructor(
     scrollThresholdPadding: AbsolutePixelPadding,
     scroller: Scroller,
     layoutDirection: LayoutDirection,
+    shouldItemSwap: (draggingItem: Rect, item: Rect) -> Boolean,
 ) : ReorderableLazyCollectionState<LazyListItemInfo>(
     state.toLazyCollectionState(),
     scope,
@@ -241,15 +259,7 @@ class ReorderableLazyListState internal constructor(
     scrollThresholdPadding,
     scroller,
     layoutDirection,
-    shouldItemSwap = when (state.layoutInfo.orientation) {
-        Orientation.Vertical -> { draggingItem, item ->
-            item.center.y in draggingItem.top..<draggingItem.bottom
-        }
-
-        Orientation.Horizontal -> { draggingItem, item ->
-            item.center.x in draggingItem.left..<draggingItem.right
-        }
-    },
+    shouldItemSwap = shouldItemSwap,
 )
 
 /**
