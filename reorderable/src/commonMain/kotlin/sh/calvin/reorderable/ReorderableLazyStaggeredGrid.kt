@@ -63,7 +63,7 @@ fun rememberReorderableLazyStaggeredGridState(
     scrollThreshold: Dp = ReorderableLazyCollectionDefaults.ScrollThreshold,
     scroller: Scroller = rememberScroller(
         scrollableState = lazyStaggeredGridState,
-        pixelAmountProvider = { lazyStaggeredGridState.layoutInfo.viewportSize.height * ScrollAmountMultiplier },
+        pixelAmountProvider = { lazyStaggeredGridState.layoutInfo.mainAxisViewportSize * ScrollAmountMultiplier },
     ),
     onMove: (from: LazyStaggeredGridItemInfo, to: LazyStaggeredGridItemInfo) -> Unit,
 ): ReorderableLazyStaggeredGridState {
@@ -98,6 +98,12 @@ fun rememberReorderableLazyStaggeredGridState(
     }
     return state
 }
+
+private val LazyStaggeredGridLayoutInfo.mainAxisViewportSize: Int
+    get() = when (orientation) {
+        Orientation.Vertical -> viewportSize.height
+        Orientation.Horizontal -> viewportSize.width
+    }
 
 private fun LazyStaggeredGridItemInfo.toLazyCollectionItemInfo() =
     object : LazyCollectionItemInfo<LazyStaggeredGridItemInfo> {

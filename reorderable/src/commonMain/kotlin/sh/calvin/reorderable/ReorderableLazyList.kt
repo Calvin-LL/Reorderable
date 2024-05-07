@@ -72,7 +72,7 @@ fun rememberReorderableLazyColumnState(
     scrollThreshold: Dp = ReorderableLazyCollectionDefaults.ScrollThreshold,
     scroller: Scroller = rememberScroller(
         scrollableState = lazyListState,
-        pixelAmountProvider = { lazyListState.layoutInfo.viewportSize.height * ScrollAmountMultiplier },
+        pixelAmountProvider = { lazyListState.layoutInfo.mainAxisViewportSize * ScrollAmountMultiplier },
     ),
     onMove: (from: LazyListItemInfo, to: LazyListItemInfo) -> Unit,
 ) = rememberReorderableLazyListState(
@@ -108,7 +108,7 @@ fun rememberReorderableLazyRowState(
     scrollThreshold: Dp = ReorderableLazyCollectionDefaults.ScrollThreshold,
     scroller: Scroller = rememberScroller(
         scrollableState = lazyListState,
-        pixelAmountProvider = { lazyListState.layoutInfo.viewportSize.height * ScrollAmountMultiplier },
+        pixelAmountProvider = { lazyListState.layoutInfo.mainAxisViewportSize * ScrollAmountMultiplier },
     ),
     onMove: (from: LazyListItemInfo, to: LazyListItemInfo) -> Unit,
 ) = rememberReorderableLazyListState(
@@ -137,7 +137,7 @@ fun rememberReorderableLazyListState(
     scrollThreshold: Dp = ReorderableLazyCollectionDefaults.ScrollThreshold,
     scroller: Scroller = rememberScroller(
         scrollableState = lazyListState,
-        pixelAmountProvider = { lazyListState.layoutInfo.viewportSize.height * ScrollAmountMultiplier },
+        pixelAmountProvider = { lazyListState.layoutInfo.mainAxisViewportSize * ScrollAmountMultiplier },
     ),
     onMove: (from: LazyListItemInfo, to: LazyListItemInfo) -> Unit,
 ): ReorderableLazyListState {
@@ -187,6 +187,12 @@ fun rememberReorderableLazyListState(
     }
     return state
 }
+
+private val LazyListLayoutInfo.mainAxisViewportSize: Int
+    get() = when (orientation) {
+        Orientation.Vertical -> viewportSize.height
+        Orientation.Horizontal -> viewportSize.width
+    }
 
 private fun LazyListItemInfo.toLazyCollectionItemInfo(orientation: Orientation) =
     object : LazyCollectionItemInfo<LazyListItemInfo> {
