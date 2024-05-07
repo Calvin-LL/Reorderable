@@ -100,6 +100,7 @@ See [demo app code](demoApp/composeApp/src/commonMain/kotlin/sh/calvin/reorderab
 - [`Column`](#column)
 - [`Row`](#row)
 - [Accessibility](#accessibility)
+- [FAQ](#faq)
 
 #### [`LazyColumn`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/lazy/package-summary#LazyColumn(androidx.compose.ui.Modifier,androidx.compose.foundation.lazy.LazyListState,androidx.compose.foundation.layout.PaddingValues,kotlin.Boolean,androidx.compose.foundation.layout.Arrangement.Vertical,androidx.compose.ui.Alignment.Horizontal,androidx.compose.foundation.gestures.FlingBehavior,kotlin.Boolean,kotlin.Function1)>)
 
@@ -785,6 +786,39 @@ You can just replace `Column` with `Row` in the `Column` examples above.
 See the demo app for examples of how to make the reorderable list accessible.
 
 If the items in the list do not contain any button besides the drag handle, I recommend adding "Move Up"/"Move Down"/"Move Left"/"Move Right" actions to the TalkBack menu in each item via [`SemanticsPropertyReceiver.customActions`](<https://developer.android.com/reference/kotlin/androidx/compose/ui/semantics/package-summary#(androidx.compose.ui.semantics.SemanticsPropertyReceiver).customActions()>) and applying [`Modifier.clearAndSetSemantics`](<https://developer.android.com/reference/kotlin/androidx/compose/ui/semantics/package-summary#(androidx.compose.ui.Modifier).clearAndSetSemantics(kotlin.Function1)>) to the drag handle button to make the drag handle button not focusable for TalkBack. For more information, see [Key steps to improve Compose accessibility](https://developer.android.com/develop/ui/compose/accessibility/key-steps#custom-actions).
+
+#### FAQ
+
+##### When `onMove` is called to swap items, the dragging item flickers.
+
+> [!NOTE]  
+> This assumes you're using version 2.0.2 or later of this library.
+
+The `onMove` function expects the list to be updated before it returns. If the list is updated after `onMove` returns, the dragging item will flicker. To fix this, update the list before returning from `onMove`.
+
+If you can't keep the list update inside `onMove`, you can use a channel to communicate between `onMove` and the list update composition. Here's an example:
+
+```kotlin
+val listUpdatedChannel = remember { Channel<Unit>() }
+val reorderableLazyXXXXState = rememberReorderableLazyXXXXState(listState) { from, to ->
+    // clear the channel
+    listUpdatedChannel.tryReceive()
+
+    // update the list
+
+    // wait for the list to be updated
+    listUpdatedChannel.receive()
+}
+
+LaunchedEffect(list) {
+    // notify the list is updated
+    listUpdatedChannel.trySend(Unit)
+}
+```
+
+##### When moving the top item, the list flickers.
+
+See [issue #4](https://github.com/Calvin-LL/Reorderable/issues/4). This problem will be fixed once Compose Foundation v1.7.0 is released.
 
 ## API
 
