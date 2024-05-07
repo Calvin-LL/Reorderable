@@ -182,7 +182,7 @@ class ReorderableLazyStaggeredGridState internal constructor(
  *
  * @param state The return value of [rememberReorderableLazyStaggeredGridState]
  * @param key The key of the item, must be the same as the key passed to [LazyStaggeredGridScope.item](androidx.compose.foundation.lazy.staggeredgrid.item), [LazyStaggeredGridScope.items](androidx.compose.foundation.lazy.staggeredgrid.items) or similar functions in [LazyStaggeredGridScope](androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridScope)
- * @param enabled Whether or this item is reorderable
+ * @param enabled Whether or this item is reorderable. If true, the item will not move for other items but may still be draggable. To make an item not draggable, set `enable = false` in [Modifier.draggable] or [Modifier.longPressDraggable] instead.
  */
 @ExperimentalFoundationApi
 @Composable

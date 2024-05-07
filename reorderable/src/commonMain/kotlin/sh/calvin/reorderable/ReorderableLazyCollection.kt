@@ -694,7 +694,7 @@ internal class ReorderableCollectionItemScopeImpl(
  *
  * @param state The return value of [rememberReorderableLazyCollectionState]
  * @param key The key of the item, must be the same as the key passed to the parent composable
- * @param enabled Whether or this item is reorderable
+ * @param enabled Whether or this item is reorderable. If true, the item will not move for other items but may still be draggable. To make an item not draggable, set `enable = false` in [Modifier.draggable] or [Modifier.longPressDraggable] instead.
  * @param dragging Whether or not this item is currently being dragged
  */
 @ExperimentalFoundationApi

@@ -273,7 +273,7 @@ class ReorderableLazyListState internal constructor(
  *
  * @param state The return value of [rememberReorderableLazyListState]
  * @param key The key of the item, must be the same as the key passed to [LazyListScope.item](androidx.compose.foundation.lazy.item), [LazyListScope.items](androidx.compose.foundation.lazy.items) or similar functions in [LazyListScope](androidx.compose.foundation.lazy.LazyListScope)
- * @param enabled Whether or this item is reorderable
+ * @param enabled Whether or this item is reorderable. If true, the item will not move for other items but may still be draggable. To make an item not draggable, set `enable = false` in [Modifier.draggable] or [Modifier.longPressDraggable] instead.
  */
 @ExperimentalFoundationApi
 @Composable
