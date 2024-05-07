@@ -24,6 +24,9 @@ internal fun Modifier.draggable(
     onDragStarted: (Offset) -> Unit = { },
     onDragStopped: () -> Unit = { },
     onDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit,
+    // see preventDragStop in ReorderableLazyCollectionState
+    // TODO: remove once foundation v1.7.0 is out
+    preventDragStopProvider: () -> Boolean = { false },
 ) = composed {
     val coroutineScope = rememberCoroutineScope()
     var dragInteractionStart by remember { mutableStateOf<DragInteraction.Start?>(null) }
@@ -31,7 +34,7 @@ internal fun Modifier.draggable(
 
     DisposableEffect(key1) {
         onDispose {
-            if (dragStarted) {
+            if (dragStarted && !preventDragStopProvider()) {
                 dragInteractionStart?.also {
                     coroutineScope.launch {
                         interactionSource?.emit(DragInteraction.Cancel(it))
@@ -99,6 +102,9 @@ internal fun Modifier.longPressDraggable(
     onDragStarted: (Offset) -> Unit = { },
     onDragStopped: () -> Unit = { },
     onDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit,
+    // see preventDragStop in ReorderableLazyCollectionState
+    // TODO: remove once foundation v1.7.0 is out
+    preventDragStopProvider: () -> Boolean = { false },
 ) = composed {
     val coroutineScope = rememberCoroutineScope()
     var dragInteractionStart by remember { mutableStateOf<DragInteraction.Start?>(null) }
@@ -106,7 +112,7 @@ internal fun Modifier.longPressDraggable(
 
     DisposableEffect(key1) {
         onDispose {
-            if (dragStarted) {
+            if (dragStarted && !preventDragStopProvider()) {
                 dragInteractionStart?.also {
                     coroutineScope.launch {
                         interactionSource?.emit(DragInteraction.Cancel(it))

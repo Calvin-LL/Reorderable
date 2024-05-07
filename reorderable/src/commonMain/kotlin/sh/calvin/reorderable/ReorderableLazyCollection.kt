@@ -475,6 +475,12 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
         }
     }
 
+    // https://github.com/Calvin-LL/Reorderable/issues/32#issuecomment-2098550014
+    // using this to prevent drag from stopping even if an item is off screen
+    // during first item adjustment scroll
+    // TODO: remove once foundation v1.7.0 is out
+    internal var preventDragStop = false
+
     private suspend fun swapItems(
         draggingItem: LazyCollectionItemInfo<T>,
         targetItem: LazyCollectionItemInfo<T>,
@@ -504,9 +510,13 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
             null
         }
         if (scrollToIndex != null) {
+            preventDragStop = true
+
             // this is needed to neutralize automatic keeping the first item first.
             // see https://github.com/Calvin-LL/Reorderable/issues/4
             state.scrollToItem(scrollToIndex, state.firstVisibleItemScrollOffset)
+
+            preventDragStop = false
         }
         try {
             scope.(onMoveState.value)(draggingItem.data, targetItem.data)
@@ -624,6 +634,7 @@ internal class ReorderableCollectionItemScopeImpl(
                 change.consume()
                 reorderableLazyCollectionState.onDrag(dragAmount)
             },
+            preventDragStopProvider = { reorderableLazyCollectionState.preventDragStop },
         )
     }
 
@@ -673,6 +684,7 @@ internal class ReorderableCollectionItemScopeImpl(
                 change.consume()
                 reorderableLazyCollectionState.onDrag(dragAmount)
             },
+            preventDragStopProvider = { reorderableLazyCollectionState.preventDragStop },
         )
     }
 }
