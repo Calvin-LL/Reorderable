@@ -65,7 +65,7 @@ fun rememberReorderableLazyGridState(
         scrollableState = lazyGridState,
         pixelAmountProvider = { lazyGridState.layoutInfo.mainAxisViewportSize * ScrollAmountMultiplier },
     ),
-    onMove: (from: LazyGridItemInfo, to: LazyGridItemInfo) -> Unit,
+    onMove: suspend CoroutineScope.(from: LazyGridItemInfo, to: LazyGridItemInfo) -> Unit,
 ): ReorderableLazyGridState {
     val density = LocalDensity.current
     val scrollThresholdPx = with(density) { scrollThreshold.toPx() }
@@ -156,7 +156,7 @@ private fun LazyGridState.toLazyCollectionState() =
 class ReorderableLazyGridState internal constructor(
     state: LazyGridState,
     scope: CoroutineScope,
-    onMoveState: State<(from: LazyGridItemInfo, to: LazyGridItemInfo) -> Unit>,
+    onMoveState: State<suspend CoroutineScope.(from: LazyGridItemInfo, to: LazyGridItemInfo) -> Unit>,
 
     /**
      * The threshold in pixels for scrolling the grid when dragging an item.

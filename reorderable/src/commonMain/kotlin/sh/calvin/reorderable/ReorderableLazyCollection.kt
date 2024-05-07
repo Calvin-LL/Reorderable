@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.unit.toSize
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -223,7 +224,7 @@ interface ReorderableLazyCollectionStateInterface {
 open class ReorderableLazyCollectionState<out T> internal constructor(
     private val state: LazyCollectionState<T>,
     private val scope: CoroutineScope,
-    private val onMoveState: State<(from: T, to: T) -> Unit>,
+    private val onMoveState: State<suspend CoroutineScope.(from: T, to: T) -> Unit>,
 
     /**
      * The threshold in pixels for scrolling the list when dragging an item.
@@ -267,13 +268,28 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
     private var draggingItemDraggedDelta by mutableStateOf(Offset.Zero)
     private var draggingItemInitialOffset by mutableStateOf(IntOffset.Zero)
 
-    private var draggingItemTargetIndex: Int? = null
+    // visibleItemsInfo doesn't update immediately after onMove, draggingItemLayoutInfo.item may be outdated for a short time.
+    // not a clean solution, but it works.
+    private var draggingItemTargetIndex by mutableStateOf<Int?>(null)
+    private var predictedDraggingItemOffset by mutableStateOf<IntOffset?>(null)
+
     private val draggingItemLayoutInfo: LazyCollectionItemInfo<T>?
-        get() = state.layoutInfo.visibleItemsInfo.firstOrNull { it.key == draggingItemKey }
+        get() = draggingItemKey?.let { draggingItemKey ->
+            state.layoutInfo.visibleItemsInfo.firstOrNull { it.key == draggingItemKey }
+        }
     internal val draggingItemOffset: Offset
         get() = (draggingItemLayoutInfo?.let {
+            val offset =
+                if (it.index == draggingItemTargetIndex || draggingItemTargetIndex == null) {
+                    draggingItemTargetIndex = null
+                    predictedDraggingItemOffset = null
+                    it.offset
+                } else {
+                    predictedDraggingItemOffset ?: it.offset
+                }
+
             draggingItemDraggedDelta +
-                    (draggingItemInitialOffset.toOffset() - it.offset.toOffset())
+                    (draggingItemInitialOffset.toOffset() - offset.toOffset())
                         .reverseAxisIfNecessary()
                         .reverseAxisWithLayoutDirectionIfLazyVerticalStaggeredGridRtlFix()
         }) ?: Offset.Zero
@@ -333,6 +349,8 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
     }
 
     internal fun onDragStop() {
+        val previousDraggingItemInitialOffset = draggingItemLayoutInfo?.offset
+
         if (draggingItemIndex != null) {
             previousDraggingItemKey = draggingItemKey
             val startOffset = draggingItemOffset
@@ -350,13 +368,18 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
         }
         draggingItemDraggedDelta = Offset.Zero
         draggingItemKey = null
-        draggingItemInitialOffset = IntOffset.Zero
+        draggingItemInitialOffset = previousDraggingItemInitialOffset ?: IntOffset.Zero
         scroller.stop()
         draggingItemTargetIndex = null
+        predictedDraggingItemOffset = null
     }
+
+    private var swapItemsRunning = false
 
     internal fun onDrag(offset: Offset) {
         draggingItemDraggedDelta += offset
+
+        if (swapItemsRunning) return
 
         val draggingItem = draggingItemLayoutInfo ?: return
         val startOffset = draggingItem.offset.toOffset() +
@@ -379,7 +402,11 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
                             && item.key in reorderableKeys
                 }
             if (targetItem != null) {
-                swapItems(draggingItem, targetItem)
+                swapItemsRunning = true
+                scope.launch {
+                    swapItems(draggingItem, targetItem)
+                    swapItemsRunning = false
+                }
             }
         }
 
@@ -404,7 +431,9 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
                 Scroller.Direction.BACKWARD,
                 getScrollSpeedMultiplier(distanceFromStart),
                 onScroll = {
+                    swapItemsRunning = true
                     swapDraggingItemToEndIfNecessary(Scroller.Direction.BACKWARD)
+                    swapItemsRunning = false
                 }
             )
         } else if (distanceFromEnd < scrollThreshold) {
@@ -412,7 +441,9 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
                 Scroller.Direction.FORWARD,
                 getScrollSpeedMultiplier(distanceFromEnd),
                 onScroll = {
+                    swapItemsRunning = true
                     swapDraggingItemToEndIfNecessary(Scroller.Direction.FORWARD)
+                    swapItemsRunning = false
                 }
             )
         } else {
@@ -421,7 +452,7 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
     }
 
     // keep dragging item in visible area to prevent it from disappearing
-    private fun swapDraggingItemToEndIfNecessary(
+    private suspend fun swapDraggingItemToEndIfNecessary(
         direction: Scroller.Direction,
     ) {
         val draggingItem = draggingItemLayoutInfo ?: return
@@ -445,13 +476,11 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
     }
 
 
-    private fun swapItems(
+    private suspend fun swapItems(
         draggingItem: LazyCollectionItemInfo<T>,
         targetItem: LazyCollectionItemInfo<T>,
     ) {
         if (draggingItem.index == targetItem.index) return
-
-        draggingItemTargetIndex = targetItem.index
 
         // TODO: when `requestScrollToItem` is released uncomment this and remove `scrollToIndex` and the following `if` block
         // see https://android-review.googlesource.com/c/platform/frameworks/support/+/2987293
@@ -476,14 +505,21 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
             null
         }
         if (scrollToIndex != null) {
-            scope.launch {
-                // this is needed to neutralize automatic keeping the first item first.
-                // see https://github.com/Calvin-LL/Reorderable/issues/4
-                state.scrollToItem(scrollToIndex, state.firstVisibleItemScrollOffset)
-                onMoveState.value(draggingItem.data, targetItem.data)
+            // this is needed to neutralize automatic keeping the first item first.
+            // see https://github.com/Calvin-LL/Reorderable/issues/4
+            state.scrollToItem(scrollToIndex, state.firstVisibleItemScrollOffset)
+        }
+        try {
+            scope.(onMoveState.value)(draggingItem.data, targetItem.data)
+
+            predictedDraggingItemOffset = if (targetItem.index > draggingItem.index) {
+                (targetItem.offset + targetItem.size) - draggingItem.size
+            } else {
+                targetItem.offset
             }
-        } else {
-            onMoveState.value(draggingItem.data, targetItem.data)
+            draggingItemTargetIndex = targetItem.index
+        } catch (e: CancellationException) {
+            // do nothing
         }
     }
 

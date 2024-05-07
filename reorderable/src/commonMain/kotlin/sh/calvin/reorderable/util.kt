@@ -63,3 +63,7 @@ internal fun IntSize.Companion.fromAxis(orientation: Orientation, value: Int) =
     }
 
 internal operator fun Offset.plus(size: Size) = Offset(x + size.width, y + size.height)
+internal operator fun Offset.minus(size: Size) = Offset(x - size.width, y - size.height)
+
+internal operator fun IntOffset.plus(size: IntSize) = IntOffset(x + size.width, y + size.height)
+internal operator fun IntOffset.minus(size: IntSize) = IntOffset(x - size.width, y - size.height)

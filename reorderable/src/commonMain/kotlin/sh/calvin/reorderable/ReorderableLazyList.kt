@@ -74,7 +74,7 @@ fun rememberReorderableLazyColumnState(
         scrollableState = lazyListState,
         pixelAmountProvider = { lazyListState.layoutInfo.mainAxisViewportSize * ScrollAmountMultiplier },
     ),
-    onMove: (from: LazyListItemInfo, to: LazyListItemInfo) -> Unit,
+    onMove: suspend CoroutineScope.(from: LazyListItemInfo, to: LazyListItemInfo) -> Unit,
 ) = rememberReorderableLazyListState(
     lazyListState,
     scrollThresholdPadding,
@@ -110,7 +110,7 @@ fun rememberReorderableLazyRowState(
         scrollableState = lazyListState,
         pixelAmountProvider = { lazyListState.layoutInfo.mainAxisViewportSize * ScrollAmountMultiplier },
     ),
-    onMove: (from: LazyListItemInfo, to: LazyListItemInfo) -> Unit,
+    onMove: suspend CoroutineScope.(from: LazyListItemInfo, to: LazyListItemInfo) -> Unit,
 ) = rememberReorderableLazyListState(
     lazyListState,
     scrollThresholdPadding,
@@ -139,7 +139,7 @@ fun rememberReorderableLazyListState(
         scrollableState = lazyListState,
         pixelAmountProvider = { lazyListState.layoutInfo.mainAxisViewportSize * ScrollAmountMultiplier },
     ),
-    onMove: (from: LazyListItemInfo, to: LazyListItemInfo) -> Unit,
+    onMove: suspend CoroutineScope.(from: LazyListItemInfo, to: LazyListItemInfo) -> Unit,
 ): ReorderableLazyListState {
     val density = LocalDensity.current
     val scrollThresholdPx = with(density) { scrollThreshold.toPx() }
@@ -245,7 +245,7 @@ private fun LazyListState.toLazyCollectionState() =
 class ReorderableLazyListState internal constructor(
     state: LazyListState,
     scope: CoroutineScope,
-    onMoveState: State<(from: LazyListItemInfo, to: LazyListItemInfo) -> Unit>,
+    onMoveState: State<suspend CoroutineScope.(from: LazyListItemInfo, to: LazyListItemInfo) -> Unit>,
 
     /**
      * The threshold in pixels for scrolling the list when dragging an item.
@@ -303,13 +303,11 @@ fun LazyItemScope.ReorderableItem(
             .zIndex(1f)
             .then(when (orientation) {
                 Orientation.Vertical -> Modifier.graphicsLayer {
-                    translationY =
-                        state.previousDraggingItemOffset.value.y
+                    translationY = state.previousDraggingItemOffset.value.y
                 }
 
                 Orientation.Horizontal -> Modifier.graphicsLayer {
-                    translationX =
-                        state.previousDraggingItemOffset.value.x
+                    translationX = state.previousDraggingItemOffset.value.x
                 }
             })
     } else {

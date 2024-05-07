@@ -4,6 +4,7 @@ import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,6 +28,24 @@ internal fun Modifier.draggable(
     val coroutineScope = rememberCoroutineScope()
     var dragInteractionStart by remember { mutableStateOf<DragInteraction.Start?>(null) }
     var dragStarted by remember { mutableStateOf(false) }
+
+    DisposableEffect(key1) {
+        onDispose {
+            if (dragStarted) {
+                dragInteractionStart?.also {
+                    coroutineScope.launch {
+                        interactionSource?.emit(DragInteraction.Cancel(it))
+                    }
+                }
+
+                if (dragStarted) {
+                    onDragStopped()
+                }
+
+                dragStarted = false
+            }
+        }
+    }
 
     pointerInput(key1, enabled) {
         if (enabled) {
@@ -53,7 +72,6 @@ internal fun Modifier.draggable(
                     }
 
                     dragStarted = false
-
                 },
                 onDragCancel = {
                     dragInteractionStart?.also {
@@ -67,7 +85,6 @@ internal fun Modifier.draggable(
                     }
 
                     dragStarted = false
-
                 },
                 onDrag = onDrag,
             )
@@ -86,6 +103,24 @@ internal fun Modifier.longPressDraggable(
     val coroutineScope = rememberCoroutineScope()
     var dragInteractionStart by remember { mutableStateOf<DragInteraction.Start?>(null) }
     var dragStarted by remember { mutableStateOf(false) }
+
+    DisposableEffect(key1) {
+        onDispose {
+            if (dragStarted) {
+                dragInteractionStart?.also {
+                    coroutineScope.launch {
+                        interactionSource?.emit(DragInteraction.Cancel(it))
+                    }
+                }
+
+                if (dragStarted) {
+                    onDragStopped()
+                }
+
+                dragStarted = false
+            }
+        }
+    }
 
     pointerInput(key1, enabled) {
         if (enabled) {

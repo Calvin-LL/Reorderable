@@ -95,7 +95,7 @@ class Scroller(
     fun start(
         direction: Direction,
         speedMultiplier: Float = 1f,
-        onScroll: () -> Unit = {},
+        onScroll: suspend CoroutineScope.() -> Unit = {},
     ) {
         val scrollJobInfo = ScrollJobInfo(direction, speedMultiplier)
 
@@ -124,9 +124,7 @@ class Scroller(
                         )
                     }
 
-                    launch {
-                        onScroll()
-                    }
+                    onScroll()
 
                     delay(duration)
                 } catch (e: Exception) {
