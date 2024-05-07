@@ -475,7 +475,6 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
         }
     }
 
-
     private suspend fun swapItems(
         draggingItem: LazyCollectionItemInfo<T>,
         targetItem: LazyCollectionItemInfo<T>,
