@@ -423,8 +423,10 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
             ).toOffset()
 
         // check if the handle center is in the scroll threshold
-        val distanceFromStart = handleOffset.getAxis(orientation) - contentStartOffset
-        val distanceFromEnd = contentEndOffset - handleOffset.getAxis(orientation)
+        val distanceFromStart = (handleOffset.getAxis(orientation) - contentStartOffset)
+            .coerceAtLeast(0f)
+        val distanceFromEnd = (contentEndOffset - handleOffset.getAxis(orientation))
+            .coerceAtLeast(0f)
 
         if (distanceFromStart < scrollThreshold) {
             scroller.start(
