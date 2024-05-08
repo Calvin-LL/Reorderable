@@ -789,7 +789,7 @@ If the items in the list do not contain any button besides the drag handle, I re
 
 #### FAQ
 
-##### When `onMove` is called to swap items, the dragging item flickers.
+##### When `onMove` is called to move items, the dragging item flickers.
 
 > [!NOTE]  
 > This assumes you're using version 2.0.3 or later of this library.

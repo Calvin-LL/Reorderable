@@ -25,7 +25,7 @@ internal fun Modifier.draggable(
     onDragStopped: () -> Unit = { },
     onDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit,
     // see preventDragStop in ReorderableLazyCollectionState
-    // TODO: remove once foundation v1.7.0 is out
+    // TODO(foundation v1.7.0): remove once foundation v1.7.0 is out
     preventDragStopProvider: () -> Boolean = { false },
 ) = composed {
     val coroutineScope = rememberCoroutineScope()
@@ -103,7 +103,7 @@ internal fun Modifier.longPressDraggable(
     onDragStopped: () -> Unit = { },
     onDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit,
     // see preventDragStop in ReorderableLazyCollectionState
-    // TODO: remove once foundation v1.7.0 is out
+    // TODO(foundation v1.7.0): remove once foundation v1.7.0 is out
     preventDragStopProvider: () -> Boolean = { false },
 ) = composed {
     val coroutineScope = rememberCoroutineScope()

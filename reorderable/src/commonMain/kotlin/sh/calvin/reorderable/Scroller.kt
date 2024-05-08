@@ -35,7 +35,7 @@ import kotlinx.coroutines.launch
  *
  * @param scrollableState The [ScrollableState] to scroll.
  * @param pixelAmount The amount of pixels to scroll per duration.
- * @param duration The duration of each scroll.
+ * @param duration The duration of each scroll in milliseconds.
  */
 @Composable
 fun rememberScroller(
@@ -43,10 +43,29 @@ fun rememberScroller(
     pixelAmount: Float,
     duration: Long = 100,
 ): Scroller {
-    val scope = rememberCoroutineScope()
+    return rememberScroller(scrollableState, { pixelAmount }, duration)
+}
 
-    return remember(scrollableState, scope, pixelAmount, duration) {
-        Scroller(scrollableState, scope, { pixelAmount }, duration)
+/**
+ * A utility to programmatically scroll a [ScrollableState].
+ *
+ * @param scrollableState The [ScrollableState] to scroll.
+ * @param pixelPerSecond The amount of pixels to scroll per second.
+ */
+@Composable
+fun rememberScroller(
+    scrollableState: ScrollableState,
+    pixelPerSecond: Float,
+): Scroller {
+    val scope = rememberCoroutineScope()
+    val pixelPerSecondUpdated = rememberUpdatedState(pixelPerSecond)
+
+    return remember(scrollableState, scope) {
+        Scroller(
+            scrollableState,
+            scope,
+            pixelPerSecondProvider = { pixelPerSecondUpdated.value },
+        )
     }
 }
 
@@ -55,7 +74,7 @@ fun rememberScroller(
  *
  * @param scrollableState The [ScrollableState] to scroll.
  * @param pixelAmountProvider A function that returns the amount of pixels to scroll per duration.
- * @param duration The duration of each scroll.
+ * @param duration The duration of each scroll in milliseconds.
  */
 @Composable
 fun rememberScroller(
@@ -65,20 +84,32 @@ fun rememberScroller(
 ): Scroller {
     val scope = rememberCoroutineScope()
     val pixelAmountProviderUpdated = rememberUpdatedState(pixelAmountProvider)
+    val durationUpdated = rememberUpdatedState(duration)
 
     return remember(scrollableState, scope, duration) {
-        Scroller(scrollableState, scope, { pixelAmountProviderUpdated.value() }, duration)
+        Scroller(
+            scrollableState,
+            scope,
+            pixelPerSecondProvider = {
+                pixelAmountProviderUpdated.value() / (durationUpdated.value / 1000f)
+            },
+        )
     }
 }
 
 @Stable
-class Scroller(
+class Scroller internal constructor(
     private val scrollableState: ScrollableState,
     private val scope: CoroutineScope,
-    private val pixelAmountProvider: () -> Float,
-    private val duration: Long,
+    private val pixelPerSecondProvider: () -> Float,
 ) {
-    enum class Direction {
+    companion object {
+        // The maximum duration for a scroll animation in milliseconds.
+        private const val MaxScrollDuration = 100L
+        private const val ZeroScrollWaitDuration = 100L
+    }
+
+    internal enum class Direction {
         BACKWARD, FORWARD
     }
 
@@ -92,16 +123,18 @@ class Scroller(
     val isScrolling: Boolean
         get() = programmaticScrollJobInfo != null
 
-    fun start(
+    internal fun start(
         direction: Direction,
         speedMultiplier: Float = 1f,
+        maxScrollDistanceProvider: () -> Float = { Float.MAX_VALUE },
         onScroll: suspend CoroutineScope.() -> Unit = {},
     ) {
         val scrollJobInfo = ScrollJobInfo(direction, speedMultiplier)
 
         if (programmaticScrollJobInfo == scrollJobInfo) return
 
-        val multipliedScrollOffset = pixelAmountProvider() * speedMultiplier
+        val pixelPerSecond = pixelPerSecondProvider() * speedMultiplier
+        val pixelPerMs = pixelPerSecond / 1000f
 
         programmaticScrollJob?.cancel()
         programmaticScrollJobInfo = null
@@ -112,21 +145,28 @@ class Scroller(
         programmaticScrollJob = scope.launch {
             while (true) {
                 try {
-                    if (!canScroll(direction)) break
-
-                    val diff = when (direction) {
-                        Direction.BACKWARD -> -multipliedScrollOffset
-                        Direction.FORWARD -> multipliedScrollOffset
-                    }
-                    launch {
-                        scrollableState.animateScrollBy(
-                            diff, tween(durationMillis = duration.toInt(), easing = LinearEasing)
-                        )
-                    }
-
                     onScroll()
 
-                    delay(duration)
+                    if (!canScroll(direction)) break
+
+                    val maxScrollDistance = maxScrollDistanceProvider()
+                    if (maxScrollDistance == 0f) {
+                        delay(ZeroScrollWaitDuration)
+                        continue
+                    }
+                    val maxScrollDistanceDuration = maxScrollDistance / pixelPerMs
+                    val duration = maxScrollDistanceDuration.toLong().coerceIn(1L, MaxScrollDuration)
+                    val scrollDistance = maxScrollDistance * (duration / maxScrollDistanceDuration)
+                    val diff = scrollDistance.let {
+                            when (direction) {
+                                Direction.BACKWARD -> -it
+                                Direction.FORWARD -> it
+                            }
+                        }
+
+                    scrollableState.animateScrollBy(
+                        diff, tween(durationMillis = duration.toInt(), easing = LinearEasing)
+                    )
                 } catch (e: Exception) {
                     break
                 }
@@ -141,7 +181,7 @@ class Scroller(
         }
     }
 
-    fun stop() {
+    internal fun stop() {
         programmaticScrollJob?.cancel()
         programmaticScrollJobInfo = null
     }

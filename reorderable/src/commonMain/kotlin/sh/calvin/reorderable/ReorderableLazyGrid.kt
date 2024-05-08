@@ -54,7 +54,7 @@ import kotlinx.coroutines.CoroutineScope
  * @param scrollThresholdPadding The padding that will be added to the top and bottom, or start and end of the grid to determine the scrollThreshold. Useful for when the grid is displayed under the navigation bar or notification bar.
  * @param scrollThreshold The distance in dp from the top and bottom, or start and end of the grid that will trigger scrolling
  * @param scroller The [Scroller] that will be used to scroll the grid. Use [rememberScroller](sh.calvin.reorderable.ScrollerKt.rememberScroller) to create a [Scroller].
- * @param onMove The function that is called when an item is moved. Make sure this function returns only after the items are swapped. This suspend function is invoked with the `rememberReorderableLazyGridState` scope, allowing for async processing, if desired. Note that the scope used here is the one provided by the composition where `rememberReorderableLazyGridState` is called, for long running work that needs to outlast `rememberReorderableLazyGridState` being in the composition you should use a scope that fits the lifecycle needed.
+ * @param onMove The function that is called when an item is moved. Make sure this function returns only after the items are moved. This suspend function is invoked with the `rememberReorderableLazyGridState` scope, allowing for async processing, if desired. Note that the scope used here is the one provided by the composition where `rememberReorderableLazyGridState` is called, for long running work that needs to outlast `rememberReorderableLazyGridState` being in the composition you should use a scope that fits the lifecycle needed.
  */
 @Composable
 fun rememberReorderableLazyGridState(
