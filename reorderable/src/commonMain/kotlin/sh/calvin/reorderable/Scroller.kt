@@ -27,6 +27,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -113,64 +115,79 @@ class Scroller internal constructor(
         BACKWARD, FORWARD
     }
 
-    private data class ScrollJobInfo(
+    private data class ScrollInfo(
         val direction: Direction,
         val speedMultiplier: Float,
-    )
+        val maxScrollDistanceProvider: () -> Float,
+        val onScroll: suspend () -> Unit,
+    ) {
+        companion object {
+            val Null = ScrollInfo(Direction.FORWARD, 0f, { 0f }, {})
+        }
+    }
 
-    private var programmaticScrollJobInfo: ScrollJobInfo? = null
     private var programmaticScrollJob: Job? = null
     val isScrolling: Boolean
-        get() = programmaticScrollJobInfo != null
+        get() = programmaticScrollJob != null
+
+    private val scrollInfoChannel = Channel<ScrollInfo>(Channel.CONFLATED)
 
     internal fun start(
         direction: Direction,
         speedMultiplier: Float = 1f,
         maxScrollDistanceProvider: () -> Float = { Float.MAX_VALUE },
-        onScroll: suspend CoroutineScope.() -> Unit = {},
+        onScroll: suspend () -> Unit = {},
     ) {
-        val scrollJobInfo = ScrollJobInfo(direction, speedMultiplier)
-
-        if (programmaticScrollJobInfo == scrollJobInfo) return
-
-        val pixelPerSecond = pixelPerSecondProvider() * speedMultiplier
-        val pixelPerMs = pixelPerSecond / 1000f
-
-        programmaticScrollJob?.cancel()
-        programmaticScrollJobInfo = null
-
         if (!canScroll(direction)) return
 
-        programmaticScrollJobInfo = scrollJobInfo
-        programmaticScrollJob = scope.launch {
-            while (true) {
-                try {
-                    onScroll()
+        if (programmaticScrollJob == null) {
+            programmaticScrollJob = scope.launch {
+                scrollLoop()
+            }
+        }
 
-                    if (!canScroll(direction)) break
+        val scrollInfo =
+            ScrollInfo(direction, speedMultiplier, maxScrollDistanceProvider, onScroll)
 
-                    val maxScrollDistance = maxScrollDistanceProvider()
-                    if (maxScrollDistance == 0f) {
-                        delay(ZeroScrollWaitDuration)
-                        continue
-                    }
-                    val maxScrollDistanceDuration = maxScrollDistance / pixelPerMs
-                    val duration = maxScrollDistanceDuration.toLong().coerceIn(1L, MaxScrollDuration)
-                    val scrollDistance = maxScrollDistance * (duration / maxScrollDistanceDuration)
-                    val diff = scrollDistance.let {
-                            when (direction) {
-                                Direction.BACKWARD -> -it
-                                Direction.FORWARD -> it
-                            }
-                        }
+        scrollInfoChannel.trySend(scrollInfo)
+    }
 
-                    scrollableState.animateScrollBy(
-                        diff, tween(durationMillis = duration.toInt(), easing = LinearEasing)
-                    )
-                } catch (e: Exception) {
-                    break
+    private suspend fun scrollLoop() {
+        var scrollInfo: ScrollInfo? = null
+
+        while (true) {
+            scrollInfo = scrollInfoChannel.tryReceive().getOrNull() ?: scrollInfo
+            if (scrollInfo == null || scrollInfo == ScrollInfo.Null) break
+
+            val (direction, speedMultiplier, maxScrollDistanceProvider, onScroll) = scrollInfo
+
+            val pixelPerSecond = pixelPerSecondProvider() * speedMultiplier
+            val pixelPerMs = pixelPerSecond / 1000f
+
+            onScroll()
+
+            if (!canScroll(direction)) break
+
+            val maxScrollDistance = maxScrollDistanceProvider()
+            if (maxScrollDistance == 0f) {
+                delay(ZeroScrollWaitDuration)
+                continue
+            }
+            val maxScrollDistanceDuration = maxScrollDistance / pixelPerMs
+            val duration =
+                maxScrollDistanceDuration.toLong().coerceIn(1L, MaxScrollDuration)
+            val scrollDistance =
+                maxScrollDistance * (duration / maxScrollDistanceDuration)
+            val diff = scrollDistance.let {
+                when (direction) {
+                    Direction.BACKWARD -> -it
+                    Direction.FORWARD -> it
                 }
             }
+
+            scrollableState.animateScrollBy(
+                diff, tween(durationMillis = duration.toInt(), easing = LinearEasing)
+            )
         }
     }
 
@@ -181,8 +198,15 @@ class Scroller internal constructor(
         }
     }
 
-    internal fun stop() {
-        programmaticScrollJob?.cancel()
-        programmaticScrollJobInfo = null
+    internal suspend fun stop() {
+        scrollInfoChannel.send(ScrollInfo.Null)
+        programmaticScrollJob?.cancelAndJoin()
+        programmaticScrollJob = null
+    }
+
+    internal fun tryStop() {
+        scope.launch {
+            stop()
+        }
     }
 }

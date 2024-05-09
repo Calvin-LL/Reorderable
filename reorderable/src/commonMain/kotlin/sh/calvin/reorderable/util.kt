@@ -5,6 +5,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import kotlinx.coroutines.sync.Mutex
 
 internal fun Offset.getAxis(orientation: Orientation) = when (orientation) {
     Orientation.Vertical -> y
@@ -67,3 +68,14 @@ internal operator fun Offset.minus(size: Size) = Offset(x - size.width, y - size
 
 internal operator fun IntOffset.plus(size: IntSize) = IntOffset(x + size.width, y + size.height)
 internal operator fun IntOffset.minus(size: IntSize) = IntOffset(x - size.width, y - size.height)
+
+
+internal fun Mutex.withTryLock(block: () -> Unit): Boolean {
+    return if (tryLock()) {
+        block()
+        unlock()
+        true
+    } else {
+        false
+    }
+}

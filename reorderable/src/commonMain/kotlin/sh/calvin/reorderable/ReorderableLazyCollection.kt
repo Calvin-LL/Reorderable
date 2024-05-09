@@ -40,6 +40,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
@@ -56,7 +57,12 @@ import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.unit.toSize
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withTimeout
 
 object ReorderableLazyCollectionDefaults {
     val ScrollThreshold = 48.dp
@@ -71,6 +77,8 @@ internal data class AbsolutePixelPadding(
     val bottom: Float,
 ) {
     companion object {
+        val Zero = AbsolutePixelPadding(0f, 0f, 0f, 0f)
+
         @Composable
         fun fromPaddingValues(paddingValues: PaddingValues): AbsolutePixelPadding {
             val density = LocalDensity.current
@@ -104,6 +112,8 @@ internal data class CollectionScrollPadding(
     val end: Float,
 ) {
     companion object {
+        val Zero = CollectionScrollPadding(0f, 0f)
+
         fun fromAbsolutePixelPadding(
             orientation: Orientation,
             padding: AbsolutePixelPadding,
@@ -178,6 +188,9 @@ internal interface LazyCollectionLayoutInfo<out T> {
         )
     }
 
+    /**
+     * get items that are fully inside the content area
+     */
     fun getItemsInContentArea(padding: AbsolutePixelPadding) = getItemsInContentArea(
         CollectionScrollPadding.fromAbsolutePixelPadding(
             orientation,
@@ -186,8 +199,10 @@ internal interface LazyCollectionLayoutInfo<out T> {
         )
     )
 
-    // get items that are fully inside the content area
-    fun getItemsInContentArea(padding: CollectionScrollPadding): List<LazyCollectionItemInfo<T>> {
+    /**
+     * get items that are fully inside the content area
+     */
+    fun getItemsInContentArea(padding: CollectionScrollPadding = CollectionScrollPadding.Zero): List<LazyCollectionItemInfo<T>> {
         val (contentStartOffset, contentEndOffset) = getScrollAreaOffsets(
             padding
         )
@@ -258,6 +273,8 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
         draggingItem.contains(item.center)
     },
 ) : ReorderableLazyCollectionStateInterface {
+    private val onMoveStateMutex: Mutex = Mutex()
+
     internal val orientation: Orientation
         get() = state.layoutInfo.orientation
 
@@ -380,19 +397,21 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
         draggingItemDraggedDelta = Offset.Zero
         draggingItemKey = null
         draggingItemInitialOffset = previousDraggingItemInitialOffset ?: IntOffset.Zero
-        scroller.stop()
+        scroller.tryStop()
         draggingItemTargetIndex = null
         predictedDraggingItemOffset = null
     }
 
-    private var moveItemsRunning = false
-
     internal fun onDrag(offset: Offset) {
         draggingItemDraggedDelta += offset
 
-        if (moveItemsRunning) return
+        if (!onMoveStateMutex.tryLock()) return
 
-        val draggingItem = draggingItemLayoutInfo ?: return
+        val draggingItem = draggingItemLayoutInfo
+        if (draggingItem == null) {
+            onMoveStateMutex.unlock()
+            return
+        }
         // how far the dragging item is from the original position
         val dragOffset = draggingItemOffset.reverseAxisIfNecessary()
             .reverseAxisWithLayoutDirectionIfLazyVerticalStaggeredGridRtlFix()
@@ -405,28 +424,21 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
         if (!scroller.isScrolling) {
             val draggingItemRect = Rect(startOffset, endOffset)
             // find a target item to move with
-            val targetItemFunc = { item: LazyCollectionItemInfo<T> ->
+            val visibleItems = state.layoutInfo.getItemsInContentArea()
+            val targetItem = visibleItems.find { item ->
                 val targetItemRect = Rect(item.offset.toOffset(), item.size.toSize())
 
                 shouldItemMove(draggingItemRect, targetItemRect)
                         && draggingItem.index != item.index
                         && item.key in reorderableKeys
             }
-            val targetItem = dragOffset.mainAxis().let {
-                when {
-                    it < 0 -> state.layoutInfo.visibleItemsInfo.find(targetItemFunc)
-                    it > 0 -> state.layoutInfo.visibleItemsInfo.findLast(targetItemFunc)
-                    else -> null
-                }
-            }
             if (targetItem != null) {
-                moveItemsRunning = true
                 scope.launch {
                     moveItems(draggingItem, targetItem)
-                    moveItemsRunning = false
                 }
             }
         }
+        onMoveStateMutex.unlock()
 
         // the distance from the top or left of the list to the center of the dragging item handle
         val handleOffset =
@@ -458,9 +470,7 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
                     }) ?: 0f
                 },
                 onScroll = {
-                    moveItemsRunning = true
                     moveDraggingItemToEnd(Scroller.Direction.BACKWARD)
-                    moveItemsRunning = false
                 }
             )
         } else if (distanceFromEnd < scrollThreshold) {
@@ -482,13 +492,11 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
                     }) ?: 0f
                 },
                 onScroll = {
-                    moveItemsRunning = true
                     moveDraggingItemToEnd(Scroller.Direction.FORWARD)
-                    moveItemsRunning = false
                 }
             )
         } else {
-            scroller.stop()
+            scroller.tryStop()
         }
     }
 
@@ -496,7 +504,14 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
     private suspend fun moveDraggingItemToEnd(
         direction: Scroller.Direction,
     ) {
-        val draggingItem = draggingItemLayoutInfo ?: return
+        // wait for the current moveItems to finish
+        onMoveStateMutex.lock()
+
+        val draggingItem = draggingItemLayoutInfo
+        if (draggingItem == null) {
+            onMoveStateMutex.unlock()
+            return
+        }
         val itemsInContentArea = state.layoutInfo.getItemsInContentArea(
             scrollThresholdPadding
         )
@@ -505,16 +520,20 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
             Scroller.Direction.BACKWARD -> itemsInContentArea.find { it.key in reorderableKeys && it.index != state.firstVisibleItemIndex }
             Scroller.Direction.FORWARD -> itemsInContentArea.findLast { it.key in reorderableKeys && it.index != state.firstVisibleItemIndex }
         }
-        if (targetItem != null && targetItem.index != draggingItem.index) {
-            moveItems(draggingItem, targetItem, true)
+        val job = scope.launch {
+            if (targetItem != null && targetItem.index != draggingItem.index) {
+                moveItems(draggingItem, targetItem, true)
+            }
         }
+        onMoveStateMutex.unlock()
+        job.join()
     }
 
-    // https://github.com/Calvin-LL/Reorderable/issues/32#issuecomment-2098550014
-    // using this to prevent drag from stopping even if an item is off screen
-    // during first item adjustment scroll
-    // TODO(foundation v1.7.0): remove once foundation v1.7.0 is out
-    internal var preventDragStop = false
+    private val layoutInfoFlow = snapshotFlow { state.layoutInfo }
+
+    companion object {
+        val MoveItemsLayoutInfoUpdateMaxWaitDuration = 1000L
+    }
 
     private suspend fun moveItems(
         draggingItem: LazyCollectionItemInfo<T>,
@@ -547,24 +566,28 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
                 null
             }
             if (scrollToIndex != null) {
-                preventDragStop = true
-
                 // this is needed to neutralize automatic keeping the first item first.
                 // see https://github.com/Calvin-LL/Reorderable/issues/4
                 state.scrollToItem(scrollToIndex, state.firstVisibleItemScrollOffset)
-
-                preventDragStop = false
             }
         }
         try {
-            scope.(onMoveState.value)(draggingItem.data, targetItem.data)
+            onMoveStateMutex.withLock {
+                scope.(onMoveState.value)(draggingItem.data, targetItem.data)
 
-            predictedDraggingItemOffset = if (targetItem.index > draggingItem.index) {
-                (targetItem.offset + targetItem.size) - draggingItem.size
-            } else {
-                targetItem.offset
+                predictedDraggingItemOffset = if (targetItem.index > draggingItem.index) {
+                    (targetItem.offset + targetItem.size) - draggingItem.size
+                } else {
+                    targetItem.offset
+                }
+                draggingItemTargetIndex = targetItem.index
+
+                withTimeout(MoveItemsLayoutInfoUpdateMaxWaitDuration) {
+                    // the first result from layoutInfoFlow is the current layoutInfo
+                    // the second result is the updated layoutInfo
+                    layoutInfoFlow.take(2).collect()
+                }
             }
-            draggingItemTargetIndex = targetItem.index
         } catch (e: CancellationException) {
             // do nothing
         }
@@ -672,7 +695,6 @@ internal class ReorderableCollectionItemScopeImpl(
                 change.consume()
                 reorderableLazyCollectionState.onDrag(dragAmount)
             },
-            preventDragStopProvider = { reorderableLazyCollectionState.preventDragStop },
         )
     }
 
@@ -722,7 +744,6 @@ internal class ReorderableCollectionItemScopeImpl(
                 change.consume()
                 reorderableLazyCollectionState.onDrag(dragAmount)
             },
-            preventDragStopProvider = { reorderableLazyCollectionState.preventDragStop },
         )
     }
 }
