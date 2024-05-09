@@ -112,7 +112,13 @@ class Scroller internal constructor(
     }
 
     internal enum class Direction {
-        BACKWARD, FORWARD
+        BACKWARD, FORWARD;
+
+        val opposite: Direction
+            get() = when (this) {
+                BACKWARD -> FORWARD
+                FORWARD -> BACKWARD
+            }
     }
 
     private data class ScrollInfo(

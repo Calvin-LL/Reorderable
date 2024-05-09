@@ -424,13 +424,8 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
         if (!scroller.isScrolling) {
             val draggingItemRect = Rect(startOffset, endOffset)
             // find a target item to move with
-            val visibleItems = state.layoutInfo.getItemsInContentArea()
-            val targetItem = visibleItems.find { item ->
-                val targetItemRect = Rect(item.offset.toOffset(), item.size.toSize())
-
-                shouldItemMove(draggingItemRect, targetItemRect)
-                        && draggingItem.index != item.index
-                        && item.key in reorderableKeys
+            val targetItem = findTargetItem(draggingItemRect) {
+                it.index != draggingItem.index
             }
             if (targetItem != null) {
                 scope.launch {
@@ -512,21 +507,70 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
             onMoveStateMutex.unlock()
             return
         }
-        val itemsInContentArea = state.layoutInfo.getItemsInContentArea(
-            scrollThresholdPadding
-        )
-        val targetItem = when (direction) {
+        val dragOffset = draggingItemOffset.reverseAxisIfNecessary()
+            .reverseAxisWithLayoutDirectionIfLazyVerticalStaggeredGridRtlFix()
+        val startOffset = draggingItem.offset.toOffset() + dragOffset
+        val endOffset = startOffset + draggingItem.size.toSize()
+        val draggingItemRect = Rect(startOffset, endOffset).maxOutAxis(orientation)
+        val targetItem = findTargetItem(
+            draggingItemRect,
+            items = state.layoutInfo.getItemsInContentArea(scrollThresholdPadding),
+            direction.opposite,
+        ) {
             // TODO(foundation v1.7.0): remove `state.firstVisibleItemIndex` check once foundation v1.7.0 is out
-            Scroller.Direction.BACKWARD -> itemsInContentArea.find { it.key in reorderableKeys && it.index != state.firstVisibleItemIndex }
-            Scroller.Direction.FORWARD -> itemsInContentArea.findLast { it.key in reorderableKeys && it.index != state.firstVisibleItemIndex }
+            it.index != state.firstVisibleItemIndex
+        } ?: state.layoutInfo.getItemsInContentArea(
+            scrollThresholdPadding
+        ).let {
+            val targetItemFunc = { item: LazyCollectionItemInfo<T> ->
+                item.key in reorderableKeys && item.index != state.firstVisibleItemIndex
+            }
+            when (direction) {
+                Scroller.Direction.FORWARD -> it.findLast(targetItemFunc)
+                Scroller.Direction.BACKWARD -> it.find(targetItemFunc)
+            }
         }
         val job = scope.launch {
-            if (targetItem != null && targetItem.index != draggingItem.index) {
+            if (targetItem != null) {
                 moveItems(draggingItem, targetItem, true)
             }
         }
         onMoveStateMutex.unlock()
         job.join()
+    }
+
+    private fun Rect.maxOutAxis(orientation: Orientation): Rect {
+        return when (orientation) {
+            Orientation.Vertical -> copy(
+                top = Float.NEGATIVE_INFINITY,
+                bottom = Float.POSITIVE_INFINITY,
+            )
+
+            Orientation.Horizontal -> copy(
+                left = Float.NEGATIVE_INFINITY,
+                right = Float.POSITIVE_INFINITY,
+            )
+        }
+    }
+
+    private fun findTargetItem(
+        draggingItemRect: Rect,
+        items: List<LazyCollectionItemInfo<T>> = state.layoutInfo.getItemsInContentArea(),
+        direction: Scroller.Direction = Scroller.Direction.FORWARD,
+        additionalPredicate: (LazyCollectionItemInfo<T>) -> Boolean = { true },
+    ): LazyCollectionItemInfo<T>? {
+        val targetItemFunc = { item: LazyCollectionItemInfo<T> ->
+            val targetItemRect = Rect(item.offset.toOffset(), item.size.toSize())
+
+            shouldItemMove(draggingItemRect, targetItemRect)
+                    && item.key in reorderableKeys
+                    && additionalPredicate(item)
+        }
+        val targetItem = when (direction) {
+            Scroller.Direction.FORWARD -> items.find(targetItemFunc)
+            Scroller.Direction.BACKWARD -> items.findLast(targetItemFunc)
+        }
+        return targetItem
     }
 
     private val layoutInfoFlow = snapshotFlow { state.layoutInfo }
