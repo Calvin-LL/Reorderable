@@ -8,7 +8,7 @@ The latest demo app APK can be found in the [releases](https://github.com/Calvin
   <thead>
     <tr>
       <th width="50%">LazyColumn</th>
-      <th width="50%">LazyRow</th>
+      <th width="50%">LazyGrid</th>
     </tr>
   </thead>
   <tbody>
