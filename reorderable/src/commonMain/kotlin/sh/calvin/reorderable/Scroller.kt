@@ -176,7 +176,7 @@ class Scroller internal constructor(
             if (!canScroll(direction)) break
 
             val maxScrollDistance = maxScrollDistanceProvider()
-            if (maxScrollDistance == 0f) {
+            if (maxScrollDistance <= 0f) {
                 delay(ZeroScrollWaitDuration)
                 continue
             }

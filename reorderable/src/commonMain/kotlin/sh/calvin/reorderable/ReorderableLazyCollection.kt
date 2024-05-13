@@ -460,10 +460,16 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
                         // TODO(foundation v1.7.0): remove once foundation v1.7.0 is out
                         val itemBeforeDraggingItem =
                             visibleItems.getOrNull(visibleItems.indexOfFirst { it.key == draggingItemKey } - 1)
-                        val itemToAlmostScrollOff = itemBeforeDraggingItem ?: it
-
-                        itemToAlmostScrollOff.offset.toOffset().getAxis(orientation) +
+                        var itemToAlmostScrollOff = itemBeforeDraggingItem ?: it
+                        var scrollDistance = itemToAlmostScrollOff.offset.toOffset().getAxis(orientation) +
                                 itemToAlmostScrollOff.size.getAxis(orientation) - 1f
+                        if (scrollDistance <= 0f) {
+                            itemToAlmostScrollOff = it
+                            scrollDistance = itemToAlmostScrollOff.offset.toOffset().getAxis(orientation) +
+                                    itemToAlmostScrollOff.size.getAxis(orientation) - 1f
+                        }
+
+                        scrollDistance
                     }) ?: 0f
                 },
                 onScroll = {
@@ -802,7 +808,7 @@ internal class ReorderableCollectionItemScopeImpl(
 /**
  * A composable that allows items to be reordered by dragging.
  *
- * @param state The return value of [rememberReorderableLazyCollectionState]
+ * @param state The return value of [rememberReorderableLazyListState], [rememberReorderableLazyGridState], or [rememberReorderableLazyStaggeredGridState]
  * @param key The key of the item, must be the same as the key passed to the parent composable
  * @param enabled Whether or this item is reorderable. If true, the item will not move for other items but may still be draggable. To make an item not draggable, set `enable = false` in [Modifier.draggable] or [Modifier.longPressDraggable] instead.
  * @param dragging Whether or not this item is currently being dragged
