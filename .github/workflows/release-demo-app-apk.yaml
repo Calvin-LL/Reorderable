@@ -19,6 +19,9 @@ jobs:
           distribution: temurin
           java-version: 21
       - name: Build APK
+        env:
+          DEMO_APP_KEYSTORE_PASSWORD: ${{ secrets.DEMO_APP_KEYSTORE_PASSWORD }}
+          APK_KEY_PASSWORD: ${{ secrets.APK_KEY_PASSWORD }}
         run: ./gradlew :demoApp:composeApp:assembleRelease --stacktrace
       - name: Get latest release
         id: latest_release
