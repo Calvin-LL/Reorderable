@@ -82,9 +82,18 @@ android {
         res.srcDirs("src/androidMain/res")
         resources.srcDirs("src/commonMain/resources")
     }
+    signingConfigs {
+        create("release") {
+            storeFile = file("reorderable-apk.keystore")
+            storePassword = System.getenv("DEMO_APP_KEYSTORE_PASSWORD")
+            keyAlias = "demo-app"
+            keyPassword = System.getenv("APK_KEY_PASSWORD")
+        }
+    }
     buildTypes {
         release {
-            isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("release")
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -104,14 +113,6 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
-    }
-    signingConfigs {
-        create("release") {
-            storeFile = file("reorderable-apk.keystore")
-            storePassword = System.getenv("DEMO_APP_KEYSTORE_PASSWORD")
-            keyAlias = "demo-app"
-            keyPassword = System.getenv("APK_KEY_PASSWORD")
         }
     }
 }
