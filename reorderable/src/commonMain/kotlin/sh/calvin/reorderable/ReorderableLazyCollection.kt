@@ -461,12 +461,14 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
                         val itemBeforeDraggingItem =
                             visibleItems.getOrNull(visibleItems.indexOfFirst { it.key == draggingItemKey } - 1)
                         var itemToAlmostScrollOff = itemBeforeDraggingItem ?: it
-                        var scrollDistance = itemToAlmostScrollOff.offset.toOffset().getAxis(orientation) +
-                                itemToAlmostScrollOff.size.getAxis(orientation) - 1f
+                        var scrollDistance =
+                            itemToAlmostScrollOff.offset.toOffset().getAxis(orientation) +
+                                    itemToAlmostScrollOff.size.getAxis(orientation) - 1f
                         if (scrollDistance <= 0f) {
                             itemToAlmostScrollOff = it
-                            scrollDistance = itemToAlmostScrollOff.offset.toOffset().getAxis(orientation) +
-                                    itemToAlmostScrollOff.size.getAxis(orientation) - 1f
+                            scrollDistance =
+                                itemToAlmostScrollOff.offset.toOffset().getAxis(orientation) +
+                                        itemToAlmostScrollOff.size.getAxis(orientation) - 1f
                         }
 
                         scrollDistance
@@ -545,7 +547,7 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
         }
         val job = scope.launch {
             if (targetItem != null) {
-                moveItems(draggingItem, targetItem, true)
+                moveItems(draggingItem, targetItem)
             }
         }
         onMoveStateMutex.unlock()
@@ -589,13 +591,12 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
     private val layoutInfoFlow = snapshotFlow { state.layoutInfo }
 
     companion object {
-        val MoveItemsLayoutInfoUpdateMaxWaitDuration = 1000L
+        const val MoveItemsLayoutInfoUpdateMaxWaitDuration = 1000L
     }
 
     private suspend fun moveItems(
         draggingItem: LazyCollectionItemInfo<T>,
         targetItem: LazyCollectionItemInfo<T>,
-        skipScrollFix: Boolean = false,
     ) {
         if (draggingItem.index == targetItem.index) return
 
@@ -614,20 +615,19 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
 //
 //        onMoveState.value(draggingItem, targetItem)
 
-        if (!skipScrollFix) {
-            val scrollToIndex = if (targetItem.index == state.firstVisibleItemIndex) {
-                draggingItem.index
-            } else if (draggingItem.index == state.firstVisibleItemIndex) {
-                targetItem.index
-            } else {
-                null
-            }
-            if (scrollToIndex != null) {
-                // this is needed to neutralize automatic keeping the first item first.
-                // see https://github.com/Calvin-LL/Reorderable/issues/4
-                state.scrollToItem(scrollToIndex, state.firstVisibleItemScrollOffset)
-            }
+        val scrollToIndex = if (targetItem.index == state.firstVisibleItemIndex) {
+            draggingItem.index
+        } else if (draggingItem.index == state.firstVisibleItemIndex) {
+            targetItem.index
+        } else {
+            null
         }
+        if (scrollToIndex != null) {
+            // this is needed to neutralize automatic keeping the first item first.
+            // see https://github.com/Calvin-LL/Reorderable/issues/4
+            state.scrollToItem(scrollToIndex, state.firstVisibleItemScrollOffset)
+        }
+
         try {
             onMoveStateMutex.withLock {
                 scope.(onMoveState.value)(draggingItem.data, targetItem.data)
