@@ -19,7 +19,9 @@ jobs:
           distribution: temurin
           java-version: 21
       - name: Build APK
-        run: ./gradlew assembleDebug --stacktrace
+        run: ./gradlew :demoApp:composeApp:assembleRelease --stacktrace
+      - name: Build JAR
+        run: ./gradlew :demoApp:composeApp:packageReleaseUberJarForCurrentOS --stacktrace
       - name: Get latest release
         id: latest_release
         uses: pozetroninc/github-action-get-latest-release@master
@@ -30,4 +32,8 @@ jobs:
       - name: Upload APK
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload ${{ steps.latest_release.outputs.release }} demoApp/composeApp/build/outputs/apk/debug/composeApp-debug.apk#demoApp.apk --clobber
+        run: gh release upload ${{ steps.latest_release.outputs.release }} demoApp/composeApp/build/outputs/apk/release/composeApp-release-unsigned.apk#demoApp.apk --clobber
+      - name: Upload JAR
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload ${{ steps.latest_release.outputs.release }} demoApp/composeApp/build/compose/jars/sh.calvin.reorderable.demo-linux-x64-1.0.0.jar#demoApp-desktop.jar --clobber
