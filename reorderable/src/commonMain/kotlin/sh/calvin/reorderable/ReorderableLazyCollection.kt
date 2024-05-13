@@ -506,6 +506,14 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
             onMoveStateMutex.unlock()
             return
         }
+        val isDraggingItemAtEnd = when (direction) {
+            Scroller.Direction.FORWARD -> draggingItem.index == state.layoutInfo.visibleItemsInfo.lastOrNull()?.index
+            Scroller.Direction.BACKWARD -> draggingItem.index == state.firstVisibleItemIndex
+        }
+        if (isDraggingItemAtEnd) {
+            onMoveStateMutex.unlock()
+            return
+        }
         val dragOffset = draggingItemOffset.reverseAxisIfNecessary()
             .reverseAxisWithLayoutDirectionIfLazyVerticalStaggeredGridRtlFix()
         val startOffset = draggingItem.offset.toOffset() + dragOffset
