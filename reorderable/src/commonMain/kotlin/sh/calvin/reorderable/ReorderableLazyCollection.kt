@@ -405,13 +405,7 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
     internal fun onDrag(offset: Offset) {
         draggingItemDraggedDelta += offset
 
-        if (!onMoveStateMutex.tryLock()) return
-
-        val draggingItem = draggingItemLayoutInfo
-        if (draggingItem == null) {
-            onMoveStateMutex.unlock()
-            return
-        }
+        val draggingItem = draggingItemLayoutInfo ?: return
         // how far the dragging item is from the original position
         val dragOffset = draggingItemOffset.reverseAxisIfNecessary()
             .reverseAxisWithLayoutDirectionIfLazyVerticalStaggeredGridRtlFix()
@@ -420,20 +414,6 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
         val (contentStartOffset, contentEndOffset) = state.layoutInfo.getScrollAreaOffsets(
             scrollThresholdPadding
         )
-
-        if (!scroller.isScrolling) {
-            val draggingItemRect = Rect(startOffset, endOffset)
-            // find a target item to move with
-            val targetItem = findTargetItem(draggingItemRect) {
-                it.index != draggingItem.index
-            }
-            if (targetItem != null) {
-                scope.launch {
-                    moveItems(draggingItem, targetItem)
-                }
-            }
-        }
-        onMoveStateMutex.unlock()
 
         // the distance from the top or left of the list to the center of the dragging item handle
         val handleOffset =
@@ -453,7 +433,7 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
         val distanceFromEnd = (contentEndOffset - handleOffset.getAxis(orientation))
             .coerceAtLeast(0f)
 
-        if (distanceFromStart < scrollThreshold) {
+        val isScrollingStarted = if (distanceFromStart < scrollThreshold) {
             scroller.start(
                 Scroller.Direction.BACKWARD,
                 getScrollSpeedMultiplier(distanceFromStart),
@@ -492,7 +472,26 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
             )
         } else {
             scroller.tryStop()
+            false
         }
+
+        if (!onMoveStateMutex.tryLock()) return
+        if (!scroller.isScrolling && !isScrollingStarted) {
+            val draggingItemRect = Rect(startOffset, endOffset)
+            // find a target item to move with
+            val targetItem = findTargetItem(
+                draggingItemRect,
+                items = state.layoutInfo.visibleItemsInfo,
+            ) {
+                it.index != draggingItem.index
+            }
+            if (targetItem != null) {
+                scope.launch {
+                    moveItems(draggingItem, targetItem)
+                }
+            }
+        }
+        onMoveStateMutex.unlock()
     }
 
     // keep dragging item in visible area to prevent it from disappearing

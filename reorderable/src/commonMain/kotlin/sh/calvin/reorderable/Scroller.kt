@@ -134,7 +134,7 @@ class Scroller internal constructor(
 
     private var programmaticScrollJob: Job? = null
     val isScrolling: Boolean
-        get() = programmaticScrollJob != null
+        get() = programmaticScrollJob?.isActive == true
 
     private val scrollInfoChannel = Channel<ScrollInfo>(Channel.CONFLATED)
 
@@ -143,8 +143,8 @@ class Scroller internal constructor(
         speedMultiplier: Float = 1f,
         maxScrollDistanceProvider: () -> Float = { Float.MAX_VALUE },
         onScroll: suspend () -> Unit = {},
-    ) {
-        if (!canScroll(direction)) return
+    ): Boolean {
+        if (!canScroll(direction)) return false
 
         if (programmaticScrollJob == null) {
             programmaticScrollJob = scope.launch {
@@ -156,6 +156,7 @@ class Scroller internal constructor(
             ScrollInfo(direction, speedMultiplier, maxScrollDistanceProvider, onScroll)
 
         scrollInfoChannel.trySend(scrollInfo)
+        return true
     }
 
     private suspend fun scrollLoop() {
