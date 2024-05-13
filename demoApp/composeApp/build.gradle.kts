@@ -106,6 +106,14 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    signingConfigs {
+        create("release") {
+            storeFile = file("reorderable-apk.keystore")
+            storePassword = System.getenv("DEMO_APP_KEYSTORE_PASSWORD")
+            keyAlias = "demo-app"
+            keyPassword = System.getenv("APK_KEY_PASSWORD")
+        }
+    }
 }
 
 compose.desktop {
