@@ -789,7 +789,7 @@ If the items in the list do not contain any button besides the drag handle, I re
 
 #### FAQ
 
-##### When `onMove` is called to move items, the dragging item flickers.
+##### When `onMove` is called to move items, the dragging item flickers/jumps/flashes.
 
 > [!NOTE]  
 > This assumes you're using version 2.0.3 or later of this library.
@@ -816,7 +816,7 @@ LaunchedEffect(list) {
 }
 ```
 
-##### When moving the top item, the list flickers.
+##### When moving the top item, the list flickers/jumps/flashes.
 
 See [issue #4](https://github.com/Calvin-LL/Reorderable/issues/4). This problem will be fixed once Compose Foundation v1.7.0 is released.
 
