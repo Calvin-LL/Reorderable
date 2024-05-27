@@ -796,6 +796,17 @@ If the items in the list do not contain any button besides the drag handle, I re
 
 The `onMove` function expects the list to be updated before it returns. If the list is updated after `onMove` returns, the dragging item will flicker. To fix this, update the list before returning from `onMove`.
 
+```kotlin
+val reorderableLazyXXXXState = rememberReorderableLazyXXXXState(listState) { from, to ->
+    // do NOT wrap the updateList call in `launch`
+    updateList(from, to)
+}
+
+suspend fun updateList(from: Int, to: Int) {
+    // long update operation
+}
+```
+
 If you can't keep the list update inside `onMove`, you can use a channel to communicate between `onMove` and the list update composition. Here's an example:
 
 ```kotlin
