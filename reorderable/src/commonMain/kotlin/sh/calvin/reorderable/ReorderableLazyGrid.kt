@@ -183,6 +183,7 @@ class ReorderableLazyGridState internal constructor(
  * @param state The return value of [rememberReorderableLazyGridState]
  * @param key The key of the item, must be the same as the key passed to [LazyGridScope.item](androidx.compose.foundation.lazy.grid.item), [LazyGridScope.items](androidx.compose.foundation.lazy.grid.items) or similar functions in [LazyGridScope](androidx.compose.foundation.lazy.grid.LazyGridScope)
  * @param enabled Whether or this item is reorderable. If true, the item will not move for other items but may still be draggable. To make an item not draggable, set `enable = false` in [Modifier.draggable] or [Modifier.longPressDraggable] instead.
+ * @param animateItemModifier The [Modifier] that will be applied to items that are not being dragged.
  */
 @ExperimentalFoundationApi
 @Composable
@@ -191,6 +192,7 @@ fun LazyGridItemScope.ReorderableItem(
     key: Any,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    animateItemModifier: Modifier = Modifier.animateItemPlacement(),
     content: @Composable ReorderableCollectionItemScope.(isDragging: Boolean) -> Unit,
 ) {
     val dragging by state.isItemDragging(key)
@@ -211,7 +213,7 @@ fun LazyGridItemScope.ReorderableItem(
                     state.previousDraggingItemOffset.value.x
             }
     } else {
-        Modifier.animateItemPlacement()
+        animateItemModifier
     }
 
     ReorderableCollectionItem(
