@@ -33,7 +33,7 @@ The latest demo app APK can be found in the [releases](https://github.com/Calvin
 
 ## Features
 
-- Supports Compose Multiplatform (Android, iOS, Desktop/JVM, Wasm)
+- Supports Compose Multiplatform (Android, iOS, Desktop/JVM, Wasm, JS)
 - Supports items of different sizes
 - Some items can be made non-reorderable
 - Supports dragging immediately or long press to start dragging
