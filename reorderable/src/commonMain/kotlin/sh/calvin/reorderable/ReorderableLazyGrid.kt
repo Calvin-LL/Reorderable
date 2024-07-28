@@ -17,7 +17,6 @@
 package sh.calvin.reorderable
 
 import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.PaddingValues
@@ -187,14 +186,13 @@ class ReorderableLazyGridState internal constructor(
  * @param enabled Whether or this item is reorderable. If true, the item will not move for other items but may still be draggable. To make an item not draggable, set `enable = false` in [Modifier.draggable] or [Modifier.longPressDraggable] instead.
  * @param animateItemModifier The [Modifier] that will be applied to items that are not being dragged.
  */
-@ExperimentalFoundationApi
 @Composable
 fun LazyGridItemScope.ReorderableItem(
     state: ReorderableLazyGridState,
     key: Any,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    animateItemModifier: Modifier = Modifier.animateItemPlacement(),
+    animateItemModifier: Modifier = Modifier.animateItem(),
     content: @Composable ReorderableCollectionItemScope.(isDragging: Boolean) -> Unit,
 ) {
     val dragging by state.isItemDragging(key)

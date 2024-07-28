@@ -37,7 +37,6 @@ import sh.calvin.reorderable.demo.items
 import sh.calvin.reorderable.demo.rememberReorderHapticFeedback
 import sh.calvin.reorderable.rememberReorderableLazyStaggeredGridState
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SimpleReorderableLazyVerticalStaggeredGridScreen() {
     val haptic = rememberReorderHapticFeedback()
