@@ -1,11 +1,11 @@
 [versions]
-activityCompose = "1.9.0"
-agp = "8.2.2"
-compose = "1.6.2"
-kotlin = "1.9.23"
-mavenPublish = "0.27.0"
+activityCompose = "1.9.1"
+agp = "8.3.2"
+compose = "1.6.11"
+kotlin = "2.0.0"
+mavenPublish = "0.29.0"
 precompose = "1.6.0"
-uiTooling = "1.6.6"
+uiTooling = "1.6.8"
 
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
@@ -17,4 +17,5 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 compose = { id = "org.jetbrains.compose", version.ref = "compose" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "mavenPublish" }

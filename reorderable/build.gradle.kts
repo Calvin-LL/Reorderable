@@ -1,9 +1,11 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.compose)
+    alias(libs.plugins.compose.compiler)
     alias(libs.plugins.maven.publish)
 }
 
@@ -14,8 +16,10 @@ kotlin {
     androidTarget {
         publishLibraryVariants("release", "debug")
         compilations.all {
-            kotlinOptions {
-                jvmTarget = "1.8"
+            compileTaskProvider.configure {
+                compilerOptions {
+                    jvmTarget.set(JvmTarget.JVM_1_8)
+                }
             }
         }
     }
