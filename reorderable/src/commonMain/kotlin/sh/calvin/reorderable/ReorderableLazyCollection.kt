@@ -22,7 +22,6 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -782,7 +781,6 @@ internal class ReorderableCollectionItemScopeImpl(
  * @param enabled Whether or this item is reorderable. If true, the item will not move for other items but may still be draggable. To make an item not draggable, set `enable = false` in [Modifier.draggable] or [Modifier.longPressDraggable] instead.
  * @param dragging Whether or not this item is currently being dragged
  */
-@ExperimentalFoundationApi
 @Composable
 internal fun ReorderableCollectionItem(
     state: ReorderableLazyCollectionState<*>,

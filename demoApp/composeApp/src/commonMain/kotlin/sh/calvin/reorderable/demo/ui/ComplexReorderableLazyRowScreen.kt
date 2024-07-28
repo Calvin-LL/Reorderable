@@ -75,7 +75,7 @@ fun ComplexReorderableLazyRowScreen() {
                 Text(
                     "$group",
                     Modifier
-                        .animateItemPlacement()
+                        .animateItem()
                         .height(144.dp)
                         .background(MaterialTheme.colorScheme.secondaryContainer)
                         .padding(8.dp),
