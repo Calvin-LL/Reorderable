@@ -237,8 +237,8 @@ private fun LazyListState.toLazyCollectionState() =
         override suspend fun animateScrollBy(value: Float, animationSpec: AnimationSpec<Float>) =
             this@toLazyCollectionState.animateScrollBy(value, animationSpec)
 
-        override suspend fun scrollToItem(scrollToIndex: Int, firstVisibleItemScrollOffset: Int) =
-            this@toLazyCollectionState.scrollToItem(scrollToIndex, firstVisibleItemScrollOffset)
+        override suspend fun requestScrollToItem(index: Int, scrollOffset: Int) =
+            this@toLazyCollectionState.requestScrollToItem(index, scrollOffset)
     }
 
 class ReorderableLazyListState internal constructor(
