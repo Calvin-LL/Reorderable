@@ -233,7 +233,7 @@ internal interface LazyCollectionState<out T> {
         animationSpec: AnimationSpec<Float> = spring(),
     ): Float
 
-    suspend fun scrollToItem(scrollToIndex: Int, firstVisibleItemScrollOffset: Int)
+    suspend fun requestScrollToItem(index: Int, scrollOffset: Int)
 }
 
 interface ReorderableLazyCollectionStateInterface {
@@ -454,24 +454,10 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
                 getScrollSpeedMultiplier(distanceFromEnd),
                 maxScrollDistanceProvider = {
                     // distance from the end of the dragging item's stationary position to the start of the list
+                    // the -1f is to prevent the dragging item from being scrolled off and disappearing
                     (draggingItemLayoutInfo?.let {
-                        val visibleItems = state.layoutInfo.visibleItemsInfo
-                        // use the item before the dragging item to prevent the dragging item from becoming the firstVisibleItem
-                        // TODO(foundation v1.7.0): remove once foundation v1.7.0 is out
-                        val itemBeforeDraggingItem =
-                            visibleItems.getOrNull(visibleItems.indexOfFirst { it.key == draggingItemKey } - 1)
-                        var itemToAlmostScrollOff = itemBeforeDraggingItem ?: it
-                        var scrollDistance =
-                            itemToAlmostScrollOff.offset.toOffset().getAxis(orientation) +
-                                    itemToAlmostScrollOff.size.getAxis(orientation) - 1f
-                        if (scrollDistance <= 0f) {
-                            itemToAlmostScrollOff = it
-                            scrollDistance =
-                                itemToAlmostScrollOff.offset.toOffset().getAxis(orientation) +
-                                        itemToAlmostScrollOff.size.getAxis(orientation) - 1f
-                        }
-
-                        scrollDistance
+                        it.offset.toOffset()
+                            .getAxis(orientation) + it.size.getAxis(orientation) - 1f
                     }) ?: 0f
                 },
                 onScroll = {
@@ -531,10 +517,7 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
             draggingItemRect,
             items = state.layoutInfo.getItemsInContentArea(scrollThresholdPadding),
             direction.opposite,
-        ) {
-            // TODO(foundation v1.7.0): remove `state.firstVisibleItemIndex` check once foundation v1.7.0 is out
-            it.index != state.firstVisibleItemIndex
-        } ?: state.layoutInfo.getItemsInContentArea(
+        ) ?: state.layoutInfo.getItemsInContentArea(
             scrollThresholdPadding
         ).let {
             val targetItemFunc = { item: LazyCollectionItemInfo<T> ->
@@ -600,32 +583,14 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
     ) {
         if (draggingItem.index == targetItem.index) return
 
-        // TODO(foundation v1.7.0): when `requestScrollToItem` is released uncomment this and remove `scrollToIndex` and the following `if` block
-        // see https://android-review.googlesource.com/c/platform/frameworks/support/+/2987293
-        // see https://github.com/Calvin-LL/Reorderable/issues/4
-//        if (
-//            draggingItem.index == state.firstVisibleItemIndex ||
-//            targetItem.index == state.firstVisibleItemIndex
-//        ) {
-//            state.requestScrollToItem(
-//                state.firstVisibleItemIndex,
-//                state.firstVisibleItemScrollOffset
-//            )
-//        }
-//
-//        onMoveState.value(draggingItem, targetItem)
-
-        val scrollToIndex = if (targetItem.index == state.firstVisibleItemIndex) {
-            draggingItem.index
-        } else if (draggingItem.index == state.firstVisibleItemIndex) {
-            targetItem.index
-        } else {
-            null
-        }
-        if (scrollToIndex != null) {
-            // this is needed to neutralize automatic keeping the first item first.
-            // see https://github.com/Calvin-LL/Reorderable/issues/4
-            state.scrollToItem(scrollToIndex, state.firstVisibleItemScrollOffset)
+        if (
+            draggingItem.index == state.firstVisibleItemIndex ||
+            targetItem.index == state.firstVisibleItemIndex
+        ) {
+            state.requestScrollToItem(
+                state.firstVisibleItemIndex,
+                state.firstVisibleItemScrollOffset
+            )
         }
 
         try {
