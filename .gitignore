@@ -16,3 +16,4 @@ xcuserdata
 !*.xcworkspace/contents.xcworkspacedata
 **/xcshareddata/WorkspaceSettings.xcsettings
 **/xcshareddata/IDEWorkspaceChecks.plist
+.kotlin
