@@ -49,6 +49,7 @@ The latest demo app APK can be found in the [releases](https://github.com/Calvin
 - Supports Compose Multiplatform (Android, iOS, Desktop/JVM, Wasm, JS)
 - Supports items of different sizes
 - Some items can be made non-reorderable
+- Supports dragging and animating the first visible item
 - Supports dragging immediately or long press to start dragging
 - Supports section headers and footers
 - Scrolls when dragging to the edge of the screen. (unavailable for [`Column`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/package-summary#Column(androidx.compose.ui.Modifier,androidx.compose.foundation.layout.Arrangement.Vertical,androidx.compose.ui.Alignment.Horizontal,kotlin.Function1)>) and [`Row`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/package-summary#Row(androidx.compose.ui.Modifier,androidx.compose.foundation.layout.Arrangement.Horizontal,androidx.compose.ui.Alignment.Vertical,kotlin.Function1)>)) The scroll speed is based on the distance from the edge of the screen.
@@ -1739,10 +1740,6 @@ LaunchedEffect(list) {
     listUpdatedChannel.trySend(Unit)
 }
 ```
-
-##### When moving the top item, the list flickers/jumps/flashes.
-
-See [issue #4](https://github.com/Calvin-LL/Reorderable/issues/4). This problem will be fixed once Compose Foundation v1.7.0 is released.
 
 ## API
 
