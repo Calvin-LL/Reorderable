@@ -44,7 +44,10 @@ fun SimpleReorderableLazyColumnScreen() {
     val lazyListState = rememberLazyListState()
     val reorderableLazyColumnState = rememberReorderableLazyListState(lazyListState) { from, to ->
         list = list.toMutableList().apply {
-            add(to.index, removeAt(from.index))
+            val fromIndex = indexOfFirst { it == from.key }
+            val toIndex = indexOfFirst { it == to.key }
+
+            add(toIndex, removeAt(fromIndex))
         }
 
         haptic.performHapticFeedback(ReorderHapticFeedbackType.MOVE)
