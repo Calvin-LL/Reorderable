@@ -226,7 +226,10 @@ var list by remember { mutableStateOf(List(100) { "Item $it" }) }
 val lazyListState = rememberLazyListState()
 val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
     list = list.toMutableList().apply {
-        add(to.index, removeAt(from.index))
+        val fromIndex = indexOfFirst { it == from.key }
+        val toIndex = indexOfFirst { it == to.key }
+
+        add(toIndex, removeAt(fromIndex))
     }
 
     view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
