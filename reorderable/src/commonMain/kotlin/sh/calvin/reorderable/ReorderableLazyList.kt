@@ -28,6 +28,7 @@ import androidx.compose.foundation.lazy.LazyListItemInfo
 import androidx.compose.foundation.lazy.LazyListLayoutInfo
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -242,6 +243,7 @@ private fun LazyListState.toLazyCollectionState() =
             this@toLazyCollectionState.scrollToItem(scrollToIndex, firstVisibleItemScrollOffset)
     }
 
+@Stable
 class ReorderableLazyListState internal constructor(
     state: LazyListState,
     scope: CoroutineScope,

@@ -665,6 +665,7 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
     }
 }
 
+@Stable
 interface ReorderableCollectionItemScope {
     /**
      * Make the UI element the draggable handle for the reorderable item.
@@ -830,11 +831,14 @@ internal fun ReorderableCollectionItem(
             itemPosition = it.positionInRoot()
         }
     ) {
-        ReorderableCollectionItemScopeImpl(
-            reorderableLazyCollectionState = state,
-            key = key,
-            itemPositionProvider = { itemPosition },
-        ).content(dragging)
+        val itemScope = remember(state, key) {
+            ReorderableCollectionItemScopeImpl(
+                reorderableLazyCollectionState = state,
+                key = key,
+                itemPositionProvider = { itemPosition },
+            )
+        }
+        itemScope.content(dragging)
     }
 
     LaunchedEffect(state.reorderableKeys, enabled) {
