@@ -28,6 +28,7 @@ import androidx.compose.foundation.lazy.grid.LazyGridItemScope
 import androidx.compose.foundation.lazy.grid.LazyGridLayoutInfo
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -153,6 +154,7 @@ private fun LazyGridState.toLazyCollectionState() =
             this@toLazyCollectionState.scrollToItem(scrollToIndex, firstVisibleItemScrollOffset)
     }
 
+@Stable
 class ReorderableLazyGridState internal constructor(
     state: LazyGridState,
     scope: CoroutineScope,
