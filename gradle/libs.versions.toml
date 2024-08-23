@@ -1,11 +1,11 @@
 [versions]
 activityCompose = "1.9.1"
-agp = "8.5.1"
-compose = "1.7.0-alpha01"
+agp = "8.5.2"
+compose = "1.7.0-alpha03"
 kotlin = "2.0.20-Beta2"
 mavenPublish = "0.29.0"
 precompose = "1.6.1"
-uiTooling = "1.7.0-beta06"
+uiTooling = "1.7.0-rc01"
 
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
