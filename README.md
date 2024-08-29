@@ -185,7 +185,7 @@ LazyColumn(
 
 ##### Section Headers and Footers or Multiple Lists
 
-The `from.index` and `to.index` in `onMove` are the indices of the items in the `LazyColumn`. If you have section headers and footers, you need to adjust the indices accordingly. For example:
+The `from.index` and `to.index` in `onMove` are the indices of the items in the `LazyColumn`. If you have section headers or footers, you may need to adjust the indices accordingly. For example:
 
 ```kotlin
 var list by remember { mutableStateOf(List(100) { "Item $it" }) }
@@ -392,7 +392,7 @@ LazyRow(
 
 ##### Section Headers and Footers or Multiple Lists
 
-The `from.index` and `to.index` in `onMove` are the indices of the items in the `LazyRow`. If you have section headers and footers, you need to adjust the indices accordingly. For example:
+The `from.index` and `to.index` in `onMove` are the indices of the items in the `LazyRow`. If you have section headers or footers, you may need to adjust the indices accordingly. For example:
 
 ```kotlin
 var list by remember { mutableStateOf(List(100) { "Item $it" }) }
@@ -601,7 +601,7 @@ LazyVerticalGrid(
 
 ##### Section Headers and Footers or Multiple Lists
 
-The `from.index` and `to.index` in `onMove` are the indices of the items in the `LazyVerticalGrid`. If you have section headers and footers, you need to adjust the indices accordingly. For example:
+The `from.index` and `to.index` in `onMove` are the indices of the items in the `LazyVerticalGrid`. If you have section headers or footers, you may need to adjust the indices accordingly. For example:
 
 ```kotlin
 var list by remember { mutableStateOf(List(100) { "Item $it" }) }
@@ -812,7 +812,7 @@ LazyHorizontalGrid(
 
 ##### Section Headers and Footers or Multiple Lists
 
-The `from.index` and `to.index` in `onMove` are the indices of the items in the `LazyHorizontalGrid`. If you have section headers and footers, you need to adjust the indices accordingly. For example:
+The `from.index` and `to.index` in `onMove` are the indices of the items in the `LazyHorizontalGrid`. If you have section headers or footers, you may need to adjust the indices accordingly. For example:
 
 ```kotlin
 var list by remember { mutableStateOf(List(100) { "Item $it" }) }
@@ -1023,7 +1023,7 @@ LazyVerticalStaggeredGrid(
 
 ##### Section Headers and Footers or Multiple Lists
 
-The `from.index` and `to.index` in `onMove` are the indices of the items in the `LazyVerticalStaggeredGrid`. If you have section headers and footers, you need to adjust the indices accordingly. For example:
+The `from.index` and `to.index` in `onMove` are the indices of the items in the `LazyVerticalStaggeredGrid`. If you have section headers or footers, you may need to adjust the indices accordingly. For example:
 
 ```kotlin
 var list by remember { mutableStateOf(List(100) { "Item $it" }) }
@@ -1234,7 +1234,7 @@ LazyHorizontalStaggeredGrid(
 
 ##### Section Headers and Footers or Multiple Lists
 
-The `from.index` and `to.index` in `onMove` are the indices of the items in the `LazyHorizontalStaggeredGrid`. If you have section headers and footers, you need to adjust the indices accordingly. For example:
+The `from.index` and `to.index` in `onMove` are the indices of the items in the `LazyHorizontalStaggeredGrid`. If you have section headers or footers, you may need to adjust the indices accordingly. For example:
 
 ```kotlin
 var list by remember { mutableStateOf(List(100) { "Item $it" }) }
