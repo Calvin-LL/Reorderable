@@ -37,6 +37,7 @@ The latest demo app APK can be found in the [releases](https://github.com/Calvin
 - Supports items of different sizes
 - Some items can be made non-reorderable
 - Supports dragging immediately or long press to start dragging
+- Supports section headers and footers
 - Scrolls when dragging to the edge of the screen. (unavailable for [`Column`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/package-summary#Column(androidx.compose.ui.Modifier,androidx.compose.foundation.layout.Arrangement.Vertical,androidx.compose.ui.Alignment.Horizontal,kotlin.Function1)>) and [`Row`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/package-summary#Row(androidx.compose.ui.Modifier,androidx.compose.foundation.layout.Arrangement.Horizontal,androidx.compose.ui.Alignment.Vertical,kotlin.Function1)>)) The scroll speed is based on the distance from the edge of the screen.
 - Uses the new [`Modifier.animateItemPlacement`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/lazy/LazyItemScope#(androidx.compose.ui.Modifier).animateItemPlacement(androidx.compose.animation.core.FiniteAnimationSpec)>) API to animate item movement in [`LazyColumn`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/lazy/package-summary#LazyColumn(androidx.compose.ui.Modifier,androidx.compose.foundation.lazy.LazyListState,androidx.compose.foundation.layout.PaddingValues,kotlin.Boolean,androidx.compose.foundation.layout.Arrangement.Vertical,androidx.compose.ui.Alignment.Horizontal,androidx.compose.foundation.gestures.FlingBehavior,kotlin.Boolean,kotlin.Function1)>), [`LazyRow`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/lazy/package-summary#LazyRow(androidx.compose.ui.Modifier,androidx.compose.foundation.lazy.LazyListState,androidx.compose.foundation.layout.PaddingValues,kotlin.Boolean,androidx.compose.foundation.layout.Arrangement.Horizontal,androidx.compose.ui.Alignment.Vertical,androidx.compose.foundation.gestures.FlingBehavior,kotlin.Boolean,kotlin.Function1)>), [`LazyVerticalGrid`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/lazy/grid/package-summary#LazyVerticalGrid(androidx.compose.foundation.lazy.grid.GridCells,androidx.compose.ui.Modifier,androidx.compose.foundation.lazy.grid.LazyGridState,androidx.compose.foundation.layout.PaddingValues,kotlin.Boolean,androidx.compose.foundation.layout.Arrangement.Vertical,androidx.compose.foundation.layout.Arrangement.Horizontal,androidx.compose.foundation.gestures.FlingBehavior,kotlin.Boolean,kotlin.Function1)>), [`LazyHorizontalGrid`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/lazy/grid/package-summary#LazyHorizontalGrid(androidx.compose.foundation.lazy.grid.GridCells,androidx.compose.ui.Modifier,androidx.compose.foundation.lazy.grid.LazyGridState,androidx.compose.foundation.layout.PaddingValues,kotlin.Boolean,androidx.compose.foundation.layout.Arrangement.Horizontal,androidx.compose.foundation.layout.Arrangement.Vertical,androidx.compose.foundation.gestures.FlingBehavior,kotlin.Boolean,kotlin.Function1)>), [`LazyVerticalStaggeredGrid`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/lazy/staggeredgrid/package-summary#LazyVerticalStaggeredGrid(androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells,androidx.compose.ui.Modifier,androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState,androidx.compose.foundation.layout.PaddingValues,kotlin.Boolean,androidx.compose.ui.unit.Dp,androidx.compose.foundation.layout.Arrangement.Horizontal,androidx.compose.foundation.gestures.FlingBehavior,kotlin.Boolean,kotlin.Function1)>), and [`LazyHorizontalStaggeredGrid`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/lazy/staggeredgrid/package-summary#LazyHorizontalStaggeredGrid(androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells,androidx.compose.ui.Modifier,androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState,androidx.compose.foundation.layout.PaddingValues,kotlin.Boolean,androidx.compose.foundation.layout.Arrangement.Vertical,androidx.compose.ui.unit.Dp,androidx.compose.foundation.gestures.FlingBehavior,kotlin.Boolean,kotlin.Function1)>)
 - Supports using a child of an item as the drag handle
@@ -106,6 +107,8 @@ See [demo app code](demoApp/composeApp/src/commonMain/kotlin/sh/calvin/reorderab
 
 Find more examples in [`SimpleReorderableLazyColumnScreen.kt`](demoApp/composeApp/src/commonMain/kotlin/sh/calvin/reorderable/demo/ui/SimpleReorderableLazyColumnScreen.kt), [`SimpleLongPressHandleReorderableLazyColumnScreen.kt`](demoApp/composeApp/src/commonMain/kotlin/sh/calvin/reorderable/demo/ui/SimpleLongPressHandleReorderableLazyColumnScreen.kt) and [`ComplexReorderableLazyColumnScreen.kt`](demoApp/composeApp/src/commonMain/kotlin/sh/calvin/reorderable/demo/ui/ComplexReorderableLazyColumnScreen.kt) in the demo app.
 
+##### Simple Example
+
 To use this library with [`LazyColumn`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/lazy/package-summary#LazyColumn(androidx.compose.ui.Modifier,androidx.compose.foundation.lazy.LazyListState,androidx.compose.foundation.layout.PaddingValues,kotlin.Boolean,androidx.compose.foundation.layout.Arrangement.Vertical,androidx.compose.ui.Alignment.Horizontal,androidx.compose.foundation.gestures.FlingBehavior,kotlin.Boolean,kotlin.Function1)>), follow this basic structure:
 
 ```kotlin
@@ -128,6 +131,88 @@ LazyColumn(state = lazyListState) {
 }
 
 ```
+
+##### Complete Example (with haptic feedback)
+
+> [!NOTE]  
+> `val view = LocalView.current` and `View.performHapticFeedback` are only available in Android. Comment out these lines if you are using this library in a multiplatform project.
+
+```kotlin
+val view = LocalView.current
+
+var list by remember { mutableStateOf(List(100) { "Item $it" }) }
+val lazyListState = rememberLazyListState()
+val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
+    list = list.toMutableList().apply {
+        add(to.index, removeAt(from.index))
+    }
+
+    view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
+}
+
+LazyColumn(
+    modifier = Modifier.fillMaxSize(),
+    state = lazyListState,
+    contentPadding = PaddingValues(8.dp),
+    verticalArrangement = Arrangement.spacedBy(8.dp),
+) {
+    items(list, key = { it }) {
+        ReorderableItem(reorderableLazyListState, key = it) { isDragging ->
+            val elevation by animateDpAsState(if (isDragging) 4.dp else 0.dp)
+
+            Surface(shadowElevation = elevation) {
+                Row {
+                    Text(it, Modifier.padding(horizontal = 8.dp))
+                    IconButton(
+                        modifier = Modifier.draggableHandle(
+                            onDragStarted = {
+                                view.performHapticFeedback(HapticFeedbackConstants.DRAG_START)
+                            },
+                            onDragStopped = {
+                                view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
+                            },
+                        ),
+                        onClick = {},
+                    ) {
+                        Icon(Icons.Rounded.DragHandle, contentDescription = "Reorder")
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
+##### Section Headers and Footers or Multiple Lists
+
+The `from.index` and `to.index` in `onMove` are the indices of the items in the `LazyColumn`. If you have section headers and footers, you need to adjust the indices accordingly. For example:
+
+```kotlin
+var list by remember { mutableStateOf(List(100) { "Item $it" }) }
+val lazyListState = rememberLazyListState()
+val reorderableLazyColumnState = rememberReorderableLazyListState(lazyListState) { from, to ->
+    list = list.toMutableList().apply {
+        add(to.index - 1, removeAt(from.index - 1))
+    }
+}
+
+LazyColumn(
+    state = lazyListState,
+    // ...
+) {
+    item {
+        Text("Header")
+    }
+
+    items(list, key = { item -> item.id }) { item ->
+        ReorderableItem(reorderableLazyColumnState, item.id) {
+            // ...
+        }
+    }
+}
+```
+
+##### Passing `Modifier.draggableHandle` to a Child Composable
 
 Since `Modifier.draggableHandle` and `Modifier.longPressDraggableHandle` can only be used in `ReorderableCollectionItemScope`, you may need to pass `ReorderableCollectionItemScope` to a child composable. For example:
 
@@ -158,6 +243,8 @@ fun DragHandle(scope: ReorderableCollectionItemScope) {
 }
 ```
 
+##### Scroll Trigger Padding
+
 If your [`LazyColumn`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/lazy/package-summary#LazyColumn(androidx.compose.ui.Modifier,androidx.compose.foundation.lazy.LazyListState,androidx.compose.foundation.layout.PaddingValues,kotlin.Boolean,androidx.compose.foundation.layout.Arrangement.Vertical,androidx.compose.ui.Alignment.Horizontal,androidx.compose.foundation.gestures.FlingBehavior,kotlin.Boolean,kotlin.Function1)>) displays under navigation bar or notification bar, you may want to add `scrollThresholdPadding` to `rememberReorderableLazyListState` to move the scroll trigger area out from under the navigation bar or notification bar.
 
 ```kotlin
@@ -169,53 +256,7 @@ val reorderableLazyListState = rememberReorderableLazyListState(
 }
 ```
 
-Here's a more complete example with (with haptic feedback):
-
-```kotlin
-val view = LocalView.current
-
-var list by remember { mutableStateOf(List(100) { "Item $it" }) }
-val lazyListState = rememberLazyListState()
-val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
-    list = list.toMutableList().apply {
-        add(to.index, removeAt(from.index))
-    }
-
-    view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
-}
-
-LazyColumn(
-    modifier = Modifier.fillMaxSize(),
-    state = lazyListState,
-    contentPadding = PaddingValues(8.dp),
-    verticalArrangement = Arrangement.spacedBy(8.dp)
-) {
-    items(list, key = { it }) {
-        ReorderableItem(reorderableLazyListState, key = it) { isDragging ->
-            val elevation by animateDpAsState(if (isDragging) 4.dp else 0.dp)
-
-            Surface(shadowElevation = elevation) {
-                Row {
-                    Text(it, Modifier.padding(horizontal = 8.dp))
-                    IconButton(
-                        modifier = Modifier.draggableHandle(
-                            onDragStarted = {
-                                view.performHapticFeedback(HapticFeedbackConstants.DRAG_START)
-                            },
-                            onDragStopped = {
-                                view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
-                            },
-                        ),
-                        onClick = {},
-                    ) {
-                        Icon(Icons.Rounded.DragHandle, contentDescription = "Reorder")
-                    }
-                }
-            }
-        }
-    }
-}
-```
+##### Use with [`Card`](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>)
 
 If you want to use the [material3's Clickable Card](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>), you can create a [`MutableInteractionSource`](https://developer.android.com/reference/kotlin/androidx/compose/foundation/interaction/MutableInteractionSource) and pass it to both the [`Card`](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>) and the `Modifier.draggableHandle` (or `Modifier.longPressDraggableHandle`), `Modifier.draggableHandle` will emit drag events to the [`MutableInteractionSource`](https://developer.android.com/reference/kotlin/androidx/compose/foundation/interaction/MutableInteractionSource) so that the [`Card`](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>) can respond to the drag events:
 
@@ -236,7 +277,7 @@ LazyColumn(
     modifier = Modifier.fillMaxSize(),
     state = lazyListState,
     contentPadding = PaddingValues(8.dp),
-    verticalArrangement = Arrangement.spacedBy(8.dp)
+    verticalArrangement = Arrangement.spacedBy(8.dp),
 ) {
     items(list, key = { it }) { item ->
         ReorderableItem(reorderableLazyListState, key = item) {
@@ -273,11 +314,214 @@ LazyColumn(
 
 See [`SimpleReorderableLazyRowScreen.kt`](demoApp/composeApp/src/commonMain/kotlin/sh/calvin/reorderable/demo/ui/SimpleReorderableLazyRowScreen.kt) and [`ComplexReorderableLazyRowScreen.kt`](demoApp/composeApp/src/commonMain/kotlin/sh/calvin/reorderable/demo/ui/ComplexReorderableLazyRowScreen.kt) in the demo app.
 
-You can just replace `Column` with `Row` in the `LazyColumn` examples above.
+##### Simple Example
+
+To use this library with [`LazyRow`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/lazy/package-summary#LazyRow(androidx.compose.ui.Modifier,androidx.compose.foundation.lazy.LazyListState,androidx.compose.foundation.layout.PaddingValues,kotlin.Boolean,androidx.compose.foundation.layout.Arrangement.Horizontal,androidx.compose.ui.Alignment.Vertical,androidx.compose.foundation.gestures.FlingBehavior,kotlin.Boolean,kotlin.Function1)>), follow this basic structure:
+
+```kotlin
+val lazyListState = rememberLazyListState()
+val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
+    // Update the list
+}
+
+LazyRow(state = lazyListState) {
+    items(list, key = { /* item key */ }) {
+        ReorderableItem(reorderableLazyListState, key = /* item key */) { isDragging ->
+            // Item content
+
+            IconButton(
+                modifier = Modifier.draggableHandle(),
+                /* ... */
+            )
+        }
+    }
+}
+
+```
+
+##### Complete Example (with haptic feedback)
+
+> [!NOTE]  
+> `val view = LocalView.current` and `View.performHapticFeedback` are only available in Android. Comment out these lines if you are using this library in a multiplatform project.
+
+```kotlin
+val view = LocalView.current
+
+var list by remember { mutableStateOf(List(100) { "Item $it" }) }
+val lazyListState = rememberLazyListState()
+val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
+    list = list.toMutableList().apply {
+        add(to.index, removeAt(from.index))
+    }
+
+    view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
+}
+
+LazyRow(
+    modifier = Modifier.fillMaxSize(),
+    state = lazyListState,
+    contentPadding = PaddingValues(8.dp),
+    horizontalArrangement = Arrangement.spacedBy(8.dp),
+) {
+    items(list, key = { it }) {
+        ReorderableItem(reorderableLazyListState, key = it) { isDragging ->
+            val elevation by animateDpAsState(if (isDragging) 4.dp else 0.dp)
+
+            Surface(shadowElevation = elevation) {
+                Column {
+                    Text(it, Modifier.padding(vertical = 8.dp))
+                    IconButton(
+                        modifier = Modifier.draggableHandle(
+                            onDragStarted = {
+                                view.performHapticFeedback(HapticFeedbackConstants.DRAG_START)
+                            },
+                            onDragStopped = {
+                                view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
+                            },
+                        ),
+                        onClick = {},
+                    ) {
+                        Icon(Icons.Rounded.DragHandle, contentDescription = "Reorder")
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
+##### Section Headers and Footers or Multiple Lists
+
+The `from.index` and `to.index` in `onMove` are the indices of the items in the `LazyRow`. If you have section headers and footers, you need to adjust the indices accordingly. For example:
+
+```kotlin
+var list by remember { mutableStateOf(List(100) { "Item $it" }) }
+val lazyListState = rememberLazyListState()
+val reorderableLazyRowState = rememberReorderableLazyListState(lazyListState) { from, to ->
+    list = list.toMutableList().apply {
+        add(to.index - 1, removeAt(from.index - 1))
+    }
+}
+
+LazyRow(
+    state = lazyListState,
+    // ...
+) {
+    item {
+        Text("Header")
+    }
+
+    items(list, key = { item -> item.id }) { item ->
+        ReorderableItem(reorderableLazyRowState, item.id) {
+            // ...
+        }
+    }
+}
+```
+
+##### Passing `Modifier.draggableHandle` to a Child Composable
+
+Since `Modifier.draggableHandle` and `Modifier.longPressDraggableHandle` can only be used in `ReorderableCollectionItemScope`, you may need to pass `ReorderableCollectionItemScope` to a child composable. For example:
+
+```kotlin
+@Composable
+fun List() {
+    // ...
+
+    LazyRow(state = lazyListState) {
+        items(list, key = { /* item key */ }) {
+            ReorderableItem(reorderableLazyListState, key = /* item key */) { isDragging ->
+                // Item content
+
+                DragHandle(this)
+            }
+        }
+    }
+}
+
+@Composable
+fun DragHandle(scope: ReorderableCollectionItemScope) {
+    IconButton(
+        modifier = with(scope) {
+            Modifier.draggableHandle()
+        },
+        /* ... */
+    )
+}
+```
+
+##### Scroll Trigger Padding
+
+If your [`LazyRow`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/lazy/package-summary#LazyRow(androidx.compose.ui.Modifier,androidx.compose.foundation.lazy.LazyListState,androidx.compose.foundation.layout.PaddingValues,kotlin.Boolean,androidx.compose.foundation.layout.Arrangement.Horizontal,androidx.compose.ui.Alignment.Vertical,androidx.compose.foundation.gestures.FlingBehavior,kotlin.Boolean,kotlin.Function1)>) displays under navigation bar or notification bar, you may want to add `scrollThresholdPadding` to `rememberReorderableLazyListState` to move the scroll trigger area out from under the navigation bar or notification bar.
+
+```kotlin
+val reorderableLazyListState = rememberReorderableLazyListState(
+    lazyListState = lazyListState,
+    scrollThresholdPadding = WindowInsets.systemBars.asPaddingValues(),
+) { from, to ->
+    ...
+}
+```
+
+##### Use with [`Card`](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>)
+
+If you want to use the [material3's Clickable Card](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>), you can create a [`MutableInteractionSource`](https://developer.android.com/reference/kotlin/androidx/compose/foundation/interaction/MutableInteractionSource) and pass it to both the [`Card`](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>) and the `Modifier.draggableHandle` (or `Modifier.longPressDraggableHandle`), `Modifier.draggableHandle` will emit drag events to the [`MutableInteractionSource`](https://developer.android.com/reference/kotlin/androidx/compose/foundation/interaction/MutableInteractionSource) so that the [`Card`](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>) can respond to the drag events:
+
+```kotlin
+val view = LocalView.current
+
+var list by remember { mutableStateOf(List(100) { "Item $it" }) }
+val lazyListState = rememberLazyListState()
+val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
+    list = list.toMutableList().apply {
+        add(to.index, removeAt(from.index))
+    }
+
+    view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
+}
+
+LazyRow(
+    modifier = Modifier.fillMaxSize(),
+    state = lazyListState,
+    contentPadding = PaddingValues(8.dp),
+    horizontalArrangement = Arrangement.spacedBy(8.dp),
+) {
+    items(list, key = { it }) { item ->
+        ReorderableItem(reorderableLazyListState, key = item) {
+            val interactionSource = remember { MutableInteractionSource() }
+
+            Card(
+                onClick = {},
+                interactionSource = interactionSource,
+            ) {
+                Column {
+                    Text(item, Modifier.padding(vertical = 8.dp))
+                    IconButton(
+                        modifier = Modifier.draggableHandle(
+                            onDragStarted = {
+                                view.performHapticFeedback(HapticFeedbackConstants.DRAG_START)
+                            },
+                            onDragStopped = {
+                                view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
+                            },
+                            interactionSource = interactionSource,
+                        ),
+                        onClick = {},
+                    ) {
+                        Icon(Icons.Rounded.DragHandle, contentDescription = "Reorder")
+                    }
+                }
+            }
+        }
+    }
+}
+```
 
 #### [`LazyVerticalGrid`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/lazy/grid/package-summary#LazyVerticalGrid(androidx.compose.foundation.lazy.grid.GridCells,androidx.compose.ui.Modifier,androidx.compose.foundation.lazy.grid.LazyGridState,androidx.compose.foundation.layout.PaddingValues,kotlin.Boolean,androidx.compose.foundation.layout.Arrangement.Vertical,androidx.compose.foundation.layout.Arrangement.Horizontal,androidx.compose.foundation.gestures.FlingBehavior,kotlin.Boolean,kotlin.Function1)>)
 
 Find more examples in [`SimpleReorderableLazyVerticalGridScreen.kt`](demoApp/composeApp/src/commonMain/kotlin/sh/calvin/reorderable/demo/ui/SimpleReorderableLazyVerticalGridScreen.kt) in the demo app.
+
+##### Simple Example
 
 To use this library with [`LazyVerticalGrid`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/lazy/grid/package-summary#LazyVerticalGrid(androidx.compose.foundation.lazy.grid.GridCells,androidx.compose.ui.Modifier,androidx.compose.foundation.lazy.grid.LazyGridState,androidx.compose.foundation.layout.PaddingValues,kotlin.Boolean,androidx.compose.foundation.layout.Arrangement.Vertical,androidx.compose.foundation.layout.Arrangement.Horizontal,androidx.compose.foundation.gestures.FlingBehavior,kotlin.Boolean,kotlin.Function1)>), follow this basic structure:
 
@@ -302,47 +546,10 @@ LazyVerticalGrid(state = lazyGridState) {
 
 ```
 
-Since `Modifier.draggableHandle` and `Modifier.longPressDraggableHandle` can only be used in `ReorderableCollectionItemScope`, you may need to pass `ReorderableCollectionItemScope` to a child composable. For example:
+##### Complete Example (with haptic feedback)
 
-```kotlin
-@Composable
-fun Grid() {
-    // ...
-
-    LazyVerticalGrid(state = lazyGridState) {
-        items(Grid, key = { /* item key */ }) {
-            ReorderableItem(reorderableLazyGridState, key = /* item key */) { isDragging ->
-                // Item content
-
-                DragHandle(this)
-            }
-        }
-    }
-}
-
-@Composable
-fun DragHandle(scope: ReorderableCollectionItemScope) {
-    IconButton(
-        modifier = with(scope) {
-            Modifier.draggableHandle()
-        },
-        /* ... */
-    )
-}
-```
-
-If your [`LazyVerticalGrid`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/lazy/grid/package-summary#LazyVerticalGrid(androidx.compose.foundation.lazy.grid.GridCells,androidx.compose.ui.Modifier,androidx.compose.foundation.lazy.grid.LazyGridState,androidx.compose.foundation.layout.PaddingValues,kotlin.Boolean,androidx.compose.foundation.layout.Arrangement.Vertical,androidx.compose.foundation.layout.Arrangement.Horizontal,androidx.compose.foundation.gestures.FlingBehavior,kotlin.Boolean,kotlin.Function1)>) displays under navigation bar or notification bar, you may want to add `scrollThresholdPadding` to `rememberReorderableLazyGridState` to move the scroll trigger area out from under the navigation bar or notification bar.
-
-```kotlin
-val reorderableLazyGridState = rememberReorderableLazyGridState(
-    lazyGridState = lazyGridState,
-    scrollThresholdPadding = WindowInsets.systemBars.asPaddingValues(),
-) { from, to ->
-    ...
-}
-```
-
-Here's a more complete example with (with haptic feedback):
+> [!NOTE]  
+> `val view = LocalView.current` and `View.performHapticFeedback` are only available in Android. Comment out these lines if you are using this library in a multiplatform project.
 
 ```kotlin
 val view = LocalView.current
@@ -391,6 +598,81 @@ LazyVerticalGrid(
     }
 }
 ```
+
+##### Section Headers and Footers or Multiple Lists
+
+The `from.index` and `to.index` in `onMove` are the indices of the items in the `LazyVerticalGrid`. If you have section headers and footers, you need to adjust the indices accordingly. For example:
+
+```kotlin
+var list by remember { mutableStateOf(List(100) { "Item $it" }) }
+val lazyGridState = rememberLazyGridState()
+val reorderableLazyGridState = rememberReorderableLazyGridState(lazyGridState) { from, to ->
+    list = list.toMutableList().apply {
+        add(to.index - 1, removeAt(from.index - 1))
+    }
+}
+
+LazyVerticalGrid(
+    state = lazyGridState,
+    // ...
+) {
+    item {
+        Text("Header")
+    }
+
+    items(list, key = { item -> item.id }) { item ->
+        ReorderableItem(reorderableLazyGridState, item.id) {
+            // ...
+        }
+    }
+}
+```
+
+##### Passing `Modifier.draggableHandle` to a Child Composable
+
+Since `Modifier.draggableHandle` and `Modifier.longPressDraggableHandle` can only be used in `ReorderableCollectionItemScope`, you may need to pass `ReorderableCollectionItemScope` to a child composable. For example:
+
+```kotlin
+@Composable
+fun Grid() {
+    // ...
+
+    LazyVerticalGrid(state = lazyGridState) {
+        items(Grid, key = { /* item key */ }) {
+            ReorderableItem(reorderableLazyGridState, key = /* item key */) { isDragging ->
+                // Item content
+
+                DragHandle(this)
+            }
+        }
+    }
+}
+
+@Composable
+fun DragHandle(scope: ReorderableCollectionItemScope) {
+    IconButton(
+        modifier = with(scope) {
+            Modifier.draggableHandle()
+        },
+        /* ... */
+    )
+}
+```
+
+##### Scroll Trigger Padding
+
+If your [`LazyVerticalGrid`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/lazy/grid/package-summary#LazyVerticalGrid(androidx.compose.foundation.lazy.grid.GridCells,androidx.compose.ui.Modifier,androidx.compose.foundation.lazy.grid.LazyGridState,androidx.compose.foundation.layout.PaddingValues,kotlin.Boolean,androidx.compose.foundation.layout.Arrangement.Vertical,androidx.compose.foundation.layout.Arrangement.Horizontal,androidx.compose.foundation.gestures.FlingBehavior,kotlin.Boolean,kotlin.Function1)>) displays under navigation bar or notification bar, you may want to add `scrollThresholdPadding` to `rememberReorderableLazyGridState` to move the scroll trigger area out from under the navigation bar or notification bar.
+
+```kotlin
+val reorderableLazyGridState = rememberReorderableLazyGridState(
+    lazyGridState = lazyGridState,
+    scrollThresholdPadding = WindowInsets.systemBars.asPaddingValues(),
+) { from, to ->
+    ...
+}
+```
+
+##### Use with [`Card`](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>)
 
 If you want to use the [material3's Clickable Card](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>), you can create a [`MutableInteractionSource`](https://developer.android.com/reference/kotlin/androidx/compose/foundation/interaction/MutableInteractionSource) and pass it to both the [`Card`](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>) and the `Modifier.draggableHandle` (or `Modifier.longPressDraggableHandle`), `Modifier.draggableHandle` will emit drag events to the [`MutableInteractionSource`](https://developer.android.com/reference/kotlin/androidx/compose/foundation/interaction/MutableInteractionSource) so that the [`Card`](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>) can respond to the drag events:
 
@@ -450,11 +732,218 @@ LazyVerticalGrid(
 
 Find more examples in [`SimpleReorderableLazyHorizontalGridScreen.kt`](demoApp/composeApp/src/commonMain/kotlin/sh/calvin/reorderable/demo/ui/SimpleReorderableLazyHorizontalGridScreen.kt) in the demo app.
 
-You can just replace `LazyVerticalStaggeredGrid` with `LazyHorizontalGrid` in the `LazyVerticalStaggeredGrid` examples above.
+##### Simple Example
+
+To use this library with [`LazyHorizontalGrid`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/lazy/grid/package-summary#LazyHorizontalGrid(androidx.compose.foundation.lazy.grid.GridCells,androidx.compose.ui.Modifier,androidx.compose.foundation.lazy.grid.LazyStaggeredGridState,androidx.compose.foundation.layout.PaddingValues,kotlin.Boolean,androidx.compose.foundation.layout.Arrangement.Horizontal,androidx.compose.foundation.layout.Arrangement.Vertical,androidx.compose.foundation.gestures.FlingBehavior,kotlin.Boolean,kotlin.Function1)>), follow this basic structure:
+
+```kotlin
+val lazyGridState = rememberLazyGridState()
+val reorderableLazyGridState = rememberReorderableLazyGridState(lazyGridState) { from, to ->
+    // Update the list
+}
+
+LazyHorizontalGrid(state = lazyGridState) {
+    items(list, key = { /* item key */ }) {
+        ReorderableItem(reorderableLazyGridState, key = /* item key */) { isDragging ->
+            // Item content
+
+            IconButton(
+                modifier = Modifier.draggableHandle(),
+                /* ... */
+            )
+        }
+    }
+}
+
+```
+
+##### Complete Example (with haptic feedback)
+
+> [!NOTE]  
+> `val view = LocalView.current` and `View.performHapticFeedback` are only available in Android. Comment out these lines if you are using this library in a multiplatform project.
+
+```kotlin
+val view = LocalView.current
+
+var list by remember { mutableStateOf(List(100) { "Item $it" }) }
+val lazyGridState = rememberLazyGridState()
+val reorderableLazyGridState = rememberReorderableLazyGridState(lazyGridState) { from, to ->
+    list = list.toMutableList().apply {
+        add(to.index, removeAt(from.index))
+    }
+
+    view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
+}
+
+LazyHorizontalGrid(
+    rows = GridCells.Adaptive(minSize = 96.dp),
+    modifier = Modifier.fillMaxSize(),
+    state = lazyGridState,
+    contentPadding = PaddingValues(8.dp),
+    verticalArrangement = Arrangement.spacedBy(8.dp),
+    horizontalArrangement = Arrangement.spacedBy(8.dp),
+) {
+    items(list, key = { it }) {
+        ReorderableItem(reorderableLazyGridState, key = it) { isDragging ->
+            val elevation by animateDpAsState(if (isDragging) 4.dp else 0.dp)
+
+            Surface(shadowElevation = elevation) {
+                Row {
+                    Text(it, Modifier.padding(horizontal = 8.dp))
+                    IconButton(
+                        modifier = Modifier.draggableHandle(
+                            onDragStarted = {
+                                view.performHapticFeedback(HapticFeedbackConstants.DRAG_START)
+                            },
+                            onDragStopped = {
+                                view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
+                            },
+                        ),
+                        onClick = {},
+                    ) {
+                        Icon(Icons.Rounded.DragHandle, contentDescription = "Reorder")
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
+##### Section Headers and Footers or Multiple Lists
+
+The `from.index` and `to.index` in `onMove` are the indices of the items in the `LazyHorizontalGrid`. If you have section headers and footers, you need to adjust the indices accordingly. For example:
+
+```kotlin
+var list by remember { mutableStateOf(List(100) { "Item $it" }) }
+val lazyGridState = rememberLazyGridState()
+val reorderableLazyGridState = rememberReorderableLazyGridState(lazyGridState) { from, to ->
+    list = list.toMutableList().apply {
+        add(to.index - 1, removeAt(from.index - 1))
+    }
+}
+
+LazyHorizontalGrid(
+    state = lazyGridState,
+    // ...
+) {
+    item {
+        Text("Header")
+    }
+
+    items(list, key = { item -> item.id }) { item ->
+        ReorderableItem(reorderableLazyGridState, item.id) {
+            // ...
+        }
+    }
+}
+```
+
+##### Passing `Modifier.draggableHandle` to a Child Composable
+
+Since `Modifier.draggableHandle` and `Modifier.longPressDraggableHandle` can only be used in `ReorderableCollectionItemScope`, you may need to pass `ReorderableCollectionItemScope` to a child composable. For example:
+
+```kotlin
+@Composable
+fun Grid() {
+    // ...
+
+    LazyHorizontalGrid(state = lazyGridState) {
+        items(Grid, key = { /* item key */ }) {
+            ReorderableItem(reorderableLazyGridState, key = /* item key */) { isDragging ->
+                // Item content
+
+                DragHandle(this)
+            }
+        }
+    }
+}
+
+@Composable
+fun DragHandle(scope: ReorderableCollectionItemScope) {
+    IconButton(
+        modifier = with(scope) {
+            Modifier.draggableHandle()
+        },
+        /* ... */
+    )
+}
+```
+
+##### Scroll Trigger Padding
+
+If your [`LazyHorizontalGrid`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/lazy/grid/package-summary#LazyHorizontalGrid(androidx.compose.foundation.lazy.grid.GridCells,androidx.compose.ui.Modifier,androidx.compose.foundation.lazy.grid.LazyStaggeredGridState,androidx.compose.foundation.layout.PaddingValues,kotlin.Boolean,androidx.compose.foundation.layout.Arrangement.Horizontal,androidx.compose.foundation.layout.Arrangement.Vertical,androidx.compose.foundation.gestures.FlingBehavior,kotlin.Boolean,kotlin.Function1)>) displays under navigation bar or notification bar, you may want to add `scrollThresholdPadding` to `rememberReorderableLazyGridState` to move the scroll trigger area out from under the navigation bar or notification bar.
+
+```kotlin
+val reorderableLazyGridState = rememberReorderableLazyGridState(
+    lazyGridState = lazyGridState,
+    scrollThresholdPadding = WindowInsets.systemBars.asPaddingValues(),
+) { from, to ->
+    ...
+}
+```
+
+##### Use with [`Card`](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>)
+
+If you want to use the [material3's Clickable Card](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>), you can create a [`MutableInteractionSource`](https://developer.android.com/reference/kotlin/androidx/compose/foundation/interaction/MutableInteractionSource) and pass it to both the [`Card`](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>) and the `Modifier.draggableHandle` (or `Modifier.longPressDraggableHandle`), `Modifier.draggableHandle` will emit drag events to the [`MutableInteractionSource`](https://developer.android.com/reference/kotlin/androidx/compose/foundation/interaction/MutableInteractionSource) so that the [`Card`](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>) can respond to the drag events:
+
+```kotlin
+val view = LocalView.current
+
+var list by remember { mutableStateOf(List(100) { "Item $it" }) }
+val lazyGridState = rememberLazyGridState()
+val reorderableLazyGridState = rememberReorderableLazyGridState(lazyGridState) { from, to ->
+    list = list.toMutableList().apply {
+        add(to.index, removeAt(from.index))
+    }
+
+    view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
+}
+
+LazyHorizontalGrid(
+    rows = GridCells.Adaptive(minSize = 96.dp),
+    modifier = Modifier.fillMaxSize(),
+    state = lazyGridState,
+    contentPadding = PaddingValues(8.dp),
+    verticalArrangement = Arrangement.spacedBy(8.dp),
+    horizontalArrangement = Arrangement.spacedBy(8.dp),
+) {
+    items(list, key = { it }) { item ->
+        ReorderableItem(reorderableLazyGridState, key = item) {
+            val interactionSource = remember { MutableInteractionSource() }
+
+            Card(
+                onClick = {},
+                interactionSource = interactionSource,
+            ) {
+                Row {
+                    Text(item, Modifier.padding(horizontal = 8.dp))
+                    IconButton(
+                        modifier = Modifier.draggableHandle(
+                            onDragStarted = {
+                                view.performHapticFeedback(HapticFeedbackConstants.DRAG_START)
+                            },
+                            onDragStopped = {
+                                view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
+                            },
+                            interactionSource = interactionSource,
+                        ),
+                        onClick = {},
+                    ) {
+                        Icon(Icons.Rounded.DragHandle, contentDescription = "Reorder")
+                    }
+                }
+            }
+        }
+    }
+}
+```
 
 #### [`LazyVerticalStaggeredGrid`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/lazy/staggeredgrid/package-summary#LazyVerticalStaggeredGrid(androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells,androidx.compose.ui.Modifier,androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState,androidx.compose.foundation.layout.PaddingValues,kotlin.Boolean,androidx.compose.ui.unit.Dp,androidx.compose.foundation.layout.Arrangement.Horizontal,androidx.compose.foundation.gestures.FlingBehavior,kotlin.Boolean,kotlin.Function1)>)
 
 Find more examples in [`SimpleReorderableLazyVerticalStaggeredGridScreen.kt`](demoApp/composeApp/src/commonMain/kotlin/sh/calvin/reorderable/demo/ui/SimpleReorderableLazyVerticalStaggeredGridScreen.kt) in the demo app.
+
+##### Simple Example
 
 To use this library with [`LazyVerticalStaggeredGrid`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/lazy/staggeredgrid/package-summary#LazyVerticalStaggeredGrid(androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells,androidx.compose.ui.Modifier,androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState,androidx.compose.foundation.layout.PaddingValues,kotlin.Boolean,androidx.compose.ui.unit.Dp,androidx.compose.foundation.layout.Arrangement.Horizontal,androidx.compose.foundation.gestures.FlingBehavior,kotlin.Boolean,kotlin.Function1)>), follow this basic structure:
 
@@ -479,47 +968,10 @@ LazyVerticalStaggeredGrid(state = lazyStaggeredGridState) {
 
 ```
 
-Since `Modifier.draggableHandle` and `Modifier.longPressDraggableHandle` can only be used in `ReorderableCollectionItemScope`, you may need to pass `ReorderableCollectionItemScope` to a child composable. For example:
+##### Complete Example (with haptic feedback)
 
-```kotlin
-@Composable
-fun Grid() {
-    // ...
-
-    LazyVerticalStaggeredGrid(state = lazyStaggeredGridState) {
-        items(list, key = { /* item key */ }) {
-            ReorderableItem(reorderableLazyStaggeredGridState, key = /* item key */) { isDragging ->
-                // Item content
-
-                DragHandle(this)
-            }
-        }
-    }
-}
-
-@Composable
-fun DragHandle(scope: ReorderableCollectionItemScope) {
-    IconButton(
-        modifier = with(scope) {
-            Modifier.draggableHandle()
-        },
-        /* ... */
-    )
-}
-```
-
-If your [`LazyVerticalStaggeredGrid`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/lazy/staggeredgrid/package-summary#LazyVerticalStaggeredGrid(androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells,androidx.compose.ui.Modifier,androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState,androidx.compose.foundation.layout.PaddingValues,kotlin.Boolean,androidx.compose.ui.unit.Dp,androidx.compose.foundation.layout.Arrangement.Horizontal,androidx.compose.foundation.gestures.FlingBehavior,kotlin.Boolean,kotlin.Function1)>) displays under navigation bar or notification bar, you may want to add `scrollThresholdPadding` to `rememberReorderableLazyStaggeredGridState` to move the scroll trigger area out from under the navigation bar or notification bar.
-
-```kotlin
-val reorderableLazyStaggeredGridState = rememberReorderableLazyStaggeredGridState(
-    lazyStaggeredGridState = lazyStaggeredGridState,
-    scrollThresholdPadding = WindowInsets.systemBars.asPaddingValues(),
-) { from, to ->
-    ...
-}
-```
-
-Here's a more complete example with (with haptic feedback):
+> [!NOTE]  
+> `val view = LocalView.current` and `View.performHapticFeedback` are only available in Android. Comment out these lines if you are using this library in a multiplatform project.
 
 ```kotlin
 val view = LocalView.current
@@ -568,6 +1020,81 @@ LazyVerticalStaggeredGrid(
     }
 }
 ```
+
+##### Section Headers and Footers or Multiple Lists
+
+The `from.index` and `to.index` in `onMove` are the indices of the items in the `LazyVerticalStaggeredGrid`. If you have section headers and footers, you need to adjust the indices accordingly. For example:
+
+```kotlin
+var list by remember { mutableStateOf(List(100) { "Item $it" }) }
+val lazyStaggeredGridState = rememberLazyStaggeredGridState()
+val reorderableLazyStaggeredGridState = rememberReorderableLazyStaggeredGridState(lazyStaggeredGridState) { from, to ->
+    list = list.toMutableList().apply {
+        add(to.index - 1, removeAt(from.index - 1))
+    }
+}
+
+LazyVerticalStaggeredGrid(
+    state = lazyStaggeredGridState,
+    // ...
+) {
+    item {
+        Text("Header")
+    }
+
+    items(list, key = { item -> item.id }) { item ->
+        ReorderableItem(reorderableLazyStaggeredGridState, item.id) {
+            // ...
+        }
+    }
+}
+```
+
+##### Passing `Modifier.draggableHandle` to a Child Composable
+
+Since `Modifier.draggableHandle` and `Modifier.longPressDraggableHandle` can only be used in `ReorderableCollectionItemScope`, you may need to pass `ReorderableCollectionItemScope` to a child composable. For example:
+
+```kotlin
+@Composable
+fun Grid() {
+    // ...
+
+    LazyVerticalStaggeredGrid(state = lazyStaggeredGridState) {
+        items(list, key = { /* item key */ }) {
+            ReorderableItem(reorderableLazyStaggeredGridState, key = /* item key */) { isDragging ->
+                // Item content
+
+                DragHandle(this)
+            }
+        }
+    }
+}
+
+@Composable
+fun DragHandle(scope: ReorderableCollectionItemScope) {
+    IconButton(
+        modifier = with(scope) {
+            Modifier.draggableHandle()
+        },
+        /* ... */
+    )
+}
+```
+
+##### Scroll Trigger Padding
+
+If your [`LazyVerticalStaggeredGrid`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/lazy/staggeredgrid/package-summary#LazyVerticalStaggeredGrid(androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells,androidx.compose.ui.Modifier,androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState,androidx.compose.foundation.layout.PaddingValues,kotlin.Boolean,androidx.compose.ui.unit.Dp,androidx.compose.foundation.layout.Arrangement.Horizontal,androidx.compose.foundation.gestures.FlingBehavior,kotlin.Boolean,kotlin.Function1)>) displays under navigation bar or notification bar, you may want to add `scrollThresholdPadding` to `rememberReorderableLazyStaggeredGridState` to move the scroll trigger area out from under the navigation bar or notification bar.
+
+```kotlin
+val reorderableLazyStaggeredGridState = rememberReorderableLazyStaggeredGridState(
+    lazyStaggeredGridState = lazyStaggeredGridState,
+    scrollThresholdPadding = WindowInsets.systemBars.asPaddingValues(),
+) { from, to ->
+    ...
+}
+```
+
+##### Use with [`Card`](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>)
 
 If you want to use the [material3's Clickable Card](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>), you can create a [`MutableInteractionSource`](https://developer.android.com/reference/kotlin/androidx/compose/foundation/interaction/MutableInteractionSource) and pass it to both the [`Card`](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>) and the `Modifier.draggableHandle` (or `Modifier.longPressDraggableHandle`), `Modifier.draggableHandle` will emit drag events to the [`MutableInteractionSource`](https://developer.android.com/reference/kotlin/androidx/compose/foundation/interaction/MutableInteractionSource) so that the [`Card`](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>) can respond to the drag events:
 
@@ -627,11 +1154,218 @@ LazyVerticalStaggeredGrid(
 
 Find more examples in [`SimpleReorderableLazyHorizontalStaggeredGridScreen.kt`](demoApp/composeApp/src/commonMain/kotlin/sh/calvin/reorderable/demo/ui/SimpleReorderableLazyHorizontalStaggeredGridScreen.kt) in the demo app.
 
-You can just replace `LazyVerticalStaggeredGrid` with `LazyHorizontalStaggeredGrid` in the `LazyVerticalStaggeredGrid` examples above.
+##### Simple Example
+
+To use this library with [`LazyHorizontalStaggeredGrid`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/lazy/staggeredgrid/package-summary#LazyHorizontalStaggeredGrid(androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells,androidx.compose.ui.Modifier,androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState,androidx.compose.foundation.layout.PaddingValues,kotlin.Boolean,androidx.compose.foundation.layout.Arrangement.Vertical,androidx.compose.ui.unit.Dp,androidx.compose.foundation.gestures.FlingBehavior,kotlin.Boolean,kotlin.Function1)>), follow this basic structure:
+
+```kotlin
+val lazyStaggeredGridState = rememberLazyStaggeredGridState()
+val reorderableLazyStaggeredGridState = rememberReorderableLazyStaggeredGridState(lazyStaggeredGridState) { from, to ->
+    // Update the list
+}
+
+LazyHorizontalStaggeredGrid(state = lazyStaggeredGridState) {
+    items(list, key = { /* item key */ }) {
+        ReorderableItem(reorderableLazyStaggeredGridState, key = /* item key */) { isDragging ->
+            // Item content
+
+            IconButton(
+                modifier = Modifier.draggableHandle(),
+                /* ... */
+            )
+        }
+    }
+}
+
+```
+
+##### Complete Example (with haptic feedback)
+
+> [!NOTE]  
+> `val view = LocalView.current` and `View.performHapticFeedback` are only available in Android. Comment out these lines if you are using this library in a multiplatform project.
+
+```kotlin
+val view = LocalView.current
+
+var list by remember { mutableStateOf(List(100) { "Item $it" }) }
+val lazyStaggeredGridState = rememberLazyStaggeredGridState()
+val reorderableLazyStaggeredGridState = rememberReorderableLazyStaggeredGridState(lazyStaggeredGridState) { from, to ->
+    list = list.toMutableList().apply {
+        add(to.index, removeAt(from.index))
+    }
+
+    view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
+}
+
+LazyHorizontalStaggeredGrid(
+    rows = StaggeredGridCells.Adaptive(minSize = 96.dp),
+    modifier = Modifier.fillMaxSize(),
+    state = lazyStaggeredGridState,
+    contentPadding = PaddingValues(8.dp),
+    verticalArrangement = Arrangement.spacedBy(8.dp),
+    horizontalItemSpacing = 8.dp,
+) {
+    items(list, key = { it }) {
+        ReorderableItem(reorderableLazyStaggeredGridState, key = it) { isDragging ->
+            val elevation by animateDpAsState(if (isDragging) 4.dp else 0.dp)
+
+            Surface(shadowElevation = elevation) {
+                Row {
+                    Text(it, Modifier.padding(horizontal = 8.dp))
+                    IconButton(
+                        modifier = Modifier.draggableHandle(
+                            onDragStarted = {
+                                view.performHapticFeedback(HapticFeedbackConstants.DRAG_START)
+                            },
+                            onDragStopped = {
+                                view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
+                            },
+                        ),
+                        onClick = {},
+                    ) {
+                        Icon(Icons.Rounded.DragHandle, contentDescription = "Reorder")
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
+##### Section Headers and Footers or Multiple Lists
+
+The `from.index` and `to.index` in `onMove` are the indices of the items in the `LazyHorizontalStaggeredGrid`. If you have section headers and footers, you need to adjust the indices accordingly. For example:
+
+```kotlin
+var list by remember { mutableStateOf(List(100) { "Item $it" }) }
+val lazyStaggeredGridState = rememberLazyStaggeredGridState()
+val reorderableLazyStaggeredGridState = rememberReorderableLazyStaggeredGridState(lazyStaggeredGridState) { from, to ->
+    list = list.toMutableList().apply {
+        add(to.index - 1, removeAt(from.index - 1))
+    }
+}
+
+LazyHorizontalStaggeredGrid(
+    state = lazyStaggeredGridState,
+    // ...
+) {
+    item {
+        Text("Header")
+    }
+
+    items(list, key = { item -> item.id }) { item ->
+        ReorderableItem(reorderableLazyStaggeredGridState, item.id) {
+            // ...
+        }
+    }
+}
+```
+
+##### Passing `Modifier.draggableHandle` to a Child Composable
+
+Since `Modifier.draggableHandle` and `Modifier.longPressDraggableHandle` can only be used in `ReorderableCollectionItemScope`, you may need to pass `ReorderableCollectionItemScope` to a child composable. For example:
+
+```kotlin
+@Composable
+fun Grid() {
+    // ...
+
+    LazyHorizontalStaggeredGrid(state = lazyStaggeredGridState) {
+        items(list, key = { /* item key */ }) {
+            ReorderableItem(reorderableLazyStaggeredGridState, key = /* item key */) { isDragging ->
+                // Item content
+
+                DragHandle(this)
+            }
+        }
+    }
+}
+
+@Composable
+fun DragHandle(scope: ReorderableCollectionItemScope) {
+    IconButton(
+        modifier = with(scope) {
+            Modifier.draggableHandle()
+        },
+        /* ... */
+    )
+}
+```
+
+##### Scroll Trigger Padding
+
+If your [`LazyHorizontalStaggeredGrid`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/lazy/staggeredgrid/package-summary#LazyHorizontalStaggeredGrid(androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells,androidx.compose.ui.Modifier,androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState,androidx.compose.foundation.layout.PaddingValues,kotlin.Boolean,androidx.compose.foundation.layout.Arrangement.Vertical,androidx.compose.ui.unit.Dp,androidx.compose.foundation.gestures.FlingBehavior,kotlin.Boolean,kotlin.Function1)>) displays under navigation bar or notification bar, you may want to add `scrollThresholdPadding` to `rememberReorderableLazyStaggeredGridState` to move the scroll trigger area out from under the navigation bar or notification bar.
+
+```kotlin
+val reorderableLazyStaggeredGridState = rememberReorderableLazyStaggeredGridState(
+    lazyStaggeredGridState = lazyStaggeredGridState,
+    scrollThresholdPadding = WindowInsets.systemBars.asPaddingValues(),
+) { from, to ->
+    ...
+}
+```
+
+##### Use with [`Card`](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>)
+
+If you want to use the [material3's Clickable Card](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>), you can create a [`MutableInteractionSource`](https://developer.android.com/reference/kotlin/androidx/compose/foundation/interaction/MutableInteractionSource) and pass it to both the [`Card`](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>) and the `Modifier.draggableHandle` (or `Modifier.longPressDraggableHandle`), `Modifier.draggableHandle` will emit drag events to the [`MutableInteractionSource`](https://developer.android.com/reference/kotlin/androidx/compose/foundation/interaction/MutableInteractionSource) so that the [`Card`](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>) can respond to the drag events:
+
+```kotlin
+val view = LocalView.current
+
+var list by remember { mutableStateOf(List(100) { "Item $it" }) }
+val lazyStaggeredGridState = rememberLazyStaggeredGridState()
+val reorderableLazyStaggeredGridState = rememberReorderableLazyStaggeredGridState(lazyStaggeredGridState) { from, to ->
+    list = list.toMutableList().apply {
+        add(to.index, removeAt(from.index))
+    }
+
+    view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
+}
+
+LazyHorizontalStaggeredGrid(
+    rows = StaggeredGridCells.Adaptive(minSize = 96.dp),
+    modifier = Modifier.fillMaxSize(),
+    state = lazyStaggeredGridState,
+    contentPadding = PaddingValues(8.dp),
+    verticalArrangement = Arrangement.spacedBy(8.dp),
+    horizontalItemSpacing = 8.dp,
+) {
+    items(list, key = { it }) { item ->
+        ReorderableItem(reorderableLazyStaggeredGridState, key = item) {
+            val interactionSource = remember { MutableInteractionSource() }
+
+            Card(
+                onClick = {},
+                interactionSource = interactionSource,
+            ) {
+                Row {
+                    Text(item, Modifier.padding(horizontal = 8.dp))
+                    IconButton(
+                        modifier = Modifier.draggableHandle(
+                            onDragStarted = {
+                                view.performHapticFeedback(HapticFeedbackConstants.DRAG_START)
+                            },
+                            onDragStopped = {
+                                view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
+                            },
+                            interactionSource = interactionSource,
+                        ),
+                        onClick = {},
+                    ) {
+                        Icon(Icons.Rounded.DragHandle, contentDescription = "Reorder")
+                    }
+                }
+            }
+        }
+    }
+}
+```
 
 #### [`Column`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/package-summary#Column(androidx.compose.ui.Modifier,androidx.compose.foundation.layout.Arrangement.Vertical,androidx.compose.ui.Alignment.Horizontal,kotlin.Function1)>)
 
 Find more examples in [`ReorderableColumnScreen.kt`](demoApp/composeApp/src/commonMain/kotlin/sh/calvin/reorderable/demo/ui/ReorderableColumnScreen.kt) and [`LongPressHandleReorderableColumnScreen.kt`](demoApp/composeApp/src/commonMain/kotlin/sh/calvin/reorderable/demo/ui/LongPressHandleReorderableColumnScreen.kt) in the demo app.
+
+##### Simple Example
 
 To use this library with [`Column`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/package-summary#Column(androidx.compose.ui.Modifier,androidx.compose.foundation.layout.Arrangement.Vertical,androidx.compose.ui.Alignment.Horizontal,kotlin.Function1)>), follow this basic structure:
 
@@ -650,34 +1384,10 @@ ReorderableColumn(
 }
 ```
 
-Since `Modifier.draggableHandle` and `Modifier.longPressDraggableHandle` can only be used in `ReorderableScope`, you may need to pass `ReorderableScope` to a child composable. For example:
+##### Complete Example (with haptic feedback)
 
-```kotlin
-@Composable
-fun List() {
-    // ...
-
-    ReorderableColumn(
-        list = list,
-        onSettle = { fromIndex, toIndex ->
-            // Update the list
-        },
-    ) { index, item, isDragging ->
-        key(item.id) {
-            // Item content
-
-            DragHandle(this)
-        }
-    }
-}
-
-@Composable
-fun DragHandle(scope: ReorderableScope) {
-    IconButton(modifier = with(scope) { Modifier.draggableHandle() }, /* ... */)
-}
-```
-
-Here's a more complete example (with haptic feedback):
+> [!NOTE]  
+> `val view = LocalView.current` and `View.performHapticFeedback` are only available in Android. Comment out these lines if you are using this library in a multiplatform project.
 
 ```kotlin
 val view = LocalView.current
@@ -723,6 +1433,37 @@ ReorderableColumn(
     }
 }
 ```
+
+##### Passing `Modifier.draggableHandle` to a Child Composable
+
+Since `Modifier.draggableHandle` and `Modifier.longPressDraggableHandle` can only be used in `ReorderableScope`, you may need to pass `ReorderableScope` to a child composable. For example:
+
+```kotlin
+@Composable
+fun List() {
+    // ...
+
+    ReorderableColumn(
+        list = list,
+        onSettle = { fromIndex, toIndex ->
+            // Update the list
+        },
+    ) { index, item, isDragging ->
+        key(item.id) {
+            // Item content
+
+            DragHandle(this)
+        }
+    }
+}
+
+@Composable
+fun DragHandle(scope: ReorderableScope) {
+    IconButton(modifier = with(scope) { Modifier.draggableHandle() }, /* ... */)
+}
+```
+
+##### Use with [`Card`](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>)
 
 If you want to use the [material3's Clickable Card](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>), you can create a [`MutableInteractionSource`](https://developer.android.com/reference/kotlin/androidx/compose/foundation/interaction/MutableInteractionSource) and pass it to both the [`Card`](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>) and the `Modifier.draggableHandle` (or `Modifier.longPressDraggableHandle`), `Modifier.draggableHandle` will emit drag events to the [`MutableInteractionSource`](https://developer.android.com/reference/kotlin/androidx/compose/foundation/interaction/MutableInteractionSource) so that the [`Card`](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>) can respond to the drag events:
 
@@ -775,11 +1516,160 @@ ReorderableColumn(
 }
 ```
 
-#### Row
+#### [`Row`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/package-summary#Row(androidx.compose.ui.Modifier,androidx.compose.foundation.layout.Arrangement.Horizontal,androidx.compose.ui.Alignment.Vertical,kotlin.Function1)>)
 
 See [`ReorderableRowScreen.kt`](demoApp/composeApp/src/commonMain/kotlin/sh/calvin/reorderable/demo/ui/ReorderableRowScreen.kt) in the demo app.
 
-You can just replace `Column` with `Row` in the `Column` examples above.
+##### Simple Example
+
+To use this library with [`Row`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/package-summary#Row(androidx.compose.ui.Modifier,androidx.compose.foundation.layout.Arrangement.Horizontal,androidx.compose.ui.Alignment.Vertical,kotlin.Function1)>), follow this basic structure:
+
+```kotlin
+ReorderableRow(
+    list = list,
+    onSettle = { fromIndex, toIndex ->
+        // Update the list
+    },
+) { index, item, isDragging ->
+    key(item.id) {
+        // Item content
+
+        IconButton(modifier = Modifier.draggableHandle(), /* ... */)
+    }
+}
+```
+
+##### Complete Example (with haptic feedback)
+
+> [!NOTE]  
+> `val view = LocalView.current` and `View.performHapticFeedback` are only available in Android. Comment out these lines if you are using this library in a multiplatform project.
+
+```kotlin
+val view = LocalView.current
+
+var list by remember { mutableStateOf(List(4) { "Item $it" }) }
+
+ReorderableRow(
+    modifier = Modifier
+        .fillMaxSize()
+        .padding(8.dp),
+    list = list,
+    onSettle = { fromIndex, toIndex ->
+        list = list.toMutableList().apply {
+            add(toIndex, removeAt(fromIndex))
+        }
+    },
+    onMove = {
+        view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
+    },
+    verticalArrangement = Arrangement.spacedBy(8.dp),
+) { _, item, isDragging ->
+    key(item) {
+        val elevation by animateDpAsState(if (isDragging) 4.dp else 0.dp)
+
+        Surface(shadowElevation = elevation) {
+            Column {
+                Text(item, Modifier.padding(vertical = 8.dp))
+                IconButton(
+                    modifier = Modifier.draggableHandle(
+                        onDragStarted = {
+                            view.performHapticFeedback(HapticFeedbackConstants.DRAG_START)
+                        },
+                        onDragStopped = {
+                            view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
+                        },
+                    ),
+                    onClick = {},
+                ) {
+                    Icon(Icons.Rounded.DragHandle, contentDescription = "Reorder")
+                }
+            }
+        }
+    }
+}
+```
+
+##### Passing `Modifier.draggableHandle` to a Child Composable
+
+Since `Modifier.draggableHandle` and `Modifier.longPressDraggableHandle` can only be used in `ReorderableScope`, you may need to pass `ReorderableScope` to a child composable. For example:
+
+```kotlin
+@Composable
+fun List() {
+    // ...
+
+    ReorderableRow(
+        list = list,
+        onSettle = { fromIndex, toIndex ->
+            // Update the list
+        },
+    ) { index, item, isDragging ->
+        key(item.id) {
+            // Item content
+
+            DragHandle(this)
+        }
+    }
+}
+
+@Composable
+fun DragHandle(scope: ReorderableScope) {
+    IconButton(modifier = with(scope) { Modifier.draggableHandle() }, /* ... */)
+}
+```
+
+##### Use with [`Card`](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>)
+
+If you want to use the [material3's Clickable Card](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>), you can create a [`MutableInteractionSource`](https://developer.android.com/reference/kotlin/androidx/compose/foundation/interaction/MutableInteractionSource) and pass it to both the [`Card`](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>) and the `Modifier.draggableHandle` (or `Modifier.longPressDraggableHandle`), `Modifier.draggableHandle` will emit drag events to the [`MutableInteractionSource`](https://developer.android.com/reference/kotlin/androidx/compose/foundation/interaction/MutableInteractionSource) so that the [`Card`](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>) can respond to the drag events:
+
+```kotlin
+val view = LocalView.current
+
+var list by remember { mutableStateOf(List(4) { "Item $it" }) }
+
+ReorderableRow(
+    modifier = Modifier
+        .fillMaxSize()
+        .padding(8.dp),
+    list = list,
+    onSettle = { fromIndex, toIndex ->
+        list = list.toMutableList().apply {
+            add(toIndex, removeAt(fromIndex))
+        }
+    },
+    onMove = {
+        view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
+    },
+    verticalArrangement = Arrangement.spacedBy(8.dp),
+) { _, item, _ ->
+    key(item) {
+        val interactionSource = remember { MutableInteractionSource() }
+
+        Card(
+            onClick = {},
+            interactionSource = interactionSource,
+        ) {
+            Column {
+                Text(item, Modifier.padding(vertical = 8.dp))
+                IconButton(
+                    modifier = Modifier.draggableHandle(
+                        onDragStarted = {
+                            view.performHapticFeedback(HapticFeedbackConstants.DRAG_START)
+                        },
+                        onDragStopped = {
+                            view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
+                        },
+                        interactionSource = interactionSource,
+                    ),
+                    onClick = {},
+                ) {
+                    Icon(Icons.Rounded.DragHandle, contentDescription = "Reorder")
+                }
+            }
+        }
+    }
+}
+```
 
 #### Accessibility
 
