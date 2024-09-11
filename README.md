@@ -66,6 +66,15 @@ or
 reorderable = { module = "sh.calvin.reorderable:reorderable", version = "2.3.2" }
 ```
 
+then
+
+```kotlin
+dependencies {
+    // ...
+    implementation(libs.reorderable)
+}
+```
+
 ### Gradle
 
 If you're using Gradle instead, add the following to your `build.gradle` file:
@@ -74,6 +83,7 @@ If you're using Gradle instead, add the following to your `build.gradle` file:
 
 ```kotlin
 dependencies {
+    // ...
     implementation("sh.calvin.reorderable:reorderable:2.3.2")
 }
 ```
