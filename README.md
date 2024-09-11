@@ -51,7 +51,7 @@ If you're using Version Catalog, add the following to your `libs.versions.toml` 
 ```toml
 [versions]
 #...
-reorderable = "2.3.3"
+reorderable = "2.3.2"
 
 [libraries]
 #...
@@ -63,7 +63,7 @@ or
 ```toml
 [libraries]
 #...
-reorderable = { module = "sh.calvin.reorderable:reorderable", version = "2.3.3" }
+reorderable = { module = "sh.calvin.reorderable:reorderable", version = "2.3.2" }
 ```
 
 then
@@ -84,7 +84,7 @@ If you're using Gradle instead, add the following to your `build.gradle` file:
 ```kotlin
 dependencies {
     // ...
-    implementation("sh.calvin.reorderable:reorderable:2.3.3")
+    implementation("sh.calvin.reorderable:reorderable:2.3.2")
 }
 ```
 
@@ -92,7 +92,7 @@ dependencies {
 
 ```groovy
 dependencies {
-    implementation 'sh.calvin.reorderable:reorderable:2.3.3'
+    implementation 'sh.calvin.reorderable:reorderable:2.3.2'
 }
 ```
 
