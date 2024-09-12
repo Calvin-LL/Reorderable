@@ -288,7 +288,7 @@ fun LazyItemScope.ReorderableItem(
     animateItemModifier: Modifier = Modifier.animateItemPlacement(),
     content: @Composable ReorderableCollectionItemScope.(isDragging: Boolean) -> Unit,
 ) {
-    val orientation = remember(state) { state.orientation }
+    val orientation by derivedStateOf { state.orientation }
     val dragging by state.isItemDragging(key)
     val offsetModifier = if (dragging) {
         Modifier
