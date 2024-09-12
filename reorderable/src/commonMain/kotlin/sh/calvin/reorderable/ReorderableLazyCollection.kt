@@ -646,6 +646,7 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
                     layoutInfoFlow.take(2).collect()
                 }
 
+                oldDraggingItemIndex = null
                 predictedDraggingItemOffset = null
             }
         } catch (e: CancellationException) {
