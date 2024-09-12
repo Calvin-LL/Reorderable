@@ -294,7 +294,7 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
 
     // visibleItemsInfo doesn't update immediately after onMove, draggingItemLayoutInfo.item may be outdated for a short time.
     // not a clean solution, but it works.
-    private var draggingItemTargetIndex by mutableStateOf<Int?>(null)
+    private var oldDraggingItemIndex by mutableStateOf<Int?>(null)
     private var predictedDraggingItemOffset by mutableStateOf<IntOffset?>(null)
 
     private val draggingItemLayoutInfo: LazyCollectionItemInfo<T>?
@@ -304,8 +304,8 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
     internal val draggingItemOffset: Offset
         get() = (draggingItemLayoutInfo?.let {
             val offset =
-                if (it.index == draggingItemTargetIndex || draggingItemTargetIndex == null) {
-                    draggingItemTargetIndex = null
+                if (it.index != oldDraggingItemIndex || oldDraggingItemIndex == null) {
+                    oldDraggingItemIndex = null
                     predictedDraggingItemOffset = null
                     it.offset
                 } else {
@@ -398,7 +398,7 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
         draggingItemKey = null
         draggingItemInitialOffset = previousDraggingItemInitialOffset ?: IntOffset.Zero
         scroller.tryStop()
-        draggingItemTargetIndex = null
+        oldDraggingItemIndex = null
         predictedDraggingItemOffset = null
     }
 
@@ -630,6 +630,8 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
 
         try {
             onMoveStateMutex.withLock {
+                oldDraggingItemIndex = draggingItem.index
+
                 scope.(onMoveState.value)(draggingItem.data, targetItem.data)
 
                 predictedDraggingItemOffset = if (targetItem.index > draggingItem.index) {
@@ -637,13 +639,14 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
                 } else {
                     targetItem.offset
                 }
-                draggingItemTargetIndex = targetItem.index
 
                 withTimeout(MoveItemsLayoutInfoUpdateMaxWaitDuration) {
                     // the first result from layoutInfoFlow is the current layoutInfo
                     // the second result is the updated layoutInfo
                     layoutInfoFlow.take(2).collect()
                 }
+
+                predictedDraggingItemOffset = null
             }
         } catch (e: CancellationException) {
             // do nothing
