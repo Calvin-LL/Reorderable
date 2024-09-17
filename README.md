@@ -31,6 +31,19 @@ The latest demo app APK can be found in the [releases](https://github.com/Calvin
   </tbody>
 </table>
 
+## Used By
+
+- [Lawnchair](https://github.com/LawnchairLauncher/lawnchair/blob/10889eb9772d5ec05f8ec536db3986ad5d9f4f33/build.gradle#L420) ![GitHub Repo stars](https://img.shields.io/github/stars/LawnchairLauncher/lawnchair?style=flat)
+- [Pocket Casts](https://github.com/Automattic/pocket-casts-android/blob/96cb6c6c3e210800a5fd2365776eee896079e255/gradle/libs.versions.toml#L281) ![GitHub Repo stars](https://img.shields.io/github/stars/Automattic/pocket-casts-android?style=flat)
+- [gkd](https://github.com/gkd-kit/gkd/blob/de140488aa42330d282cc41b92127237308e25f2/gradle/libs.versions.toml#L63) ![GitHub Repo stars](https://img.shields.io/github/stars/gkd-kit/gkd?style=flat)
+- [InnerTune](https://github.com/z-huang/InnerTune/blob/ba3a3a0fe9d3499205a7fc91649938091cad75b8/gradle/libs.versions.toml#L34) ![GitHub Repo stars](https://img.shields.io/github/stars/z-huang/InnerTune?style=flat)
+- [EhViewer](https://github.com/FooIbar/EhViewer/blob/4bb6b0baf69f4e996e1dd0bdb89a7f112819bf02/gradle/libs.versions.toml#L102) ![GitHub Repo stars](https://img.shields.io/github/stars/FooIbar/EhViewer?style=flat)
+- [Twine](https://github.com/msasikanth/twine/blob/841defa05f03c13e56fd331e288f9a5e676862ca/gradle/libs.versions.toml#L124) ![GitHub Repo stars](https://img.shields.io/github/stars/msasikanth/twine?style=flat)
+- [bilimiao](https://github.com/10miaomiao/bilimiao2/blob/b806379206283309defd6d0ef9ad3b575dd46642/bilimiao-compose/build.gradle.kts#L83) ![GitHub Repo stars](https://img.shields.io/github/stars/10miaomiao/bilimiao2?style=flat)
+- [Neo Launcher](https://github.com/NeoApplications/Neo-Launcher/blob/c3788690e31d13249ae70e9db628ed7e9baa86d4/gradle/libs.versions.toml#L112) ![GitHub Repo stars](https://img.shields.io/github/stars/NeoApplications/Neo-Launcher?style=flat)
+- [Stream Chat](https://github.com/GetStream/stream-chat-android/blob/95a3f812991d7fe1e91d7457d125a039aeff704c/buildSrc/src/main/kotlin/io/getstream/chat/android/Dependencies.kt#L217) ![GitHub Repo stars](https://img.shields.io/github/stars/GetStream/stream-chat-android?style=flat)
+- [EinkBro](https://github.com/plateaukao/einkbro/blob/4dfa50fff1ced5035d1be77ef5af55ac165375e6/app/build.gradle.kts#L148) ![GitHub Repo stars](https://img.shields.io/github/stars/plateaukao/einkbro?style=flat)
+
 ## Features
 
 - Supports Compose Multiplatform (Android, iOS, Desktop/JVM, Wasm, JS)
