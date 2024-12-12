@@ -7,6 +7,12 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import kotlinx.coroutines.sync.Mutex
 
+internal val Orientation.opposite
+    get() = when (this) {
+        Orientation.Vertical -> Orientation.Horizontal
+        Orientation.Horizontal -> Orientation.Vertical
+    }
+
 internal fun Offset.getAxis(orientation: Orientation) = when (orientation) {
     Orientation.Vertical -> y
     Orientation.Horizontal -> x

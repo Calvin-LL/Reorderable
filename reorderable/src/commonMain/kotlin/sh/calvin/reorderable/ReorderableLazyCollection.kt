@@ -511,26 +511,39 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
             .reverseAxisWithLayoutDirectionIfLazyVerticalStaggeredGridRtlFix()
         val startOffset = draggingItem.offset.toOffset() + dragOffset
         val endOffset = startOffset + draggingItem.size.toSize()
-        val draggingItemRect = Rect(startOffset, endOffset).maxOutAxis(orientation)
+        val draggingItemRect = Rect(startOffset, endOffset).maxOutAxis(orientation.opposite)
+        val itemsInContentArea = state.layoutInfo.getItemsInContentArea(scrollThresholdPadding)
+            // if we can't find an item in the content area but still need to move the dragging item
+            // we will need to search outside the content area
+            .ifEmpty { state.layoutInfo.visibleItemsInfo }
         val targetItem = findTargetItem(
             draggingItemRect,
-            items = state.layoutInfo.getItemsInContentArea(scrollThresholdPadding),
+            items = itemsInContentArea,
             direction.opposite,
-        ) ?: state.layoutInfo.getItemsInContentArea(
-            scrollThresholdPadding
-        ).let {
+        ) ?: itemsInContentArea.let {
             val targetItemFunc = { item: LazyCollectionItemInfo<T> ->
-                item.key in reorderableKeys && item.index != state.firstVisibleItemIndex
+                item.key in reorderableKeys
             }
             when (direction) {
                 Scroller.Direction.FORWARD -> it.findLast(targetItemFunc)
                 Scroller.Direction.BACKWARD -> it.find(targetItemFunc)
             }
         }
+        if (targetItem == null) {
+            onMoveStateMutex.unlock()
+            return
+        }
+        // this solves https://github.com/Calvin-LL/Reorderable/issues/57
+        val isTargetDirectionCorrect = when (direction) {
+            Scroller.Direction.FORWARD -> targetItem.index > draggingItem.index
+            Scroller.Direction.BACKWARD -> targetItem.index < draggingItem.index
+        }
+        if (!isTargetDirectionCorrect) {
+            onMoveStateMutex.unlock()
+            return
+        }
         val job = scope.launch {
-            if (targetItem != null) {
-                moveItems(draggingItem, targetItem)
-            }
+            moveItems(draggingItem, targetItem)
         }
         onMoveStateMutex.unlock()
         job.join()
