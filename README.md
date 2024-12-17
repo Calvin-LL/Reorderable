@@ -172,7 +172,10 @@ val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) {
         add(to.index, removeAt(from.index))
     }
 
-    view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
+    ViewCompat.performHapticFeedback(
+        view,
+        HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK
+    )
 }
 
 LazyColumn(
@@ -191,10 +194,16 @@ LazyColumn(
                     IconButton(
                         modifier = Modifier.draggableHandle(
                             onDragStarted = {
-                                view.performHapticFeedback(HapticFeedbackConstants.DRAG_START)
+                                ViewCompat.performHapticFeedback(
+                                    view,
+                                    HapticFeedbackConstantsCompat.GESTURE_START
+                                )
                             },
                             onDragStopped = {
-                                view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
+                                ViewCompat.performHapticFeedback(
+                                    view,
+                                    HapticFeedbackConstantsCompat.GESTURE_END
+                                )
                             },
                         ),
                         onClick = {},
@@ -295,7 +304,10 @@ val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) {
         add(to.index, removeAt(from.index))
     }
 
-    view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
+    ViewCompat.performHapticFeedback(
+        view,
+        HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK
+    )
 }
 
 LazyColumn(
@@ -317,10 +329,16 @@ LazyColumn(
                     IconButton(
                         modifier = Modifier.draggableHandle(
                             onDragStarted = {
-                                view.performHapticFeedback(HapticFeedbackConstants.DRAG_START)
+                                ViewCompat.performHapticFeedback(
+                                    view,
+                                    HapticFeedbackConstantsCompat.GESTURE_START
+                                )
                             },
                             onDragStopped = {
-                                view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
+                                ViewCompat.performHapticFeedback(
+                                    view,
+                                    HapticFeedbackConstantsCompat.GESTURE_END
+                                )
                             },
                             interactionSource = interactionSource,
                         ),
@@ -379,7 +397,10 @@ val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) {
         add(to.index, removeAt(from.index))
     }
 
-    view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
+    ViewCompat.performHapticFeedback(
+        view,
+        HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK
+    )
 }
 
 LazyRow(
@@ -398,10 +419,16 @@ LazyRow(
                     IconButton(
                         modifier = Modifier.draggableHandle(
                             onDragStarted = {
-                                view.performHapticFeedback(HapticFeedbackConstants.DRAG_START)
+                                ViewCompat.performHapticFeedback(
+                                    view,
+                                    HapticFeedbackConstantsCompat.GESTURE_START
+                                )
                             },
                             onDragStopped = {
-                                view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
+                                ViewCompat.performHapticFeedback(
+                                    view,
+                                    HapticFeedbackConstantsCompat.GESTURE_END
+                                )
                             },
                         ),
                         onClick = {},
@@ -502,7 +529,10 @@ val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) {
         add(to.index, removeAt(from.index))
     }
 
-    view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
+    ViewCompat.performHapticFeedback(
+        view,
+        HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK
+    )
 }
 
 LazyRow(
@@ -524,10 +554,16 @@ LazyRow(
                     IconButton(
                         modifier = Modifier.draggableHandle(
                             onDragStarted = {
-                                view.performHapticFeedback(HapticFeedbackConstants.DRAG_START)
+                                ViewCompat.performHapticFeedback(
+                                    view,
+                                    HapticFeedbackConstantsCompat.GESTURE_START
+                                )
                             },
                             onDragStopped = {
-                                view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
+                                ViewCompat.performHapticFeedback(
+                                    view,
+                                    HapticFeedbackConstantsCompat.GESTURE_END
+                                )
                             },
                             interactionSource = interactionSource,
                         ),
@@ -586,7 +622,10 @@ val reorderableLazyGridState = rememberReorderableLazyGridState(lazyGridState) {
         add(to.index, removeAt(from.index))
     }
 
-    view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
+    ViewCompat.performHapticFeedback(
+        view,
+        HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK
+    )
 }
 
 LazyVerticalGrid(
@@ -607,10 +646,16 @@ LazyVerticalGrid(
                     IconButton(
                         modifier = Modifier.draggableHandle(
                             onDragStarted = {
-                                view.performHapticFeedback(HapticFeedbackConstants.DRAG_START)
+                                ViewCompat.performHapticFeedback(
+                                    view,
+                                    HapticFeedbackConstantsCompat.GESTURE_START
+                                )
                             },
                             onDragStopped = {
-                                view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
+                                ViewCompat.performHapticFeedback(
+                                    view,
+                                    HapticFeedbackConstantsCompat.GESTURE_END
+                                )
                             },
                         ),
                         onClick = {},
@@ -711,7 +756,10 @@ val reorderableLazyGridState = rememberReorderableLazyGridState(lazyGridState) {
         add(to.index, removeAt(from.index))
     }
 
-    view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
+    ViewCompat.performHapticFeedback(
+        view,
+        HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK
+    )
 }
 
 LazyVerticalGrid(
@@ -735,10 +783,16 @@ LazyVerticalGrid(
                     IconButton(
                         modifier = Modifier.draggableHandle(
                             onDragStarted = {
-                                view.performHapticFeedback(HapticFeedbackConstants.DRAG_START)
+                                ViewCompat.performHapticFeedback(
+                                    view,
+                                    HapticFeedbackConstantsCompat.GESTURE_START
+                                )
                             },
                             onDragStopped = {
-                                view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
+                                ViewCompat.performHapticFeedback(
+                                    view,
+                                    HapticFeedbackConstantsCompat.GESTURE_END
+                                )
                             },
                             interactionSource = interactionSource,
                         ),
@@ -797,7 +851,10 @@ val reorderableLazyGridState = rememberReorderableLazyGridState(lazyGridState) {
         add(to.index, removeAt(from.index))
     }
 
-    view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
+    ViewCompat.performHapticFeedback(
+        view,
+        HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK
+    )
 }
 
 LazyHorizontalGrid(
@@ -818,10 +875,16 @@ LazyHorizontalGrid(
                     IconButton(
                         modifier = Modifier.draggableHandle(
                             onDragStarted = {
-                                view.performHapticFeedback(HapticFeedbackConstants.DRAG_START)
+                                ViewCompat.performHapticFeedback(
+                                    view,
+                                    HapticFeedbackConstantsCompat.GESTURE_START
+                                )
                             },
                             onDragStopped = {
-                                view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
+                                ViewCompat.performHapticFeedback(
+                                    view,
+                                    HapticFeedbackConstantsCompat.GESTURE_END
+                                )
                             },
                         ),
                         onClick = {},
@@ -922,7 +985,10 @@ val reorderableLazyGridState = rememberReorderableLazyGridState(lazyGridState) {
         add(to.index, removeAt(from.index))
     }
 
-    view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
+    ViewCompat.performHapticFeedback(
+        view,
+        HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK
+    )
 }
 
 LazyHorizontalGrid(
@@ -946,10 +1012,16 @@ LazyHorizontalGrid(
                     IconButton(
                         modifier = Modifier.draggableHandle(
                             onDragStarted = {
-                                view.performHapticFeedback(HapticFeedbackConstants.DRAG_START)
+                                ViewCompat.performHapticFeedback(
+                                    view,
+                                    HapticFeedbackConstantsCompat.GESTURE_START
+                                )
                             },
                             onDragStopped = {
-                                view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
+                                ViewCompat.performHapticFeedback(
+                                    view,
+                                    HapticFeedbackConstantsCompat.GESTURE_END
+                                )
                             },
                             interactionSource = interactionSource,
                         ),
@@ -1008,7 +1080,10 @@ val reorderableLazyStaggeredGridState = rememberReorderableLazyStaggeredGridStat
         add(to.index, removeAt(from.index))
     }
 
-    view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
+    ViewCompat.performHapticFeedback(
+        view,
+        HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK
+    )
 }
 
 LazyVerticalStaggeredGrid(
@@ -1029,10 +1104,16 @@ LazyVerticalStaggeredGrid(
                     IconButton(
                         modifier = Modifier.draggableHandle(
                             onDragStarted = {
-                                view.performHapticFeedback(HapticFeedbackConstants.DRAG_START)
+                                ViewCompat.performHapticFeedback(
+                                    view,
+                                    HapticFeedbackConstantsCompat.GESTURE_START
+                                )
                             },
                             onDragStopped = {
-                                view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
+                                ViewCompat.performHapticFeedback(
+                                    view,
+                                    HapticFeedbackConstantsCompat.GESTURE_END
+                                )
                             },
                         ),
                         onClick = {},
@@ -1133,7 +1214,10 @@ val reorderableLazyStaggeredGridState = rememberReorderableLazyStaggeredGridStat
         add(to.index, removeAt(from.index))
     }
 
-    view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
+    ViewCompat.performHapticFeedback(
+        view,
+        HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK
+    )
 }
 
 LazyVerticalStaggeredGrid(
@@ -1157,10 +1241,16 @@ LazyVerticalStaggeredGrid(
                     IconButton(
                         modifier = Modifier.draggableHandle(
                             onDragStarted = {
-                                view.performHapticFeedback(HapticFeedbackConstants.DRAG_START)
+                                ViewCompat.performHapticFeedback(
+                                    view,
+                                    HapticFeedbackConstantsCompat.GESTURE_START
+                                )
                             },
                             onDragStopped = {
-                                view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
+                                ViewCompat.performHapticFeedback(
+                                    view,
+                                    HapticFeedbackConstantsCompat.GESTURE_END
+                                )
                             },
                             interactionSource = interactionSource,
                         ),
@@ -1219,7 +1309,10 @@ val reorderableLazyStaggeredGridState = rememberReorderableLazyStaggeredGridStat
         add(to.index, removeAt(from.index))
     }
 
-    view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
+    ViewCompat.performHapticFeedback(
+        view,
+        HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK
+    )
 }
 
 LazyHorizontalStaggeredGrid(
@@ -1240,10 +1333,16 @@ LazyHorizontalStaggeredGrid(
                     IconButton(
                         modifier = Modifier.draggableHandle(
                             onDragStarted = {
-                                view.performHapticFeedback(HapticFeedbackConstants.DRAG_START)
+                                ViewCompat.performHapticFeedback(
+                                    view,
+                                    HapticFeedbackConstantsCompat.GESTURE_START
+                                )
                             },
                             onDragStopped = {
-                                view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
+                                ViewCompat.performHapticFeedback(
+                                    view,
+                                    HapticFeedbackConstantsCompat.GESTURE_END
+                                )
                             },
                         ),
                         onClick = {},
@@ -1344,7 +1443,10 @@ val reorderableLazyStaggeredGridState = rememberReorderableLazyStaggeredGridStat
         add(to.index, removeAt(from.index))
     }
 
-    view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
+    ViewCompat.performHapticFeedback(
+        view,
+        HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK
+    )
 }
 
 LazyHorizontalStaggeredGrid(
@@ -1368,10 +1470,16 @@ LazyHorizontalStaggeredGrid(
                     IconButton(
                         modifier = Modifier.draggableHandle(
                             onDragStarted = {
-                                view.performHapticFeedback(HapticFeedbackConstants.DRAG_START)
+                                ViewCompat.performHapticFeedback(
+                                    view,
+                                    HapticFeedbackConstantsCompat.GESTURE_START
+                                )
                             },
                             onDragStopped = {
-                                view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
+                                ViewCompat.performHapticFeedback(
+                                    view,
+                                    HapticFeedbackConstantsCompat.GESTURE_END
+                                )
                             },
                             interactionSource = interactionSource,
                         ),
@@ -1430,7 +1538,10 @@ ReorderableColumn(
         }
     },
     onMove = {
-        view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
+        ViewCompat.performHapticFeedback(
+            view,
+            HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK
+        )
     },
     verticalArrangement = Arrangement.spacedBy(8.dp),
 ) { _, item, isDragging ->
@@ -1443,10 +1554,16 @@ ReorderableColumn(
                 IconButton(
                     modifier = Modifier.draggableHandle(
                         onDragStarted = {
-                            view.performHapticFeedback(HapticFeedbackConstants.DRAG_START)
+                            ViewCompat.performHapticFeedback(
+                                view,
+                                HapticFeedbackConstantsCompat.GESTURE_START
+                            )
                         },
                         onDragStopped = {
-                            view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
+                            ViewCompat.performHapticFeedback(
+                                view,
+                                HapticFeedbackConstantsCompat.GESTURE_END
+                            )
                         },
                     ),
                     onClick = {},
@@ -1508,7 +1625,10 @@ ReorderableColumn(
         }
     },
     onMove = {
-        view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
+        ViewCompat.performHapticFeedback(
+            view,
+            HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK
+        )
     },
     verticalArrangement = Arrangement.spacedBy(8.dp),
 ) { _, item, _ ->
@@ -1524,10 +1644,16 @@ ReorderableColumn(
                 IconButton(
                     modifier = Modifier.draggableHandle(
                         onDragStarted = {
-                            view.performHapticFeedback(HapticFeedbackConstants.DRAG_START)
+                            ViewCompat.performHapticFeedback(
+                                view,
+                                HapticFeedbackConstantsCompat.GESTURE_START
+                            )
                         },
                         onDragStopped = {
-                            view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
+                            ViewCompat.performHapticFeedback(
+                                view,
+                                HapticFeedbackConstantsCompat.GESTURE_END
+                            )
                         },
                         interactionSource = interactionSource,
                     ),
@@ -1585,7 +1711,10 @@ ReorderableRow(
         }
     },
     onMove = {
-        view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
+        ViewCompat.performHapticFeedback(
+            view,
+            HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK
+        )
     },
     verticalArrangement = Arrangement.spacedBy(8.dp),
 ) { _, item, isDragging ->
@@ -1598,10 +1727,16 @@ ReorderableRow(
                 IconButton(
                     modifier = Modifier.draggableHandle(
                         onDragStarted = {
-                            view.performHapticFeedback(HapticFeedbackConstants.DRAG_START)
+                            ViewCompat.performHapticFeedback(
+                                view,
+                                HapticFeedbackConstantsCompat.GESTURE_START
+                            )
                         },
                         onDragStopped = {
-                            view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
+                            ViewCompat.performHapticFeedback(
+                                view,
+                                HapticFeedbackConstantsCompat.GESTURE_END
+                            )
                         },
                     ),
                     onClick = {},
@@ -1663,7 +1798,10 @@ ReorderableRow(
         }
     },
     onMove = {
-        view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
+        ViewCompat.performHapticFeedback(
+            view,
+            HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK
+        )
     },
     verticalArrangement = Arrangement.spacedBy(8.dp),
 ) { _, item, _ ->
@@ -1679,10 +1817,16 @@ ReorderableRow(
                 IconButton(
                     modifier = Modifier.draggableHandle(
                         onDragStarted = {
-                            view.performHapticFeedback(HapticFeedbackConstants.DRAG_START)
+                            ViewCompat.performHapticFeedback(
+                                view,
+                                HapticFeedbackConstantsCompat.GESTURE_START
+                            )
                         },
                         onDragStopped = {
-                            view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
+                            ViewCompat.performHapticFeedback(
+                                view,
+                                HapticFeedbackConstantsCompat.GESTURE_END
+                            )
                         },
                         interactionSource = interactionSource,
                     ),
