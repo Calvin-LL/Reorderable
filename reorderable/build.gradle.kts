@@ -1,5 +1,7 @@
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 plugins {
     alias(libs.plugins.android.library)
@@ -13,6 +15,10 @@ group = "sh.calvin.reorderable"
 version = "2.4.2"
 
 kotlin {
+    coreLibrariesVersion = "1.9.0"
+    @OptIn(ExperimentalKotlinGradlePluginApi::class)
+    compilerOptions.languageVersion.set(KotlinVersion.KOTLIN_1_9)
+
     androidTarget {
         publishLibraryVariants("release", "debug")
         compilations.all {
@@ -24,7 +30,15 @@ kotlin {
         }
     }
 
-    jvm()
+    jvm {
+        compilations.all {
+            compileTaskProvider.configure {
+                compilerOptions {
+                    jvmTarget.set(JvmTarget.JVM_1_8)
+                }
+            }
+        }
+    }
 
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
