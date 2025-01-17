@@ -12,7 +12,7 @@ plugins {
 }
 
 group = "sh.calvin.reorderable"
-version = "2.4.2"
+version = "2.4.3"
 
 kotlin {
     coreLibrariesVersion = "1.9.0"
