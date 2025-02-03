@@ -61,6 +61,7 @@ internal fun App() {
                                 scene("main") { MainScreen(navController) }
                                 scene("SimpleReorderableLazyColumn") { SimpleReorderableLazyColumnScreen() }
                                 scene("ComplexReorderableLazyColumn") { ComplexReorderableLazyColumnScreen() }
+                                scene("TwoReorderableLazyColumnScreen") { TwoReorderableLazyColumnScreen() }
                                 scene("SimpleLongPressHandleReorderableLazyColumn") { SimpleLongPressHandleReorderableLazyColumnScreen() }
                                 scene("SimpleReorderableLazyVerticalGrid") { SimpleReorderableLazyVerticalGridScreen() }
                                 scene("SimpleReorderableLazyVerticalStaggeredGrid") { SimpleReorderableLazyVerticalStaggeredGridScreen() }
@@ -109,6 +110,10 @@ fun MainScreen(navController: Navigator) {
             Button(
                 onClick = { navController.navigate("ComplexReorderableLazyColumn") }) {
                 Text("Complex Reorderable LazyColumn")
+            }
+            Button(
+                onClick = { navController.navigate("TwoReorderableLazyColumnScreen") }) {
+                Text("2 Lists Reorderable LazyColumn")
             }
             Button(
                 onClick = { navController.navigate("SimpleLongPressHandleReorderableLazyColumn") }) {
