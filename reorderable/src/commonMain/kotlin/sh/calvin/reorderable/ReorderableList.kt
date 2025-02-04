@@ -204,11 +204,11 @@ interface ReorderableScope {
     /**
      * Make the UI element the draggable handle for the reorderable item.
      *
-     * @param dragGestureDetector [DragGestureDetector] that will be used to detect drag gestures
      * @param enabled Whether or not drag is enabled
      * @param interactionSource [MutableInteractionSource] that will be used to emit [DragInteraction.Start] when this draggable is being dragged
      * @param onDragStarted The function that is called when the item starts being dragged
      * @param onDragStopped The function that is called when the item stops being dragged
+     * @param dragGestureDetector [DragGestureDetector] that will be used to detect drag gestures
      */
     fun Modifier.draggableHandle(
         enabled: Boolean = true,
