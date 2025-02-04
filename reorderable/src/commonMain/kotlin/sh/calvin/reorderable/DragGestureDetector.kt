@@ -14,7 +14,7 @@ fun interface DragGestureDetector {
         onDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit
     )
 
-    object Normal: DragGestureDetector {
+    object Press: DragGestureDetector {
         override suspend fun PointerInputScope.detect(
             onDragStart: (Offset) -> Unit,
             onDragEnd: () -> Unit,

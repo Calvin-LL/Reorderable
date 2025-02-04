@@ -215,7 +215,7 @@ interface ReorderableScope {
         onDragStarted: (startedPosition: Offset) -> Unit = {},
         onDragStopped: (velocity: Float) -> Unit = {},
         interactionSource: MutableInteractionSource? = null,
-        dragGestureDetector: DragGestureDetector = DragGestureDetector.Normal
+        dragGestureDetector: DragGestureDetector = DragGestureDetector.Press
     ): Modifier
 
     /**

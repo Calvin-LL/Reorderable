@@ -19,7 +19,7 @@ internal fun Modifier.draggable(
     key1: Any?,
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource? = null,
-    dragGestureDetector: DragGestureDetector = DragGestureDetector.Normal,
+    dragGestureDetector: DragGestureDetector = DragGestureDetector.Press,
     onDragStarted: (Offset) -> Unit = { },
     onDragStopped: () -> Unit = { },
     onDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit,

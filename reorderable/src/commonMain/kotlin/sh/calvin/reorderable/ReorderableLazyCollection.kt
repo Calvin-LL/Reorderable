@@ -664,7 +664,7 @@ interface ReorderableCollectionItemScope {
         interactionSource: MutableInteractionSource? = null,
         onDragStarted: (startedPosition: Offset) -> Unit = {},
         onDragStopped: () -> Unit = {},
-        dragGestureDetector: DragGestureDetector = DragGestureDetector.Normal
+        dragGestureDetector: DragGestureDetector = DragGestureDetector.Press
     ): Modifier
 
     /**
