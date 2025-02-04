@@ -21,7 +21,6 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.gestures.DraggableState
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -205,6 +204,7 @@ interface ReorderableScope {
     /**
      * Make the UI element the draggable handle for the reorderable item.
      *
+     * @param dragGestureDetector [DragGestureDetector] that will be used to detect drag gestures
      * @param enabled Whether or not drag is enabled
      * @param interactionSource [MutableInteractionSource] that will be used to emit [DragInteraction.Start] when this draggable is being dragged
      * @param onDragStarted The function that is called when the item starts being dragged
@@ -212,9 +212,10 @@ interface ReorderableScope {
      */
     fun Modifier.draggableHandle(
         enabled: Boolean = true,
-        onDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit = {},
-        onDragStopped: suspend CoroutineScope.(velocity: Float) -> Unit = {},
+        onDragStarted: (startedPosition: Offset) -> Unit = {},
+        onDragStopped: (velocity: Float) -> Unit = {},
         interactionSource: MutableInteractionSource? = null,
+        dragGestureDetector: DragGestureDetector = DragGestureDetector.Normal
     ): Modifier
 
     /**
@@ -241,37 +242,19 @@ internal class ReorderableScopeImpl(
 
     override fun Modifier.draggableHandle(
         enabled: Boolean,
-        onDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit,
-        onDragStopped: suspend CoroutineScope.(velocity: Float) -> Unit,
-        interactionSource: MutableInteractionSource?,
-    ) = draggable(
-        state = state.draggableStates[index],
-        orientation = orientation,
-        enabled = enabled && (state.isItemDragging(index).value || !state.isAnyItemDragging),
-        interactionSource = interactionSource,
-        onDragStarted = {
-            state.startDrag(index)
-            onDragStarted(it)
-        },
-        onDragStopped = { velocity ->
-            launch { state.settle(index, velocity) }
-            onDragStopped(velocity)
-        },
-    )
-
-    override fun Modifier.longPressDraggableHandle(
-        enabled: Boolean,
         onDragStarted: (startedPosition: Offset) -> Unit,
         onDragStopped: (velocity: Float) -> Unit,
         interactionSource: MutableInteractionSource?,
+        dragGestureDetector: DragGestureDetector,
     ) = composed {
         val velocityTracker = remember { VelocityTracker() }
         val coroutineScope = rememberCoroutineScope()
 
-        longPressDraggable(
+        draggable(
             key1 = state,
             enabled = enabled && (state.isItemDragging(index).value || !state.isAnyItemDragging),
             interactionSource = interactionSource,
+            dragGestureDetector = dragGestureDetector,
             onDragStarted = {
                 state.startDrag(index)
                 onDragStarted(it)
@@ -299,6 +282,20 @@ internal class ReorderableScopeImpl(
             },
         )
     }
+
+    override fun Modifier.longPressDraggableHandle(
+        enabled: Boolean,
+        onDragStarted: (startedPosition: Offset) -> Unit,
+        onDragStopped: (velocity: Float) -> Unit,
+        interactionSource: MutableInteractionSource?,
+    ) =
+        draggableHandle(
+            enabled = enabled,
+            onDragStarted = onDragStarted,
+            onDragStopped = onDragStopped,
+            interactionSource = interactionSource,
+            dragGestureDetector = DragGestureDetector.LongPress
+        )
 }
 
 /**
