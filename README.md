@@ -33,6 +33,7 @@ The latest demo app APK can be found in the [releases](https://github.com/Calvin
 
 ## Used By
 
+- [Mihon](https://github.com/mihonapp/mihon/blob/919607cd06ee45ac667a2fd650d85aaf6ebb9762/gradle/libs.versions.toml#L68) ![GitHub Repo stars](https://img.shields.io/github/stars/mihonapp/mihon?style=flat)
 - [Lawnchair](https://github.com/LawnchairLauncher/lawnchair/blob/10889eb9772d5ec05f8ec536db3986ad5d9f4f33/build.gradle#L420) ![GitHub Repo stars](https://img.shields.io/github/stars/LawnchairLauncher/lawnchair?style=flat)
 - [Pocket Casts](https://github.com/Automattic/pocket-casts-android/blob/96cb6c6c3e210800a5fd2365776eee896079e255/gradle/libs.versions.toml#L281) ![GitHub Repo stars](https://img.shields.io/github/stars/Automattic/pocket-casts-android?style=flat)
 - [gkd](https://github.com/gkd-kit/gkd/blob/de140488aa42330d282cc41b92127237308e25f2/gradle/libs.versions.toml#L63) ![GitHub Repo stars](https://img.shields.io/github/stars/gkd-kit/gkd?style=flat)
