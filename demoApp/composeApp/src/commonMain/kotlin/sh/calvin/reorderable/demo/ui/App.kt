@@ -63,6 +63,7 @@ internal fun App() {
                                 scene("ComplexReorderableLazyColumn") { ComplexReorderableLazyColumnScreen() }
                                 scene("TwoReorderableLazyColumnScreen") { TwoReorderableLazyColumnScreen() }
                                 scene("SimpleLongPressHandleReorderableLazyColumn") { SimpleLongPressHandleReorderableLazyColumnScreen() }
+                                scene("SimpleCombinedGestureHandleReorderableLazyColumn") { SimpleCombinedGestureHandleReorderableLazyColumnScreen() }
                                 scene("SimpleReorderableLazyVerticalGrid") { SimpleReorderableLazyVerticalGridScreen() }
                                 scene("SimpleReorderableLazyVerticalStaggeredGrid") { SimpleReorderableLazyVerticalStaggeredGridScreen() }
                                 scene("ReorderableColumn") { ReorderableColumnScreen() }
@@ -119,6 +120,13 @@ fun MainScreen(navController: Navigator) {
                 onClick = { navController.navigate("SimpleLongPressHandleReorderableLazyColumn") }) {
                 Text(
                     "Simple Reorderable LazyColumn with\n.longPressDraggableHandle",
+                    textAlign = TextAlign.Center
+                )
+            }
+            Button(
+                onClick = { navController.navigate("SimpleCombinedGestureHandleReorderableLazyColumn") }) {
+                Text(
+                    "\uD83D\uDEA7DEMO:\nSimple Reorderable LazyColumn with\n.combinedGestureHandle",
                     textAlign = TextAlign.Center
                 )
             }

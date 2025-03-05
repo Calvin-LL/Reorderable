@@ -681,6 +681,27 @@ interface ReorderableCollectionItemScope {
         onDragStarted: (startedPosition: Offset) -> Unit = {},
         onDragStopped: () -> Unit = {},
     ): Modifier
+
+    /**
+     * Make the UI element clickable, long-pressable, and draggable for the reorderable item.
+     *
+     * This modifier can only be used on the UI element that is a child of [ReorderableItem]. It allows the element to respond to click, long press, and drag gestures.
+     *
+     * @param enabled Whether the click, long press, and drag actions are enabled
+     * @param interactionSource [MutableInteractionSource] that will be used to emit interaction events
+     * @param onClick The function that is called when the element is clicked
+     * @param onLongPress The function that is called when the element is long-pressed
+     * @param onDragStarted The function that is called when the item starts being dragged
+     * @param onDragStopped The function that is called when the item stops being dragged
+     */
+    fun Modifier.combinedGestureHandle(
+        enabled: Boolean = true,
+        interactionSource: MutableInteractionSource? = null,
+        onClick: () -> Unit = {},
+        onLongPress: () -> Unit = {},
+        onDragStarted: (startedPosition: Offset) -> Unit = {},
+        onDragStopped: () -> Unit = {},
+    ): Modifier
 }
 
 internal class ReorderableCollectionItemScopeImpl(
@@ -763,6 +784,61 @@ internal class ReorderableCollectionItemScopeImpl(
             key1 = reorderableLazyCollectionState,
             enabled = enabled && (reorderableLazyCollectionState.isItemDragging(key).value || !reorderableLazyCollectionState.isAnyItemDragging),
             interactionSource = interactionSource,
+            onDragStarted = {
+                coroutineScope.launch {
+                    val handleOffsetRelativeToItem = handleOffset - itemPositionProvider()
+                    val handleCenter = Offset(
+                        handleOffsetRelativeToItem.x + handleSize.width / 2f,
+                        handleOffsetRelativeToItem.y + handleSize.height / 2f
+                    )
+
+                    reorderableLazyCollectionState.onDragStart(key, handleCenter)
+                }
+                onDragStarted(it)
+            },
+            onDragStopped = {
+                reorderableLazyCollectionState.onDragStop()
+                onDragStopped()
+            },
+            onDrag = { change, dragAmount ->
+                change.consume()
+                reorderableLazyCollectionState.onDrag(dragAmount)
+            },
+        )
+    }
+
+    /**
+     * Make the UI element the draggable handle for the reorderable item, combining click, long press, and drag interactions.
+     *
+     * @param enabled Whether or not drag is enabled
+     * @param interactionSource [MutableInteractionSource] that will be used to emit [DragInteraction.Start] when this draggable is being dragged
+     * @param onClick The function that is called when the item is clicked
+     * @param onLongPress The function that is called when the item is long pressed
+     * @param onDragStarted The function that is called when the item starts being dragged
+     * @param onDragStopped The function that is called when the item stops being dragged
+     */
+    override fun Modifier.combinedGestureHandle(
+        enabled: Boolean,
+        interactionSource: MutableInteractionSource?,
+        onClick: () -> Unit,
+        onLongPress: () -> Unit,
+        onDragStarted: (startedPosition: Offset) -> Unit,
+        onDragStopped: () -> Unit
+    ) = composed {
+        var handleOffset by remember { mutableStateOf(Offset.Zero) }
+        var handleSize by remember { mutableStateOf(IntSize.Zero) }
+
+        val coroutineScope = rememberCoroutineScope()
+
+        onGloballyPositioned {
+            handleOffset = it.positionInRoot()
+            handleSize = it.size
+        }.combinedGesture(
+            key1 = reorderableLazyCollectionState,
+            enabled = enabled && (reorderableLazyCollectionState.isItemDragging(key).value || !reorderableLazyCollectionState.isAnyItemDragging),
+            interactionSource = interactionSource,
+            onClick = onClick,
+            onLongPress = onLongPress,
             onDragStarted = {
                 coroutineScope.launch {
                     val handleOffsetRelativeToItem = handleOffset - itemPositionProvider()
