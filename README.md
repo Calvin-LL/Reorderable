@@ -160,11 +160,8 @@ LazyColumn(state = lazyListState) {
 
 ##### Complete Example (with haptic feedback)
 
-> [!NOTE]  
-> `val view = LocalView.current` and `View.performHapticFeedback` are only available in Android. Comment out these lines if you are using this library in a multiplatform project.
-
 ```kotlin
-val view = LocalView.current
+val hapticFeedback = LocalHapticFeedback.current
 
 var list by remember { mutableStateOf(List(100) { "Item $it" }) }
 val lazyListState = rememberLazyListState()
@@ -173,10 +170,7 @@ val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) {
         add(to.index, removeAt(from.index))
     }
 
-    ViewCompat.performHapticFeedback(
-        view,
-        HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK
-    )
+    hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
 }
 
 LazyColumn(
@@ -195,16 +189,10 @@ LazyColumn(
                     IconButton(
                         modifier = Modifier.draggableHandle(
                             onDragStarted = {
-                                ViewCompat.performHapticFeedback(
-                                    view,
-                                    HapticFeedbackConstantsCompat.GESTURE_START
-                                )
+                                hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
                             },
                             onDragStopped = {
-                                ViewCompat.performHapticFeedback(
-                                    view,
-                                    HapticFeedbackConstantsCompat.GESTURE_END
-                                )
+                                hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureEnd)
                             },
                         ),
                         onClick = {},
@@ -296,7 +284,7 @@ val reorderableLazyListState = rememberReorderableLazyListState(
 If you want to use the [material3's Clickable Card](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>), you can create a [`MutableInteractionSource`](https://developer.android.com/reference/kotlin/androidx/compose/foundation/interaction/MutableInteractionSource) and pass it to both the [`Card`](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>) and the `Modifier.draggableHandle` (or `Modifier.longPressDraggableHandle`), `Modifier.draggableHandle` will emit drag events to the [`MutableInteractionSource`](https://developer.android.com/reference/kotlin/androidx/compose/foundation/interaction/MutableInteractionSource) so that the [`Card`](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>) can respond to the drag events:
 
 ```kotlin
-val view = LocalView.current
+val hapticFeedback = LocalHapticFeedback.current
 
 var list by remember { mutableStateOf(List(100) { "Item $it" }) }
 val lazyListState = rememberLazyListState()
@@ -305,10 +293,7 @@ val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) {
         add(to.index, removeAt(from.index))
     }
 
-    ViewCompat.performHapticFeedback(
-        view,
-        HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK
-    )
+    hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
 }
 
 LazyColumn(
@@ -330,16 +315,10 @@ LazyColumn(
                     IconButton(
                         modifier = Modifier.draggableHandle(
                             onDragStarted = {
-                                ViewCompat.performHapticFeedback(
-                                    view,
-                                    HapticFeedbackConstantsCompat.GESTURE_START
-                                )
+                                hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
                             },
                             onDragStopped = {
-                                ViewCompat.performHapticFeedback(
-                                    view,
-                                    HapticFeedbackConstantsCompat.GESTURE_END
-                                )
+                                hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureEnd)
                             },
                             interactionSource = interactionSource,
                         ),
@@ -385,11 +364,8 @@ LazyRow(state = lazyListState) {
 
 ##### Complete Example (with haptic feedback)
 
-> [!NOTE]  
-> `val view = LocalView.current` and `View.performHapticFeedback` are only available in Android. Comment out these lines if you are using this library in a multiplatform project.
-
 ```kotlin
-val view = LocalView.current
+val hapticFeedback = LocalHapticFeedback.current
 
 var list by remember { mutableStateOf(List(100) { "Item $it" }) }
 val lazyListState = rememberLazyListState()
@@ -398,10 +374,7 @@ val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) {
         add(to.index, removeAt(from.index))
     }
 
-    ViewCompat.performHapticFeedback(
-        view,
-        HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK
-    )
+    hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
 }
 
 LazyRow(
@@ -420,16 +393,10 @@ LazyRow(
                     IconButton(
                         modifier = Modifier.draggableHandle(
                             onDragStarted = {
-                                ViewCompat.performHapticFeedback(
-                                    view,
-                                    HapticFeedbackConstantsCompat.GESTURE_START
-                                )
+                                hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
                             },
                             onDragStopped = {
-                                ViewCompat.performHapticFeedback(
-                                    view,
-                                    HapticFeedbackConstantsCompat.GESTURE_END
-                                )
+                                hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureEnd)
                             },
                         ),
                         onClick = {},
@@ -521,7 +488,7 @@ val reorderableLazyListState = rememberReorderableLazyListState(
 If you want to use the [material3's Clickable Card](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>), you can create a [`MutableInteractionSource`](https://developer.android.com/reference/kotlin/androidx/compose/foundation/interaction/MutableInteractionSource) and pass it to both the [`Card`](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>) and the `Modifier.draggableHandle` (or `Modifier.longPressDraggableHandle`), `Modifier.draggableHandle` will emit drag events to the [`MutableInteractionSource`](https://developer.android.com/reference/kotlin/androidx/compose/foundation/interaction/MutableInteractionSource) so that the [`Card`](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>) can respond to the drag events:
 
 ```kotlin
-val view = LocalView.current
+val hapticFeedback = LocalHapticFeedback.current
 
 var list by remember { mutableStateOf(List(100) { "Item $it" }) }
 val lazyListState = rememberLazyListState()
@@ -530,10 +497,7 @@ val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) {
         add(to.index, removeAt(from.index))
     }
 
-    ViewCompat.performHapticFeedback(
-        view,
-        HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK
-    )
+    hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
 }
 
 LazyRow(
@@ -555,16 +519,10 @@ LazyRow(
                     IconButton(
                         modifier = Modifier.draggableHandle(
                             onDragStarted = {
-                                ViewCompat.performHapticFeedback(
-                                    view,
-                                    HapticFeedbackConstantsCompat.GESTURE_START
-                                )
+                                hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
                             },
                             onDragStopped = {
-                                ViewCompat.performHapticFeedback(
-                                    view,
-                                    HapticFeedbackConstantsCompat.GESTURE_END
-                                )
+                                hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureEnd)
                             },
                             interactionSource = interactionSource,
                         ),
@@ -610,11 +568,8 @@ LazyVerticalGrid(state = lazyGridState) {
 
 ##### Complete Example (with haptic feedback)
 
-> [!NOTE]  
-> `val view = LocalView.current` and `View.performHapticFeedback` are only available in Android. Comment out these lines if you are using this library in a multiplatform project.
-
 ```kotlin
-val view = LocalView.current
+val hapticFeedback = LocalHapticFeedback.current
 
 var list by remember { mutableStateOf(List(100) { "Item $it" }) }
 val lazyGridState = rememberLazyGridState()
@@ -623,10 +578,7 @@ val reorderableLazyGridState = rememberReorderableLazyGridState(lazyGridState) {
         add(to.index, removeAt(from.index))
     }
 
-    ViewCompat.performHapticFeedback(
-        view,
-        HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK
-    )
+    hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
 }
 
 LazyVerticalGrid(
@@ -647,16 +599,10 @@ LazyVerticalGrid(
                     IconButton(
                         modifier = Modifier.draggableHandle(
                             onDragStarted = {
-                                ViewCompat.performHapticFeedback(
-                                    view,
-                                    HapticFeedbackConstantsCompat.GESTURE_START
-                                )
+                                hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
                             },
                             onDragStopped = {
-                                ViewCompat.performHapticFeedback(
-                                    view,
-                                    HapticFeedbackConstantsCompat.GESTURE_END
-                                )
+                                hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureEnd)
                             },
                         ),
                         onClick = {},
@@ -748,7 +694,7 @@ val reorderableLazyGridState = rememberReorderableLazyGridState(
 If you want to use the [material3's Clickable Card](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>), you can create a [`MutableInteractionSource`](https://developer.android.com/reference/kotlin/androidx/compose/foundation/interaction/MutableInteractionSource) and pass it to both the [`Card`](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>) and the `Modifier.draggableHandle` (or `Modifier.longPressDraggableHandle`), `Modifier.draggableHandle` will emit drag events to the [`MutableInteractionSource`](https://developer.android.com/reference/kotlin/androidx/compose/foundation/interaction/MutableInteractionSource) so that the [`Card`](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>) can respond to the drag events:
 
 ```kotlin
-val view = LocalView.current
+val hapticFeedback = LocalHapticFeedback.current
 
 var list by remember { mutableStateOf(List(100) { "Item $it" }) }
 val lazyGridState = rememberLazyGridState()
@@ -757,10 +703,7 @@ val reorderableLazyGridState = rememberReorderableLazyGridState(lazyGridState) {
         add(to.index, removeAt(from.index))
     }
 
-    ViewCompat.performHapticFeedback(
-        view,
-        HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK
-    )
+    hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
 }
 
 LazyVerticalGrid(
@@ -784,16 +727,10 @@ LazyVerticalGrid(
                     IconButton(
                         modifier = Modifier.draggableHandle(
                             onDragStarted = {
-                                ViewCompat.performHapticFeedback(
-                                    view,
-                                    HapticFeedbackConstantsCompat.GESTURE_START
-                                )
+                                hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
                             },
                             onDragStopped = {
-                                ViewCompat.performHapticFeedback(
-                                    view,
-                                    HapticFeedbackConstantsCompat.GESTURE_END
-                                )
+                                hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureEnd)
                             },
                             interactionSource = interactionSource,
                         ),
@@ -839,11 +776,8 @@ LazyHorizontalGrid(state = lazyGridState) {
 
 ##### Complete Example (with haptic feedback)
 
-> [!NOTE]  
-> `val view = LocalView.current` and `View.performHapticFeedback` are only available in Android. Comment out these lines if you are using this library in a multiplatform project.
-
 ```kotlin
-val view = LocalView.current
+val hapticFeedback = LocalHapticFeedback.current
 
 var list by remember { mutableStateOf(List(100) { "Item $it" }) }
 val lazyGridState = rememberLazyGridState()
@@ -852,10 +786,7 @@ val reorderableLazyGridState = rememberReorderableLazyGridState(lazyGridState) {
         add(to.index, removeAt(from.index))
     }
 
-    ViewCompat.performHapticFeedback(
-        view,
-        HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK
-    )
+    hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
 }
 
 LazyHorizontalGrid(
@@ -876,16 +807,10 @@ LazyHorizontalGrid(
                     IconButton(
                         modifier = Modifier.draggableHandle(
                             onDragStarted = {
-                                ViewCompat.performHapticFeedback(
-                                    view,
-                                    HapticFeedbackConstantsCompat.GESTURE_START
-                                )
+                                hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
                             },
                             onDragStopped = {
-                                ViewCompat.performHapticFeedback(
-                                    view,
-                                    HapticFeedbackConstantsCompat.GESTURE_END
-                                )
+                                hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureEnd)
                             },
                         ),
                         onClick = {},
@@ -977,7 +902,7 @@ val reorderableLazyGridState = rememberReorderableLazyGridState(
 If you want to use the [material3's Clickable Card](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>), you can create a [`MutableInteractionSource`](https://developer.android.com/reference/kotlin/androidx/compose/foundation/interaction/MutableInteractionSource) and pass it to both the [`Card`](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>) and the `Modifier.draggableHandle` (or `Modifier.longPressDraggableHandle`), `Modifier.draggableHandle` will emit drag events to the [`MutableInteractionSource`](https://developer.android.com/reference/kotlin/androidx/compose/foundation/interaction/MutableInteractionSource) so that the [`Card`](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>) can respond to the drag events:
 
 ```kotlin
-val view = LocalView.current
+val hapticFeedback = LocalHapticFeedback.current
 
 var list by remember { mutableStateOf(List(100) { "Item $it" }) }
 val lazyGridState = rememberLazyGridState()
@@ -986,10 +911,7 @@ val reorderableLazyGridState = rememberReorderableLazyGridState(lazyGridState) {
         add(to.index, removeAt(from.index))
     }
 
-    ViewCompat.performHapticFeedback(
-        view,
-        HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK
-    )
+    hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
 }
 
 LazyHorizontalGrid(
@@ -1013,16 +935,10 @@ LazyHorizontalGrid(
                     IconButton(
                         modifier = Modifier.draggableHandle(
                             onDragStarted = {
-                                ViewCompat.performHapticFeedback(
-                                    view,
-                                    HapticFeedbackConstantsCompat.GESTURE_START
-                                )
+                                hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
                             },
                             onDragStopped = {
-                                ViewCompat.performHapticFeedback(
-                                    view,
-                                    HapticFeedbackConstantsCompat.GESTURE_END
-                                )
+                                hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureEnd)
                             },
                             interactionSource = interactionSource,
                         ),
@@ -1068,11 +984,8 @@ LazyVerticalStaggeredGrid(state = lazyStaggeredGridState) {
 
 ##### Complete Example (with haptic feedback)
 
-> [!NOTE]  
-> `val view = LocalView.current` and `View.performHapticFeedback` are only available in Android. Comment out these lines if you are using this library in a multiplatform project.
-
 ```kotlin
-val view = LocalView.current
+val hapticFeedback = LocalHapticFeedback.current
 
 var list by remember { mutableStateOf(List(100) { "Item $it" }) }
 val lazyStaggeredGridState = rememberLazyStaggeredGridState()
@@ -1081,10 +994,7 @@ val reorderableLazyStaggeredGridState = rememberReorderableLazyStaggeredGridStat
         add(to.index, removeAt(from.index))
     }
 
-    ViewCompat.performHapticFeedback(
-        view,
-        HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK
-    )
+    hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
 }
 
 LazyVerticalStaggeredGrid(
@@ -1105,16 +1015,10 @@ LazyVerticalStaggeredGrid(
                     IconButton(
                         modifier = Modifier.draggableHandle(
                             onDragStarted = {
-                                ViewCompat.performHapticFeedback(
-                                    view,
-                                    HapticFeedbackConstantsCompat.GESTURE_START
-                                )
+                                hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
                             },
                             onDragStopped = {
-                                ViewCompat.performHapticFeedback(
-                                    view,
-                                    HapticFeedbackConstantsCompat.GESTURE_END
-                                )
+                                hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureEnd)
                             },
                         ),
                         onClick = {},
@@ -1206,7 +1110,7 @@ val reorderableLazyStaggeredGridState = rememberReorderableLazyStaggeredGridStat
 If you want to use the [material3's Clickable Card](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>), you can create a [`MutableInteractionSource`](https://developer.android.com/reference/kotlin/androidx/compose/foundation/interaction/MutableInteractionSource) and pass it to both the [`Card`](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>) and the `Modifier.draggableHandle` (or `Modifier.longPressDraggableHandle`), `Modifier.draggableHandle` will emit drag events to the [`MutableInteractionSource`](https://developer.android.com/reference/kotlin/androidx/compose/foundation/interaction/MutableInteractionSource) so that the [`Card`](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>) can respond to the drag events:
 
 ```kotlin
-val view = LocalView.current
+val hapticFeedback = LocalHapticFeedback.current
 
 var list by remember { mutableStateOf(List(100) { "Item $it" }) }
 val lazyStaggeredGridState = rememberLazyStaggeredGridState()
@@ -1215,10 +1119,7 @@ val reorderableLazyStaggeredGridState = rememberReorderableLazyStaggeredGridStat
         add(to.index, removeAt(from.index))
     }
 
-    ViewCompat.performHapticFeedback(
-        view,
-        HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK
-    )
+    hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
 }
 
 LazyVerticalStaggeredGrid(
@@ -1242,16 +1143,10 @@ LazyVerticalStaggeredGrid(
                     IconButton(
                         modifier = Modifier.draggableHandle(
                             onDragStarted = {
-                                ViewCompat.performHapticFeedback(
-                                    view,
-                                    HapticFeedbackConstantsCompat.GESTURE_START
-                                )
+                                hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
                             },
                             onDragStopped = {
-                                ViewCompat.performHapticFeedback(
-                                    view,
-                                    HapticFeedbackConstantsCompat.GESTURE_END
-                                )
+                                hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureEnd)
                             },
                             interactionSource = interactionSource,
                         ),
@@ -1297,11 +1192,8 @@ LazyHorizontalStaggeredGrid(state = lazyStaggeredGridState) {
 
 ##### Complete Example (with haptic feedback)
 
-> [!NOTE]  
-> `val view = LocalView.current` and `View.performHapticFeedback` are only available in Android. Comment out these lines if you are using this library in a multiplatform project.
-
 ```kotlin
-val view = LocalView.current
+val hapticFeedback = LocalHapticFeedback.current
 
 var list by remember { mutableStateOf(List(100) { "Item $it" }) }
 val lazyStaggeredGridState = rememberLazyStaggeredGridState()
@@ -1310,10 +1202,7 @@ val reorderableLazyStaggeredGridState = rememberReorderableLazyStaggeredGridStat
         add(to.index, removeAt(from.index))
     }
 
-    ViewCompat.performHapticFeedback(
-        view,
-        HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK
-    )
+    hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
 }
 
 LazyHorizontalStaggeredGrid(
@@ -1334,16 +1223,10 @@ LazyHorizontalStaggeredGrid(
                     IconButton(
                         modifier = Modifier.draggableHandle(
                             onDragStarted = {
-                                ViewCompat.performHapticFeedback(
-                                    view,
-                                    HapticFeedbackConstantsCompat.GESTURE_START
-                                )
+                                hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
                             },
                             onDragStopped = {
-                                ViewCompat.performHapticFeedback(
-                                    view,
-                                    HapticFeedbackConstantsCompat.GESTURE_END
-                                )
+                                hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureEnd)
                             },
                         ),
                         onClick = {},
@@ -1435,7 +1318,7 @@ val reorderableLazyStaggeredGridState = rememberReorderableLazyStaggeredGridStat
 If you want to use the [material3's Clickable Card](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>), you can create a [`MutableInteractionSource`](https://developer.android.com/reference/kotlin/androidx/compose/foundation/interaction/MutableInteractionSource) and pass it to both the [`Card`](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>) and the `Modifier.draggableHandle` (or `Modifier.longPressDraggableHandle`), `Modifier.draggableHandle` will emit drag events to the [`MutableInteractionSource`](https://developer.android.com/reference/kotlin/androidx/compose/foundation/interaction/MutableInteractionSource) so that the [`Card`](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>) can respond to the drag events:
 
 ```kotlin
-val view = LocalView.current
+val hapticFeedback = LocalHapticFeedback.current
 
 var list by remember { mutableStateOf(List(100) { "Item $it" }) }
 val lazyStaggeredGridState = rememberLazyStaggeredGridState()
@@ -1444,10 +1327,7 @@ val reorderableLazyStaggeredGridState = rememberReorderableLazyStaggeredGridStat
         add(to.index, removeAt(from.index))
     }
 
-    ViewCompat.performHapticFeedback(
-        view,
-        HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK
-    )
+    hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
 }
 
 LazyHorizontalStaggeredGrid(
@@ -1471,16 +1351,10 @@ LazyHorizontalStaggeredGrid(
                     IconButton(
                         modifier = Modifier.draggableHandle(
                             onDragStarted = {
-                                ViewCompat.performHapticFeedback(
-                                    view,
-                                    HapticFeedbackConstantsCompat.GESTURE_START
-                                )
+                                hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
                             },
                             onDragStopped = {
-                                ViewCompat.performHapticFeedback(
-                                    view,
-                                    HapticFeedbackConstantsCompat.GESTURE_END
-                                )
+                                hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureEnd)
                             },
                             interactionSource = interactionSource,
                         ),
@@ -1520,11 +1394,8 @@ ReorderableColumn(
 
 ##### Complete Example (with haptic feedback)
 
-> [!NOTE]  
-> `val view = LocalView.current` and `View.performHapticFeedback` are only available in Android. Comment out these lines if you are using this library in a multiplatform project.
-
 ```kotlin
-val view = LocalView.current
+val hapticFeedback = LocalHapticFeedback.current
 
 var list by remember { mutableStateOf(List(4) { "Item $it" }) }
 
@@ -1611,7 +1482,7 @@ fun DragHandle(scope: ReorderableScope) {
 If you want to use the [material3's Clickable Card](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>), you can create a [`MutableInteractionSource`](https://developer.android.com/reference/kotlin/androidx/compose/foundation/interaction/MutableInteractionSource) and pass it to both the [`Card`](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>) and the `Modifier.draggableHandle` (or `Modifier.longPressDraggableHandle`), `Modifier.draggableHandle` will emit drag events to the [`MutableInteractionSource`](https://developer.android.com/reference/kotlin/androidx/compose/foundation/interaction/MutableInteractionSource) so that the [`Card`](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>) can respond to the drag events:
 
 ```kotlin
-val view = LocalView.current
+val hapticFeedback = LocalHapticFeedback.current
 
 var list by remember { mutableStateOf(List(4) { "Item $it" }) }
 
@@ -1693,11 +1564,8 @@ ReorderableRow(
 
 ##### Complete Example (with haptic feedback)
 
-> [!NOTE]  
-> `val view = LocalView.current` and `View.performHapticFeedback` are only available in Android. Comment out these lines if you are using this library in a multiplatform project.
-
 ```kotlin
-val view = LocalView.current
+val hapticFeedback = LocalHapticFeedback.current
 
 var list by remember { mutableStateOf(List(4) { "Item $it" }) }
 
@@ -1784,7 +1652,7 @@ fun DragHandle(scope: ReorderableScope) {
 If you want to use the [material3's Clickable Card](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>), you can create a [`MutableInteractionSource`](https://developer.android.com/reference/kotlin/androidx/compose/foundation/interaction/MutableInteractionSource) and pass it to both the [`Card`](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>) and the `Modifier.draggableHandle` (or `Modifier.longPressDraggableHandle`), `Modifier.draggableHandle` will emit drag events to the [`MutableInteractionSource`](https://developer.android.com/reference/kotlin/androidx/compose/foundation/interaction/MutableInteractionSource) so that the [`Card`](<https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary#Card(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.compose.material3.CardColors,androidx.compose.material3.CardElevation,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)>) can respond to the drag events:
 
 ```kotlin
-val view = LocalView.current
+val hapticFeedback = LocalHapticFeedback.current
 
 var list by remember { mutableStateOf(List(4) { "Item $it" }) }
 
