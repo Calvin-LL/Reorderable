@@ -657,12 +657,14 @@ interface ReorderableCollectionItemScope {
      * @param interactionSource [MutableInteractionSource] that will be used to emit [DragInteraction.Start] when this draggable is being dragged.
      * @param onDragStarted The function that is called when the item starts being dragged
      * @param onDragStopped The function that is called when the item stops being dragged
+     * @param dragGestureDetector [DragGestureDetector] that will be used to detect drag gestures
      */
     fun Modifier.draggableHandle(
         enabled: Boolean = true,
         interactionSource: MutableInteractionSource? = null,
         onDragStarted: (startedPosition: Offset) -> Unit = {},
         onDragStopped: () -> Unit = {},
+        dragGestureDetector: DragGestureDetector = DragGestureDetector.Press
     ): Modifier
 
     /**
@@ -701,7 +703,8 @@ internal class ReorderableCollectionItemScopeImpl(
         interactionSource: MutableInteractionSource?,
         onDragStarted: (startedPosition: Offset) -> Unit,
         onDragStopped: () -> Unit,
-    ) = composed {
+        dragGestureDetector: DragGestureDetector
+    ): Modifier = composed {
         var handleOffset by remember { mutableStateOf(Offset.Zero) }
         var handleSize by remember { mutableStateOf(IntSize.Zero) }
 
@@ -714,6 +717,7 @@ internal class ReorderableCollectionItemScopeImpl(
             key1 = reorderableLazyCollectionState,
             enabled = enabled && (reorderableLazyCollectionState.isItemDragging(key).value || !reorderableLazyCollectionState.isAnyItemDragging),
             interactionSource = interactionSource,
+            dragGestureDetector = dragGestureDetector,
             onDragStarted = {
                 coroutineScope.launch {
                     val handleOffsetRelativeToItem = handleOffset - itemPositionProvider()
@@ -733,7 +737,7 @@ internal class ReorderableCollectionItemScopeImpl(
             onDrag = { change, dragAmount ->
                 change.consume()
                 reorderableLazyCollectionState.onDrag(dragAmount)
-            },
+            }
         )
     }
 
@@ -750,41 +754,14 @@ internal class ReorderableCollectionItemScopeImpl(
         interactionSource: MutableInteractionSource?,
         onDragStarted: (startedPosition: Offset) -> Unit,
         onDragStopped: () -> Unit,
-    ) = composed {
-        var handleOffset by remember { mutableStateOf(Offset.Zero) }
-        var handleSize by remember { mutableStateOf(IntSize.Zero) }
-
-        val coroutineScope = rememberCoroutineScope()
-
-        onGloballyPositioned {
-            handleOffset = it.positionInRoot()
-            handleSize = it.size
-        }.longPressDraggable(
-            key1 = reorderableLazyCollectionState,
-            enabled = enabled && (reorderableLazyCollectionState.isItemDragging(key).value || !reorderableLazyCollectionState.isAnyItemDragging),
+    ) =
+        draggableHandle(
+            enabled = enabled,
             interactionSource = interactionSource,
-            onDragStarted = {
-                coroutineScope.launch {
-                    val handleOffsetRelativeToItem = handleOffset - itemPositionProvider()
-                    val handleCenter = Offset(
-                        handleOffsetRelativeToItem.x + handleSize.width / 2f,
-                        handleOffsetRelativeToItem.y + handleSize.height / 2f
-                    )
-
-                    reorderableLazyCollectionState.onDragStart(key, handleCenter)
-                }
-                onDragStarted(it)
-            },
-            onDragStopped = {
-                reorderableLazyCollectionState.onDragStop()
-                onDragStopped()
-            },
-            onDrag = { change, dragAmount ->
-                change.consume()
-                reorderableLazyCollectionState.onDrag(dragAmount)
-            },
+            onDragStarted = onDragStarted,
+            onDragStopped = onDragStopped,
+            dragGestureDetector = DragGestureDetector.LongPress
         )
-    }
 }
 
 /**
