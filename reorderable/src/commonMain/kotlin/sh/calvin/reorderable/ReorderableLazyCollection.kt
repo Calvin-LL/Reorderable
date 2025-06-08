@@ -595,18 +595,22 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
     ) {
         if (draggingItem.index == targetItem.index) return
 
-        if (
-            draggingItem.index == state.firstVisibleItemIndex ||
-            targetItem.index == state.firstVisibleItemIndex
-        ) {
-            state.requestScrollToItem(
-                state.firstVisibleItemIndex,
-                state.firstVisibleItemScrollOffset
-            )
-        }
-
         try {
             onMoveStateMutex.withLock {
+                if (!isAnyItemDragging) {
+                    return
+                }
+
+                if (
+                    draggingItem.index == state.firstVisibleItemIndex ||
+                    targetItem.index == state.firstVisibleItemIndex
+                ) {
+                    state.requestScrollToItem(
+                        state.firstVisibleItemIndex,
+                        state.firstVisibleItemScrollOffset
+                    )
+                }
+
                 oldDraggingItemIndex = draggingItem.index
 
                 scope.(onMoveState.value)(draggingItem.data, targetItem.data)
