@@ -106,6 +106,7 @@ If you're using Gradle instead, add the following to your `build.gradle` file:
 
 ```kotlin
 dependencies {
+    // ...
     implementation("sh.calvin.reorderable:reorderable:2.5.1")
 }
 ```
@@ -114,6 +115,7 @@ dependencies {
 
 ```groovy
 dependencies {
+    // ...
     implementation 'sh.calvin.reorderable:reorderable:2.5.1'
 }
 ```
