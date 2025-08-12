@@ -246,6 +246,10 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
     private val state: LazyCollectionState<T>,
     private val scope: CoroutineScope,
     private val onMoveState: State<suspend CoroutineScope.(from: T, to: T) -> Unit>,
+    /**
+     * Swaps items instead of moving
+     */
+    private val isSwappable: Boolean,
 
     /**
      * The threshold in pixels for scrolling the list when dragging an item.
@@ -511,7 +515,9 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
             .reverseAxisWithLayoutDirectionIfLazyVerticalStaggeredGridRtlFix()
         val startOffset = draggingItem.offset.toOffset() + dragOffset
         val endOffset = startOffset + draggingItem.size.toSize()
-        val draggingItemRect = Rect(startOffset, endOffset).maxOutAxis(orientation.opposite)
+        val draggingItemRect = Rect(startOffset, endOffset)
+            .let { if (isSwappable) it else it.maxOutAxis(orientation.opposite) }
+
         val itemsInContentArea = state.layoutInfo.getItemsInContentArea(scrollThresholdPadding)
             // if we can't find an item in the content area but still need to move the dragging item
             // we will need to search outside the content area
@@ -522,7 +528,11 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
             direction.opposite,
         ) ?: itemsInContentArea.let {
             val targetItemFunc = { item: LazyCollectionItemInfo<T> ->
-                item.key in reorderableKeys
+                item.key in reorderableKeys &&
+                        (!isSwappable || when (orientation) {
+                            Orientation.Vertical -> item.offset.x == draggingItem.offset.x
+                            Orientation.Horizontal -> item.offset.y == draggingItem.offset.y
+                        })
             }
             when (direction) {
                 Scroller.Direction.FORWARD -> it.findLast(targetItemFunc)

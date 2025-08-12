@@ -64,12 +64,14 @@ internal fun App() {
                                 scene("TwoReorderableLazyColumnScreen") { TwoReorderableLazyColumnScreen() }
                                 scene("SimpleLongPressHandleReorderableLazyColumn") { SimpleLongPressHandleReorderableLazyColumnScreen() }
                                 scene("SimpleReorderableLazyVerticalGrid") { SimpleReorderableLazyVerticalGridScreen() }
+                                scene("SimpleSwappableLazyVerticalGridScreen") { SimpleSwappableLazyVerticalGridScreen() }
                                 scene("SimpleReorderableLazyVerticalStaggeredGrid") { SimpleReorderableLazyVerticalStaggeredGridScreen() }
                                 scene("ReorderableColumn") { ReorderableColumnScreen() }
                                 scene("LongPressHandleReorderableColumn") { LongPressHandleReorderableColumnScreen() }
                                 scene("SimpleReorderableLazyRow") { SimpleReorderableLazyRowScreen() }
                                 scene("ComplexReorderableLazyRow") { ComplexReorderableLazyRowScreen() }
                                 scene("SimpleReorderableLazyHorizontalGrid") { SimpleReorderableLazyHorizontalGridScreen() }
+                                scene("SimpleSwappableLazyHorizontalGridScreen") { SimpleSwappableLazyHorizontalGridScreen() }
                                 scene("SimpleReorderableLazyHorizontalStaggeredGrid") { SimpleReorderableLazyHorizontalStaggeredGridScreen() }
                                 scene("ReorderableRow") { ReorderableRowScreen() }
                             }
@@ -133,6 +135,9 @@ fun MainScreen(navController: Navigator) {
             Button(onClick = { navController.navigate("SimpleReorderableLazyVerticalGrid") }) {
                 Text("Simple Reorderable LazyVerticalGrid")
             }
+            Button(onClick = { navController.navigate("SimpleSwappableLazyVerticalGridScreen") }) {
+                Text("Simple Swappable LazyVerticalGrid")
+            }
         }
 
         Column(
@@ -189,6 +194,9 @@ fun MainScreen(navController: Navigator) {
 
             Button(onClick = { navController.navigate("SimpleReorderableLazyHorizontalGrid") }) {
                 Text("Simple Reorderable LazyHorizontalGrid")
+            }
+            Button(onClick = { navController.navigate("SimpleSwappableLazyHorizontalGrid") }) {
+                Text("Simple Swappable LazyHorizontalGrid")
             }
         }
 

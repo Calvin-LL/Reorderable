@@ -59,6 +59,7 @@ import kotlinx.coroutines.CoroutineScope
 @Composable
 fun rememberReorderableLazyGridState(
     lazyGridState: LazyGridState,
+    isSwappable: Boolean = false,
     scrollThresholdPadding: PaddingValues = PaddingValues(0.dp),
     scrollThreshold: Dp = ReorderableLazyCollectionDefaults.ScrollThreshold,
     scroller: Scroller = rememberScroller(
@@ -90,6 +91,7 @@ fun rememberReorderableLazyGridState(
             state = lazyGridState,
             scope = scope,
             onMoveState = onMoveState,
+            isSwappable = isSwappable,
             scrollThreshold = scrollThresholdPx,
             scrollThresholdPadding = absoluteScrollThresholdPadding,
             scroller = scroller,
@@ -158,6 +160,7 @@ class ReorderableLazyGridState internal constructor(
     state: LazyGridState,
     scope: CoroutineScope,
     onMoveState: State<suspend CoroutineScope.(from: LazyGridItemInfo, to: LazyGridItemInfo) -> Unit>,
+    isSwappable: Boolean,
 
     /**
      * The threshold in pixels for scrolling the grid when dragging an item.
@@ -172,6 +175,7 @@ class ReorderableLazyGridState internal constructor(
     state.toLazyCollectionState(),
     scope,
     onMoveState,
+    isSwappable,
     scrollThreshold,
     scrollThresholdPadding,
     scroller,
