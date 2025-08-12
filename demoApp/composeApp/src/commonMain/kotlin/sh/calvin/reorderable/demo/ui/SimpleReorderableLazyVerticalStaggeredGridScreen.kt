@@ -1,6 +1,5 @@
 package sh.calvin.reorderable.demo.ui
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -46,7 +45,9 @@ fun SimpleReorderableLazyVerticalStaggeredGridScreen() {
     val reorderableLazyStaggeredGridState =
         rememberReorderableLazyStaggeredGridState(lazyStaggeredGridState) { from, to ->
             list = list.toMutableList().apply {
-                add(to.index, removeAt(from.index))
+                this[to.index] = this[from.index].also {
+                    this[from.index] = this[to.index]
+                }
             }
 
             haptic.performHapticFeedback(ReorderHapticFeedbackType.MOVE)

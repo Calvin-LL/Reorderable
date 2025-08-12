@@ -45,7 +45,9 @@ fun SimpleReorderableLazyHorizontalStaggeredGridScreen() {
     val reorderableLazyStaggeredGridState =
         rememberReorderableLazyStaggeredGridState(lazyStaggeredGridState) { from, to ->
             list = list.toMutableList().apply {
-                add(to.index, removeAt(from.index))
+                this[to.index] = this[from.index].also {
+                    this[from.index] = this[to.index]
+                }
             }
 
             haptic.performHapticFeedback(ReorderHapticFeedbackType.MOVE)
