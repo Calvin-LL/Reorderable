@@ -3,7 +3,7 @@ activityCompose = "1.9.3"
 agp = "8.8.1"
 compose = "1.7.0"
 kotlin = "2.0.21"
-mavenPublish = "0.32.0"
+mavenPublish = "0.34.0"
 precompose = "1.6.2"
 uiTooling = "1.7.6"
 
