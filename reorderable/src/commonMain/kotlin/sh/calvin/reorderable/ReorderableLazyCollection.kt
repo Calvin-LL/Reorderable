@@ -239,6 +239,18 @@ interface ReorderableLazyCollectionStateInterface {
     val isAnyItemDragging: Boolean
 }
 
+enum class ScrollMoveMode {
+    /**
+     * The dragging item will be swapped with the item at the target position.
+     */
+    SWAP,
+
+    /**
+     * The dragging item will be inserted at the target position.
+     */
+    INSERT,
+}
+
 // base on https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/foundation/foundation/integration-tests/foundation-demos/src/main/java/androidx/compose/foundation/demos/LazyColumnDragAndDropDemo.kt;drc=edde6e8b9d304264598f962a3b0e5c267e1373bb
 // and https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/foundation/foundation/integration-tests/foundation-demos/src/main/java/androidx/compose/foundation/demos/LazyGridDragAndDropDemo.kt;drc=44e4233f7bc0290a1509ef2d448f1309eb63248f
 @Stable
@@ -255,6 +267,7 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
     private val scrollThreshold: Float,
     private val scrollThresholdPadding: AbsolutePixelPadding,
     private val scroller: Scroller,
+    private val scrollMoveMode: ScrollMoveMode = ScrollMoveMode.SWAP,
 
     private val layoutDirection: LayoutDirection,
 
@@ -511,7 +524,14 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
             .reverseAxisWithLayoutDirectionIfLazyVerticalStaggeredGridRtlFix()
         val startOffset = draggingItem.offset.toOffset() + dragOffset
         val endOffset = startOffset + draggingItem.size.toSize()
-        val draggingItemRect = Rect(startOffset, endOffset).maxOutAxis(orientation.opposite)
+        val draggingItemRect = Rect(startOffset, endOffset)
+            .let {
+                when (scrollMoveMode) {
+                    ScrollMoveMode.SWAP -> it
+                    ScrollMoveMode.INSERT -> it.maxOutAxis(orientation.opposite)
+                }
+            }
+
         val itemsInContentArea = state.layoutInfo.getItemsInContentArea(scrollThresholdPadding)
             // if we can't find an item in the content area but still need to move the dragging item
             // we will need to search outside the content area
@@ -522,7 +542,14 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
             direction.opposite,
         ) ?: itemsInContentArea.let {
             val targetItemFunc = { item: LazyCollectionItemInfo<T> ->
-                item.key in reorderableKeys
+                item.key in reorderableKeys && when (scrollMoveMode) {
+                    ScrollMoveMode.SWAP -> when (orientation) {
+                        Orientation.Vertical -> item.offset.x == draggingItem.offset.x
+                        Orientation.Horizontal -> item.offset.y == draggingItem.offset.y
+                    }
+
+                    ScrollMoveMode.INSERT -> true
+                }
             }
             when (direction) {
                 Scroller.Direction.FORWARD -> it.findLast(targetItemFunc)

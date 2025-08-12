@@ -265,7 +265,7 @@ class ReorderableLazyListState internal constructor(
     scrollThreshold,
     scrollThresholdPadding,
     scroller,
-    layoutDirection,
+    layoutDirection = layoutDirection,
     shouldItemMove = shouldItemMove,
 )
 
@@ -291,7 +291,8 @@ fun LazyItemScope.ReorderableItem(
     val offsetModifier = if (dragging) {
         Modifier
             .zIndex(1f)
-            .then(when (orientation) {
+            .then(
+                when (orientation) {
                 Orientation.Vertical -> Modifier.graphicsLayer {
                     translationY = state.draggingItemOffset.y
                 }
@@ -303,7 +304,8 @@ fun LazyItemScope.ReorderableItem(
     } else if (key == state.previousDraggingItemKey) {
         Modifier
             .zIndex(1f)
-            .then(when (orientation) {
+            .then(
+                when (orientation) {
                 Orientation.Vertical -> Modifier.graphicsLayer {
                     translationY = state.previousDraggingItemOffset.value.y
                 }
