@@ -583,7 +583,9 @@ var list by remember { mutableStateOf(List(100) { "Item $it" }) }
 val lazyGridState = rememberLazyGridState()
 val reorderableLazyGridState = rememberReorderableLazyGridState(lazyGridState) { from, to ->
     list = list.toMutableList().apply {
-        add(to.index, removeAt(from.index))
+        this[to.index] = this[from.index].also {
+            this[from.index] = this[to.index]
+        }
     }
 
     hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
@@ -708,7 +710,9 @@ var list by remember { mutableStateOf(List(100) { "Item $it" }) }
 val lazyGridState = rememberLazyGridState()
 val reorderableLazyGridState = rememberReorderableLazyGridState(lazyGridState) { from, to ->
     list = list.toMutableList().apply {
-        add(to.index, removeAt(from.index))
+        this[to.index] = this[from.index].also {
+            this[from.index] = this[to.index]
+        }
     }
 
     hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
@@ -791,7 +795,9 @@ var list by remember { mutableStateOf(List(100) { "Item $it" }) }
 val lazyGridState = rememberLazyGridState()
 val reorderableLazyGridState = rememberReorderableLazyGridState(lazyGridState) { from, to ->
     list = list.toMutableList().apply {
-        add(to.index, removeAt(from.index))
+        this[to.index] = this[from.index].also {
+            this[from.index] = this[to.index]
+        }
     }
 
     hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
@@ -916,7 +922,9 @@ var list by remember { mutableStateOf(List(100) { "Item $it" }) }
 val lazyGridState = rememberLazyGridState()
 val reorderableLazyGridState = rememberReorderableLazyGridState(lazyGridState) { from, to ->
     list = list.toMutableList().apply {
-        add(to.index, removeAt(from.index))
+        this[to.index] = this[from.index].also {
+            this[from.index] = this[to.index]
+        }
     }
 
     hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
@@ -999,7 +1007,9 @@ var list by remember { mutableStateOf(List(100) { "Item $it" }) }
 val lazyStaggeredGridState = rememberLazyStaggeredGridState()
 val reorderableLazyStaggeredGridState = rememberReorderableLazyStaggeredGridState(lazyStaggeredGridState) { from, to ->
     list = list.toMutableList().apply {
-        add(to.index, removeAt(from.index))
+        this[to.index] = this[from.index].also {
+            this[from.index] = this[to.index]
+        }
     }
 
     hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
@@ -1124,7 +1134,9 @@ var list by remember { mutableStateOf(List(100) { "Item $it" }) }
 val lazyStaggeredGridState = rememberLazyStaggeredGridState()
 val reorderableLazyStaggeredGridState = rememberReorderableLazyStaggeredGridState(lazyStaggeredGridState) { from, to ->
     list = list.toMutableList().apply {
-        add(to.index, removeAt(from.index))
+        this[to.index] = this[from.index].also {
+            this[from.index] = this[to.index]
+        }
     }
 
     hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
@@ -1207,7 +1219,9 @@ var list by remember { mutableStateOf(List(100) { "Item $it" }) }
 val lazyStaggeredGridState = rememberLazyStaggeredGridState()
 val reorderableLazyStaggeredGridState = rememberReorderableLazyStaggeredGridState(lazyStaggeredGridState) { from, to ->
     list = list.toMutableList().apply {
-        add(to.index, removeAt(from.index))
+        this[to.index] = this[from.index].also {
+            this[from.index] = this[to.index]
+        }
     }
 
     hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
@@ -1332,7 +1346,9 @@ var list by remember { mutableStateOf(List(100) { "Item $it" }) }
 val lazyStaggeredGridState = rememberLazyStaggeredGridState()
 val reorderableLazyStaggeredGridState = rememberReorderableLazyStaggeredGridState(lazyStaggeredGridState) { from, to ->
     list = list.toMutableList().apply {
-        add(to.index, removeAt(from.index))
+        this[to.index] = this[from.index].also {
+            this[from.index] = this[to.index]
+        }
     }
 
     hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
