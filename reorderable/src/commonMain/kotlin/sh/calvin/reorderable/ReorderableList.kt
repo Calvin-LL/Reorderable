@@ -26,7 +26,9 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
@@ -81,7 +83,7 @@ class ReorderableListState internal constructor(
     private val onMove: () -> Unit,
     private val onSettle: (fromIndex: Int, toIndex: Int) -> Unit,
     scope: CoroutineScope,
-    private val orientation: Orientation,
+    val orientation: Orientation,
     private val layoutDirection: LayoutDirection,
 ) {
     internal val itemIntervals = MutableList(listSize) { ItemInterval() }
@@ -200,7 +202,7 @@ class ReorderableListState internal constructor(
     }
 }
 
-interface ReorderableScope {
+interface ReorderableListItemScope {
     /**
      * Make the UI element the draggable handle for the reorderable item.
      *
@@ -234,11 +236,10 @@ interface ReorderableScope {
     ): Modifier
 }
 
-internal class ReorderableScopeImpl(
+internal class ReorderableListItemScopeImpl(
     private val state: ReorderableListState,
-    private val orientation: Orientation,
     private val index: Int,
-) : ReorderableScope {
+) : ReorderableListItemScope {
 
     override fun Modifier.draggableHandle(
         enabled: Boolean,
@@ -263,7 +264,7 @@ internal class ReorderableScopeImpl(
                 val velocity = velocityTracker.calculateVelocity()
                 velocityTracker.resetTracking()
 
-                val velocityVal = when (orientation) {
+                val velocityVal = when (state.orientation) {
                     Orientation.Vertical -> velocity.y
                     Orientation.Horizontal -> velocity.x
                 }
@@ -274,7 +275,7 @@ internal class ReorderableScopeImpl(
                 velocityTracker.addPointerInputChange(change)
 
                 state.draggableStates[index].dispatchRawDelta(
-                    when (orientation) {
+                    when (state.orientation) {
                         Orientation.Vertical -> dragAmount.y
                         Orientation.Horizontal -> dragAmount.x
                     }
@@ -298,6 +299,70 @@ internal class ReorderableScopeImpl(
         )
 }
 
+open class ReorderableListScope(
+    private val state: ReorderableListState,
+    private val orientation: Orientation,
+    private val index: Int,
+    private val isAnimating: Boolean,
+) {
+    /**
+     * A composable that allows items to be reordered by dragging.
+     *
+     * @param modifier The modifier to be applied to the item.
+     * @param content The content of the item. The content can use the [ReorderableListItemScope.draggableHandle] modifier to make the item draggable.
+     */
+    @Composable
+    fun ReorderableItem(
+        modifier: Modifier = Modifier,
+        content: @Composable ReorderableListItemScope.() -> Unit,
+    ) {
+        Box(
+            modifier = modifier
+                .onGloballyPositioned { cord ->
+                    state.itemIntervals[index] = when (orientation) {
+                        Orientation.Vertical -> ItemInterval(
+                            start = cord.positionInParent().y, size = cord.size.height
+                        )
+
+                        Orientation.Horizontal -> ItemInterval(
+                            start = cord.positionInParent().x, size = cord.size.width
+                        )
+                    }
+                }
+                .graphicsLayer {
+                    when (orientation) {
+                        Orientation.Vertical -> translationY = state.itemOffsets[index].value
+
+                        Orientation.Horizontal -> translationX = state.itemOffsets[index].value
+                    }
+
+                }
+                .zIndex(if (isAnimating) 1f else 0f),
+        ) {
+            ReorderableListItemScopeImpl(
+                state = this@ReorderableListScope.state,
+                index = this@ReorderableListScope.index
+            ).content()
+        }
+    }
+}
+
+class ReorderableColumnScope(
+    state: ReorderableListState,
+    index: Int,
+    isAnimating: Boolean,
+    private val scope: ColumnScope
+) : ReorderableListScope(state, orientation = Orientation.Vertical, index, isAnimating),
+    ColumnScope by scope
+
+class ReorderableRowScope(
+    state: ReorderableListState,
+    index: Int,
+    isAnimating: Boolean,
+    private val scope: RowScope
+) : ReorderableListScope(state, orientation = Orientation.Horizontal, index, isAnimating),
+    RowScope by scope
+
 /**
  * A vertically list that can be reordered by dragging and dropping.
  *
@@ -315,7 +380,7 @@ fun <T> ReorderableColumn(
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     onMove: () -> Unit = {},
-    content: @Composable ReorderableScope.(index: Int, item: T, isDragging: Boolean) -> Unit,
+    content: @Composable ReorderableColumnScope.(index: Int, item: T, isDragging: Boolean) -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
     val density = LocalDensity.current
@@ -342,24 +407,12 @@ fun <T> ReorderableColumn(
             val isDragging by reorderableListState.isItemDragging(i)
             val isAnimating by reorderableListState.isItemAnimating(i)
 
-            Box(
-                modifier = Modifier
-                    .onGloballyPositioned { cord ->
-                        reorderableListState.itemIntervals[i] = ItemInterval(
-                            start = cord.positionInParent().y, size = cord.size.height
-                        )
-                    }
-                    .graphicsLayer {
-                        translationY = reorderableListState.itemOffsets[i].value
-                    }
-                    .zIndex(if (isAnimating) 1f else 0f),
-            ) {
-                ReorderableScopeImpl(
-                    state = reorderableListState,
-                    orientation = Orientation.Vertical,
-                    index = i,
-                ).content(i, item, isDragging)
-            }
+            ReorderableColumnScope(
+                state = reorderableListState,
+                index = i,
+                isAnimating = isAnimating,
+                scope = this,
+            ).content(i, item, isDragging)
         }
     }
 }
@@ -381,7 +434,7 @@ fun <T> ReorderableRow(
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
     verticalAlignment: Alignment.Vertical = Alignment.Top,
     onMove: () -> Unit = {},
-    content: @Composable ReorderableScope.(index: Int, item: T, isDragging: Boolean) -> Unit,
+    content: @Composable ReorderableRowScope.(index: Int, item: T, isDragging: Boolean) -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
     val density = LocalDensity.current
@@ -408,24 +461,12 @@ fun <T> ReorderableRow(
             val isDragging by reorderableListState.isItemDragging(i)
             val isAnimating by reorderableListState.isItemAnimating(i)
 
-            Box(
-                modifier = Modifier
-                    .onGloballyPositioned { cord ->
-                        reorderableListState.itemIntervals[i] = ItemInterval(
-                            start = cord.positionInParent().x, size = cord.size.width
-                        )
-                    }
-                    .graphicsLayer {
-                        translationX = reorderableListState.itemOffsets[i].value
-                    }
-                    .zIndex(if (isAnimating) 1f else 0f),
-            ) {
-                ReorderableScopeImpl(
-                    state = reorderableListState,
-                    orientation = Orientation.Horizontal,
-                    index = i,
-                ).content(i, item, isDragging)
-            }
+            ReorderableRowScope(
+                state = reorderableListState,
+                index = i,
+                isAnimating = isAnimating,
+                scope = this,
+            ).content(i, item, isDragging)
         }
     }
 }
