@@ -1393,9 +1393,11 @@ ReorderableColumn(
     },
 ) { index, item, isDragging ->
     key(item.id) {
-        // Item content
+        ReorderableItem {
+            // Item content
 
-        IconButton(modifier = Modifier.draggableHandle(), /* ... */)
+            IconButton(modifier = Modifier.draggableHandle(), /* ... */)
+        }
     }
 }
 ```
@@ -1426,29 +1428,31 @@ ReorderableColumn(
     verticalArrangement = Arrangement.spacedBy(8.dp),
 ) { _, item, isDragging ->
     key(item) {
-        val elevation by animateDpAsState(if (isDragging) 4.dp else 0.dp)
+        ReorderableItem {
+            val elevation by animateDpAsState(if (isDragging) 4.dp else 0.dp)
 
-        Surface(shadowElevation = elevation) {
-            Row {
-                Text(item, Modifier.padding(horizontal = 8.dp))
-                IconButton(
-                    modifier = Modifier.draggableHandle(
-                        onDragStarted = {
-                            ViewCompat.performHapticFeedback(
-                                view,
-                                HapticFeedbackConstantsCompat.GESTURE_START
-                            )
-                        },
-                        onDragStopped = {
-                            ViewCompat.performHapticFeedback(
-                                view,
-                                HapticFeedbackConstantsCompat.GESTURE_END
-                            )
-                        },
-                    ),
-                    onClick = {},
-                ) {
-                    Icon(Icons.Rounded.DragHandle, contentDescription = "Reorder")
+            Surface(shadowElevation = elevation) {
+                Row {
+                    Text(item, Modifier.padding(horizontal = 8.dp))
+                    IconButton(
+                        modifier = Modifier.draggableHandle(
+                            onDragStarted = {
+                                ViewCompat.performHapticFeedback(
+                                    view,
+                                    HapticFeedbackConstantsCompat.GESTURE_START
+                                )
+                            },
+                            onDragStopped = {
+                                ViewCompat.performHapticFeedback(
+                                    view,
+                                    HapticFeedbackConstantsCompat.GESTURE_END
+                                )
+                            },
+                        ),
+                        onClick = {},
+                    ) {
+                        Icon(Icons.Rounded.DragHandle, contentDescription = "Reorder")
+                    }
                 }
             }
         }
@@ -1472,9 +1476,11 @@ fun List() {
         },
     ) { index, item, isDragging ->
         key(item.id) {
-            // Item content
+            ReorderableItem {
+                // Item content
 
-            DragHandle(this)
+                DragHandle(this)
+            }
         }
     }
 }
@@ -1513,33 +1519,35 @@ ReorderableColumn(
     verticalArrangement = Arrangement.spacedBy(8.dp),
 ) { _, item, _ ->
     key(item) {
-        val interactionSource = remember { MutableInteractionSource() }
+        ReorderableItem {
+            val interactionSource = remember { MutableInteractionSource() }
 
-        Card(
-            onClick = {},
-            interactionSource = interactionSource,
-        ) {
-            Row {
-                Text(item, Modifier.padding(horizontal = 8.dp))
-                IconButton(
-                    modifier = Modifier.draggableHandle(
-                        onDragStarted = {
-                            ViewCompat.performHapticFeedback(
-                                view,
-                                HapticFeedbackConstantsCompat.GESTURE_START
-                            )
-                        },
-                        onDragStopped = {
-                            ViewCompat.performHapticFeedback(
-                                view,
-                                HapticFeedbackConstantsCompat.GESTURE_END
-                            )
-                        },
-                        interactionSource = interactionSource,
-                    ),
-                    onClick = {},
-                ) {
-                    Icon(Icons.Rounded.DragHandle, contentDescription = "Reorder")
+            Card(
+                onClick = {},
+                interactionSource = interactionSource,
+            ) {
+                Row {
+                    Text(item, Modifier.padding(horizontal = 8.dp))
+                    IconButton(
+                        modifier = Modifier.draggableHandle(
+                            onDragStarted = {
+                                ViewCompat.performHapticFeedback(
+                                    view,
+                                    HapticFeedbackConstantsCompat.GESTURE_START
+                                )
+                            },
+                            onDragStopped = {
+                                ViewCompat.performHapticFeedback(
+                                    view,
+                                    HapticFeedbackConstantsCompat.GESTURE_END
+                                )
+                            },
+                            interactionSource = interactionSource,
+                        ),
+                        onClick = {},
+                    ) {
+                        Icon(Icons.Rounded.DragHandle, contentDescription = "Reorder")
+                    }
                 }
             }
         }
@@ -1563,9 +1571,11 @@ ReorderableRow(
     },
 ) { index, item, isDragging ->
     key(item.id) {
-        // Item content
+        ReorderableItem {
+            // Item content
 
-        IconButton(modifier = Modifier.draggableHandle(), /* ... */)
+            IconButton(modifier = Modifier.draggableHandle(), /* ... */)
+        }
     }
 }
 ```
@@ -1596,29 +1606,31 @@ ReorderableRow(
     verticalArrangement = Arrangement.spacedBy(8.dp),
 ) { _, item, isDragging ->
     key(item) {
-        val elevation by animateDpAsState(if (isDragging) 4.dp else 0.dp)
+        ReorderableItem {
+            val elevation by animateDpAsState(if (isDragging) 4.dp else 0.dp)
 
-        Surface(shadowElevation = elevation) {
-            Column {
-                Text(item, Modifier.padding(vertical = 8.dp))
-                IconButton(
-                    modifier = Modifier.draggableHandle(
-                        onDragStarted = {
-                            ViewCompat.performHapticFeedback(
-                                view,
-                                HapticFeedbackConstantsCompat.GESTURE_START
-                            )
-                        },
-                        onDragStopped = {
-                            ViewCompat.performHapticFeedback(
-                                view,
-                                HapticFeedbackConstantsCompat.GESTURE_END
-                            )
-                        },
-                    ),
-                    onClick = {},
-                ) {
-                    Icon(Icons.Rounded.DragHandle, contentDescription = "Reorder")
+            Surface(shadowElevation = elevation) {
+                Column {
+                    Text(item, Modifier.padding(vertical = 8.dp))
+                    IconButton(
+                        modifier = Modifier.draggableHandle(
+                            onDragStarted = {
+                                ViewCompat.performHapticFeedback(
+                                    view,
+                                    HapticFeedbackConstantsCompat.GESTURE_START
+                                )
+                            },
+                            onDragStopped = {
+                                ViewCompat.performHapticFeedback(
+                                    view,
+                                    HapticFeedbackConstantsCompat.GESTURE_END
+                                )
+                            },
+                        ),
+                        onClick = {},
+                    ) {
+                        Icon(Icons.Rounded.DragHandle, contentDescription = "Reorder")
+                    }
                 }
             }
         }
@@ -1642,9 +1654,11 @@ fun List() {
         },
     ) { index, item, isDragging ->
         key(item.id) {
-            // Item content
+            ReorderableItem {
+                // Item content
 
-            DragHandle(this)
+                DragHandle(this)
+            }
         }
     }
 }
@@ -1683,33 +1697,35 @@ ReorderableRow(
     verticalArrangement = Arrangement.spacedBy(8.dp),
 ) { _, item, _ ->
     key(item) {
-        val interactionSource = remember { MutableInteractionSource() }
+        ReorderableItem {
+            val interactionSource = remember { MutableInteractionSource() }
 
-        Card(
-            onClick = {},
-            interactionSource = interactionSource,
-        ) {
-            Column {
-                Text(item, Modifier.padding(vertical = 8.dp))
-                IconButton(
-                    modifier = Modifier.draggableHandle(
-                        onDragStarted = {
-                            ViewCompat.performHapticFeedback(
-                                view,
-                                HapticFeedbackConstantsCompat.GESTURE_START
-                            )
-                        },
-                        onDragStopped = {
-                            ViewCompat.performHapticFeedback(
-                                view,
-                                HapticFeedbackConstantsCompat.GESTURE_END
-                            )
-                        },
-                        interactionSource = interactionSource,
-                    ),
-                    onClick = {},
-                ) {
-                    Icon(Icons.Rounded.DragHandle, contentDescription = "Reorder")
+            Card(
+                onClick = {},
+                interactionSource = interactionSource,
+            ) {
+                Column {
+                    Text(item, Modifier.padding(vertical = 8.dp))
+                    IconButton(
+                        modifier = Modifier.draggableHandle(
+                            onDragStarted = {
+                                ViewCompat.performHapticFeedback(
+                                    view,
+                                    HapticFeedbackConstantsCompat.GESTURE_START
+                                )
+                            },
+                            onDragStopped = {
+                                ViewCompat.performHapticFeedback(
+                                    view,
+                                    HapticFeedbackConstantsCompat.GESTURE_END
+                                )
+                            },
+                            interactionSource = interactionSource,
+                        ),
+                        onClick = {},
+                    ) {
+                        Icon(Icons.Rounded.DragHandle, contentDescription = "Reorder")
+                    }
                 }
             }
         }

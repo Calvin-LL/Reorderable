@@ -55,65 +55,67 @@ fun ReorderableColumnScreen() {
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) { index, item, _ ->
         key(item.id) {
-            val interactionSource = remember { MutableInteractionSource() }
+            ReorderableItem {
+                val interactionSource = remember { MutableInteractionSource() }
 
-            Card(
-                onClick = {},
-                modifier = Modifier
-                    .height(item.size.dp)
-                    .semantics {
-                        customActions = listOf(
-                            CustomAccessibilityAction(
-                                label = "Move Up",
-                                action = {
-                                    if (index > 0) {
-                                        list = list.toMutableList().apply {
-                                            add(index - 1, removeAt(index))
+                Card(
+                    onClick = {},
+                    modifier = Modifier
+                        .height(item.size.dp)
+                        .semantics {
+                            customActions = listOf(
+                                CustomAccessibilityAction(
+                                    label = "Move Up",
+                                    action = {
+                                        if (index > 0) {
+                                            list = list.toMutableList().apply {
+                                                add(index - 1, removeAt(index))
+                                            }
+                                            true
+                                        } else {
+                                            false
                                         }
-                                        true
-                                    } else {
-                                        false
                                     }
-                                }
-                            ),
-                            CustomAccessibilityAction(
-                                label = "Move Down",
-                                action = {
-                                    if (index < list.size - 1) {
-                                        list = list.toMutableList().apply {
-                                            add(index + 1, removeAt(index))
+                                ),
+                                CustomAccessibilityAction(
+                                    label = "Move Down",
+                                    action = {
+                                        if (index < list.size - 1) {
+                                            list = list.toMutableList().apply {
+                                                add(index + 1, removeAt(index))
+                                            }
+                                            true
+                                        } else {
+                                            false
                                         }
-                                        true
-                                    } else {
-                                        false
                                     }
-                                }
-                            ),
-                        )
-                    },
-                interactionSource = interactionSource,
-            ) {
-                Row(
-                    Modifier.fillMaxSize(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(item.text, Modifier.padding(horizontal = 8.dp))
-                    IconButton(
-                        modifier = Modifier
-                            .draggableHandle(
-                                onDragStarted = {
-                                    haptic.performHapticFeedback(ReorderHapticFeedbackType.START)
-                                },
-                                onDragStopped = {
-                                    haptic.performHapticFeedback(ReorderHapticFeedbackType.END)
-                                },
-                                interactionSource = interactionSource,
+                                ),
                             )
-                            .clearAndSetSemantics { },
-                        onClick = {},
+                        },
+                    interactionSource = interactionSource,
+                ) {
+                    Row(
+                        Modifier.fillMaxSize(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Icon(Icons.Rounded.DragHandle, contentDescription = "Reorder")
+                        Text(item.text, Modifier.padding(horizontal = 8.dp))
+                        IconButton(
+                            modifier = Modifier
+                                .draggableHandle(
+                                    onDragStarted = {
+                                        haptic.performHapticFeedback(ReorderHapticFeedbackType.START)
+                                    },
+                                    onDragStopped = {
+                                        haptic.performHapticFeedback(ReorderHapticFeedbackType.END)
+                                    },
+                                    interactionSource = interactionSource,
+                                )
+                                .clearAndSetSemantics { },
+                            onClick = {},
+                        ) {
+                            Icon(Icons.Rounded.DragHandle, contentDescription = "Reorder")
+                        }
                     }
                 }
             }

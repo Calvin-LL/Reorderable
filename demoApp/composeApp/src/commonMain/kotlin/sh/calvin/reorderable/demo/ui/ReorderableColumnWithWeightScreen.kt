@@ -3,9 +3,11 @@ package sh.calvin.reorderable.demo.ui
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.DragHandle
 import androidx.compose.material3.Card
@@ -31,14 +33,15 @@ import sh.calvin.reorderable.demo.items
 import sh.calvin.reorderable.demo.rememberReorderHapticFeedback
 
 @Composable
-fun LongPressHandleReorderableColumnScreen() {
+fun ReorderableColumnWithWeightScreen() {
     val haptic = rememberReorderHapticFeedback()
 
-    var list by remember { mutableStateOf(items.take(5)) }
+    var list by remember { mutableStateOf(items.take(3)) }
 
     ReorderableColumn(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .padding(8.dp),
         list = list,
         onSettle = { fromIndex, toIndex ->
@@ -50,15 +53,15 @@ fun LongPressHandleReorderableColumnScreen() {
             haptic.performHapticFeedback(ReorderHapticFeedbackType.MOVE)
         },
         verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) { index, item, isDragging ->
+    ) { index, item, _ ->
         key(item.id) {
-            ReorderableItem {
+            ReorderableItem(Modifier.weight(1f)) {
                 val interactionSource = remember { MutableInteractionSource() }
 
                 Card(
                     onClick = {},
                     modifier = Modifier
-                        .height(item.size.dp)
+                        .fillMaxHeight()
                         .semantics {
                             customActions = listOf(
                                 CustomAccessibilityAction(
@@ -99,7 +102,7 @@ fun LongPressHandleReorderableColumnScreen() {
                         Text(item.text, Modifier.padding(horizontal = 8.dp))
                         IconButton(
                             modifier = Modifier
-                                .longPressDraggableHandle(
+                                .draggableHandle(
                                     onDragStarted = {
                                         haptic.performHapticFeedback(ReorderHapticFeedbackType.START)
                                     },

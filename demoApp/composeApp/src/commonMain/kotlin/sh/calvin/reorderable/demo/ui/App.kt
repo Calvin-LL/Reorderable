@@ -67,6 +67,7 @@ internal fun App() {
                                 scene("SimpleReorderableLazyVerticalStaggeredGrid") { SimpleReorderableLazyVerticalStaggeredGridScreen() }
                                 scene("ReorderableColumn") { ReorderableColumnScreen() }
                                 scene("LongPressHandleReorderableColumn") { LongPressHandleReorderableColumnScreen() }
+                                scene("ReorderableColumnWithWeight") { ReorderableColumnWithWeightScreen() }
                                 scene("SimpleReorderableLazyRow") { SimpleReorderableLazyRowScreen() }
                                 scene("ComplexReorderableLazyRow") { ComplexReorderableLazyRowScreen() }
                                 scene("SimpleReorderableLazyHorizontalGrid") { SimpleReorderableLazyHorizontalGridScreen() }
@@ -162,6 +163,10 @@ fun MainScreen(navController: Navigator) {
                     "ReorderableColumn with\n.longPressDraggableHandle",
                     textAlign = TextAlign.Center
                 )
+            }
+            Button(
+                onClick = { navController.navigate("ReorderableColumnWithWeight") }) {
+                Text("ReorderableColumn\nwith Modifier.weight")
             }
         }
 
