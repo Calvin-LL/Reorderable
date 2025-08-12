@@ -68,7 +68,6 @@ import kotlinx.coroutines.CoroutineScope
 @Composable
 fun rememberReorderableLazyColumnState(
     lazyListState: LazyListState,
-    isSwappable: Boolean = false,
     scrollThresholdPadding: PaddingValues = PaddingValues(0.dp),
     scrollThreshold: Dp = ReorderableLazyCollectionDefaults.ScrollThreshold,
     scroller: Scroller = rememberScroller(
@@ -78,7 +77,6 @@ fun rememberReorderableLazyColumnState(
     onMove: suspend CoroutineScope.(from: LazyListItemInfo, to: LazyListItemInfo) -> Unit,
 ) = rememberReorderableLazyListState(
     lazyListState,
-    isSwappable,
     scrollThresholdPadding,
     scrollThreshold,
     scroller,
@@ -106,7 +104,6 @@ fun rememberReorderableLazyColumnState(
 @Composable
 fun rememberReorderableLazyRowState(
     lazyListState: LazyListState,
-    isSwappable: Boolean = false,
     scrollThresholdPadding: PaddingValues = PaddingValues(0.dp),
     scrollThreshold: Dp = ReorderableLazyCollectionDefaults.ScrollThreshold,
     scroller: Scroller = rememberScroller(
@@ -116,7 +113,6 @@ fun rememberReorderableLazyRowState(
     onMove: suspend CoroutineScope.(from: LazyListItemInfo, to: LazyListItemInfo) -> Unit,
 ) = rememberReorderableLazyListState(
     lazyListState,
-    isSwappable,
     scrollThresholdPadding,
     scrollThreshold,
     scroller,
@@ -137,7 +133,6 @@ fun rememberReorderableLazyRowState(
 @Composable
 fun rememberReorderableLazyListState(
     lazyListState: LazyListState,
-    isSwappable: Boolean = false,
     scrollThresholdPadding: PaddingValues = PaddingValues(0.dp),
     scrollThreshold: Dp = ReorderableLazyCollectionDefaults.ScrollThreshold,
     scroller: Scroller = rememberScroller(
@@ -175,7 +170,6 @@ fun rememberReorderableLazyListState(
             state = lazyListState,
             scope = scope,
             onMoveState = onMoveState,
-            isSwappable = isSwappable,
             scrollThreshold = scrollThresholdPx,
             scrollThresholdPadding = absoluteScrollThresholdPadding,
             scroller = scroller,
@@ -253,7 +247,6 @@ class ReorderableLazyListState internal constructor(
     state: LazyListState,
     scope: CoroutineScope,
     onMoveState: State<suspend CoroutineScope.(from: LazyListItemInfo, to: LazyListItemInfo) -> Unit>,
-    isSwappable: Boolean,
 
     /**
      * The threshold in pixels for scrolling the list when dragging an item.
@@ -269,11 +262,10 @@ class ReorderableLazyListState internal constructor(
     state.toLazyCollectionState(),
     scope,
     onMoveState,
-    isSwappable,
     scrollThreshold,
     scrollThresholdPadding,
     scroller,
-    layoutDirection,
+    layoutDirection = layoutDirection,
     shouldItemMove = shouldItemMove,
 )
 
@@ -299,7 +291,8 @@ fun LazyItemScope.ReorderableItem(
     val offsetModifier = if (dragging) {
         Modifier
             .zIndex(1f)
-            .then(when (orientation) {
+            .then(
+                when (orientation) {
                 Orientation.Vertical -> Modifier.graphicsLayer {
                     translationY = state.draggingItemOffset.y
                 }
@@ -311,7 +304,8 @@ fun LazyItemScope.ReorderableItem(
     } else if (key == state.previousDraggingItemKey) {
         Modifier
             .zIndex(1f)
-            .then(when (orientation) {
+            .then(
+                when (orientation) {
                 Orientation.Vertical -> Modifier.graphicsLayer {
                     translationY = state.previousDraggingItemOffset.value.y
                 }
