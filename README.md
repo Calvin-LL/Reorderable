@@ -1478,7 +1478,7 @@ ReorderableColumn(
 
 ##### Passing `Modifier.draggableHandle` to a Child Composable
 
-Since `Modifier.draggableHandle` and `Modifier.longPressDraggableHandle` can only be used in `ReorderableScope`, you may need to pass `ReorderableScope` to a child composable. For example:
+Since `Modifier.draggableHandle` and `Modifier.longPressDraggableHandle` can only be used in `ReorderableListItemScope`, you may need to pass `ReorderableListItemScope` to a child composable. For example:
 
 ```kotlin
 @Composable
@@ -1502,7 +1502,7 @@ fun List() {
 }
 
 @Composable
-fun DragHandle(scope: ReorderableScope) {
+fun DragHandle(scope: ReorderableListItemScope) {
     IconButton(modifier = with(scope) { Modifier.draggableHandle() }, /* ... */)
 }
 ```
@@ -1656,7 +1656,7 @@ ReorderableRow(
 
 ##### Passing `Modifier.draggableHandle` to a Child Composable
 
-Since `Modifier.draggableHandle` and `Modifier.longPressDraggableHandle` can only be used in `ReorderableScope`, you may need to pass `ReorderableScope` to a child composable. For example:
+Since `Modifier.draggableHandle` and `Modifier.longPressDraggableHandle` can only be used in `ReorderableListItemScope`, you may need to pass `ReorderableListItemScope` to a child composable. For example:
 
 ```kotlin
 @Composable
@@ -1680,7 +1680,7 @@ fun List() {
 }
 
 @Composable
-fun DragHandle(scope: ReorderableScope) {
+fun DragHandle(scope: ReorderableListItemScope) {
     IconButton(modifier = with(scope) { Modifier.draggableHandle() }, /* ... */)
 }
 ```
