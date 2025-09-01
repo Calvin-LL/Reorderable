@@ -67,6 +67,7 @@ fun rememberReorderableLazyStaggeredGridState(
         pixelAmountProvider = { lazyStaggeredGridState.layoutInfo.mainAxisViewportSize * ScrollAmountMultiplier },
     ),
     scrollMoveMode: ScrollMoveMode = ScrollMoveMode.SWAP,
+    reverseLayout: Boolean = false,
     onMove: suspend CoroutineScope.(from: LazyStaggeredGridItemInfo, to: LazyStaggeredGridItemInfo) -> Unit,
 ): ReorderableLazyStaggeredGridState {
     val density = LocalDensity.current
@@ -86,7 +87,7 @@ fun rememberReorderableLazyStaggeredGridState(
         bottom = with(density) { scrollThresholdPadding.calculateBottomPadding().toPx() },
     )
     val state = remember(
-        scope, lazyStaggeredGridState, scrollThreshold, scrollThresholdPadding, scroller,
+        scope, lazyStaggeredGridState, scrollThreshold, scrollThresholdPadding, scroller, reverseLayout,
     ) {
         ReorderableLazyStaggeredGridState(
             state = lazyStaggeredGridState,
@@ -97,6 +98,7 @@ fun rememberReorderableLazyStaggeredGridState(
             scroller = scroller,
             scrollMoveMode = scrollMoveMode,
             layoutDirection = layoutDirection,
+            reverseLayout = reverseLayout,
         )
     }
     return state
@@ -123,7 +125,7 @@ private fun LazyStaggeredGridItemInfo.toLazyCollectionItemInfo() =
 
     }
 
-private fun LazyStaggeredGridLayoutInfo.toLazyCollectionLayoutInfo() =
+private fun LazyStaggeredGridLayoutInfo.toLazyCollectionLayoutInfo(reverseLayout: Boolean) =
     object : LazyCollectionLayoutInfo<LazyStaggeredGridItemInfo> {
         override val visibleItemsInfo: List<LazyCollectionItemInfo<LazyStaggeredGridItemInfo>>
             get() = this@toLazyCollectionLayoutInfo.visibleItemsInfo.map {
@@ -133,20 +135,21 @@ private fun LazyStaggeredGridLayoutInfo.toLazyCollectionLayoutInfo() =
             get() = this@toLazyCollectionLayoutInfo.viewportSize
         override val orientation: Orientation
             get() = this@toLazyCollectionLayoutInfo.orientation
-        override val reverseLayout: Boolean = false
+        override val reverseLayout: Boolean
+            get() = reverseLayout
         override val beforeContentPadding: Int
             get() = this@toLazyCollectionLayoutInfo.beforeContentPadding
 
     }
 
-private fun LazyStaggeredGridState.toLazyCollectionState() =
+private fun LazyStaggeredGridState.toLazyCollectionState(reverseLayout: Boolean) =
     object : LazyCollectionState<LazyStaggeredGridItemInfo> {
         override val firstVisibleItemIndex: Int
             get() = this@toLazyCollectionState.firstVisibleItemIndex
         override val firstVisibleItemScrollOffset: Int
             get() = this@toLazyCollectionState.firstVisibleItemScrollOffset
         override val layoutInfo: LazyCollectionLayoutInfo<LazyStaggeredGridItemInfo>
-            get() = this@toLazyCollectionState.layoutInfo.toLazyCollectionLayoutInfo()
+            get() = this@toLazyCollectionState.layoutInfo.toLazyCollectionLayoutInfo(reverseLayout)
 
         override suspend fun animateScrollBy(value: Float, animationSpec: AnimationSpec<Float>) =
             this@toLazyCollectionState.animateScrollBy(value, animationSpec)
@@ -171,8 +174,9 @@ class ReorderableLazyStaggeredGridState internal constructor(
     scroller: Scroller,
     scrollMoveMode: ScrollMoveMode,
     layoutDirection: LayoutDirection,
+    reverseLayout: Boolean,
 ) : ReorderableLazyCollectionState<LazyStaggeredGridItemInfo>(
-    state.toLazyCollectionState(),
+    state.toLazyCollectionState(reverseLayout),
     scope,
     onMoveState,
     scrollThreshold,
