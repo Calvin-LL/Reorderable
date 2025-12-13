@@ -52,6 +52,7 @@ The latest demo app APK can be found in the [releases](https://github.com/Calvin
 - [Komikku](https://github.com/komikku-app/komikku/blob/2661122d9ae532442526de136b25adb8045803ed/gradle/libs.versions.toml#L66) ![GitHub Repo stars](https://img.shields.io/github/stars/komikku-app/komikku?style=flat)
 - [Stream Chat](https://github.com/GetStream/stream-chat-android/blob/95a3f812991d7fe1e91d7457d125a039aeff704c/buildSrc/src/main/kotlin/io/getstream/chat/android/Dependencies.kt#L217) ![GitHub Repo stars](https://img.shields.io/github/stars/GetStream/stream-chat-android?style=flat)
 - [EinkBro](https://github.com/plateaukao/einkbro/blob/4dfa50fff1ced5035d1be77ef5af55ac165375e6/app/build.gradle.kts#L148) ![GitHub Repo stars](https://img.shields.io/github/stars/plateaukao/einkbro?style=flat)
+- [Aron Launcher](https://play.google.com/store/apps/details?id=com.aroncode.aronlauncher.lite)
 
 ## Features
 
