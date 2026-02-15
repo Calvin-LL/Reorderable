@@ -54,6 +54,15 @@ kotlin {
         }
     }
 
+    listOf(
+        macosX64(),
+        macosArm64()
+    ).forEach {
+        it.binaries.executable {
+            entryPoint = "main"
+        }
+    }
+
     sourceSets {
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -134,6 +143,14 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            packageName = "sh.calvin.reorderable.demo"
+            packageVersion = "1.0.0"
+        }
+    }
+    nativeApplication {
+        targets(kotlin.macosX64(), kotlin.macosArm64())
+        distributions {
+            targetFormats(TargetFormat.Dmg)
             packageName = "sh.calvin.reorderable.demo"
             packageVersion = "1.0.0"
         }
