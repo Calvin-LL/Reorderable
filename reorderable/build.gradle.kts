@@ -12,7 +12,7 @@ plugins {
 }
 
 group = "sh.calvin.reorderable"
-version = "3.0.0"
+version = "3.1.0"
 
 kotlin {
     coreLibrariesVersion = "1.9.0"
@@ -103,7 +103,7 @@ android {
 mavenPublishing {
     pom {
         name = "Reorderable"
-        description = "A library for reordering items in a LazyColumn"
+        description = "A library for reordering items in lazy lists and grids in Compose"
         url = "https://github.com/Calvin-LL/Reorderable"
         inceptionYear = "2023"
 
