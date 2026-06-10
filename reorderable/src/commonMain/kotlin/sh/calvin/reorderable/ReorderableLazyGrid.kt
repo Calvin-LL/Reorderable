@@ -34,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -172,6 +173,16 @@ class ReorderableLazyGridState internal constructor(
     scroller: Scroller,
     scrollMoveMode: ScrollMoveMode,
     layoutDirection: LayoutDirection,
+    shouldItemMove: (Rect, Rect, Int, Int) -> Boolean = { draggingItem, item, itemIndex, maxIndex ->
+        // If the item being compared with is the last index in the collection, also move
+        // if the current `draggable` is 'past' the last item along both axes.
+        val isLastItem = itemIndex == maxIndex
+        if (isLastItem) {
+            (draggingItem.top > item.top && draggingItem.left > item.left) || draggingItem.contains(item.center)
+        } else {
+            draggingItem.contains(item.center)
+        }
+    }
 ) : ReorderableLazyCollectionState<LazyGridItemInfo>(
     state.toLazyCollectionState(),
     scope,
@@ -181,6 +192,7 @@ class ReorderableLazyGridState internal constructor(
     scroller,
     scrollMoveMode,
     layoutDirection,
+    shouldItemMove = shouldItemMove
 )
 
 /**

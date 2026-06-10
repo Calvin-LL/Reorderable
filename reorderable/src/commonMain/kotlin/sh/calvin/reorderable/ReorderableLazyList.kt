@@ -175,12 +175,22 @@ fun rememberReorderableLazyListState(
             scroller = scroller,
             layoutDirection = layoutDirection,
             shouldItemMove = when (orientation) {
-                Orientation.Vertical -> { draggingItem, item ->
-                    item.center.y in draggingItem.top..<draggingItem.bottom
+                Orientation.Vertical -> { draggingItem, item, itemIndex, maxIndex ->
+                    val isLastItem = itemIndex == maxIndex
+                    if (isLastItem) {
+                        draggingItem.top > item.top || item.center.y in draggingItem.top..<draggingItem.bottom
+                    } else {
+                        item.center.y in draggingItem.top..<draggingItem.bottom
+                    }
                 }
 
-                Orientation.Horizontal -> { draggingItem, item ->
-                    item.center.x in draggingItem.left..<draggingItem.right
+                Orientation.Horizontal -> { draggingItem, item, itemIndex, maxIndex ->
+                    val isLastItem = itemIndex == maxIndex
+                    if (isLastItem) {
+                        draggingItem.left > item.left || item.center.x in draggingItem.left..<draggingItem.right
+                    } else {
+                        item.center.x in draggingItem.left..<draggingItem.right
+                    }
                 }
             },
         )
@@ -257,7 +267,7 @@ class ReorderableLazyListState internal constructor(
     scrollThresholdPadding: AbsolutePixelPadding,
     scroller: Scroller,
     layoutDirection: LayoutDirection,
-    shouldItemMove: (draggingItem: Rect, item: Rect) -> Boolean,
+    shouldItemMove: (draggingItem: Rect, item: Rect, itemIndex: Int, maxIndex: Int) -> Boolean,
 ) : ReorderableLazyCollectionState<LazyListItemInfo>(
     state.toLazyCollectionState(),
     scope,
