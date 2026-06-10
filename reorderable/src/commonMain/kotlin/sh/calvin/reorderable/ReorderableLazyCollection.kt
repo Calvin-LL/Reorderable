@@ -280,8 +280,10 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
      * A function that determines whether the `draggingItem` should be moved with the `item`.
      * Given their bounding rectangles, return `true` if they should be moved.
      * The default implementation is to move if the dragging item's bounding rectangle has crossed the center of the item's bounding rectangle.
+     * It also provides additional parameters for snapping `draggingItem` to the last spot if it's dragged
+     * into empty space beyond the end of the collection.
      */
-    private val shouldItemMove: (draggingItem: Rect, item: Rect) -> Boolean = { draggingItem, item ->
+    private val shouldItemMove: (draggingItem: Rect, item: Rect, itemIndex: Int, maxIndex: Int) -> Boolean = { draggingItem, item, _, _ ->
         draggingItem.contains(item.center)
     },
 ) : ReorderableLazyCollectionStateInterface {
@@ -596,10 +598,15 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
         direction: Scroller.Direction = Scroller.Direction.FORWARD,
         additionalPredicate: (LazyCollectionItemInfo<T>) -> Boolean = { true },
     ): LazyCollectionItemInfo<T>? {
+        // Although this is computed to handle the edge case of dragging an item to an empty spot
+        // at the end of a collection, it suffices to only get the max index of any visible item. If
+        // the collection is not scrolled all the way to the end, then there is no empty collection
+        // spots, and the behavior does not change.
+        val maxIndex = state.layoutInfo.visibleItemsInfo.maxOf { it.index }
         val targetItemFunc = { item: LazyCollectionItemInfo<T> ->
             val targetItemRect = Rect(item.offset.toOffset(), item.size.toSize())
 
-            shouldItemMove(draggingItemRect, targetItemRect)
+            shouldItemMove(draggingItemRect, targetItemRect, item.index, maxIndex)
                     && item.key in reorderableKeys
                     && additionalPredicate(item)
         }
