@@ -1441,7 +1441,7 @@ ReorderableColumn(
             HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK
         )
     },
-    verticalArrangement = Arrangement.spacedBy(8.dp),
+    horizontalArrangement = Arrangement.spacedBy(8.dp),
 ) { _, item, isDragging ->
     key(item) {
         ReorderableItem {
@@ -1619,7 +1619,7 @@ ReorderableRow(
             HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK
         )
     },
-    verticalArrangement = Arrangement.spacedBy(8.dp),
+    horizontalArrangement = Arrangement.spacedBy(8.dp),
 ) { _, item, isDragging ->
     key(item) {
         ReorderableItem {
@@ -1710,7 +1710,7 @@ ReorderableRow(
             HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK
         )
     },
-    verticalArrangement = Arrangement.spacedBy(8.dp),
+    horizontalArrangement = Arrangement.spacedBy(8.dp),
 ) { _, item, _ ->
     key(item) {
         ReorderableItem {
