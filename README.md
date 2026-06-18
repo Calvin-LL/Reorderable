@@ -1441,7 +1441,7 @@ ReorderableColumn(
             HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK
         )
     },
-    verticalArrangement = Arrangement.spacedBy(8.dp),
+    horizontalArrangement = Arrangement.spacedBy(8.dp),
 ) { _, item, isDragging ->
     key(item) {
         ReorderableItem {
@@ -1619,7 +1619,7 @@ ReorderableRow(
             HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK
         )
     },
-    verticalArrangement = Arrangement.spacedBy(8.dp),
+    horizontalArrangement = Arrangement.spacedBy(8.dp),
 ) { _, item, isDragging ->
     key(item) {
         ReorderableItem {
@@ -1710,7 +1710,7 @@ ReorderableRow(
             HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK
         )
     },
-    verticalArrangement = Arrangement.spacedBy(8.dp),
+    horizontalArrangement = Arrangement.spacedBy(8.dp),
 ) { _, item, _ ->
     key(item) {
         ReorderableItem {
@@ -1820,10 +1820,10 @@ LaunchedEffect(list) {
 
 ### [`Column`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/package-summary#Column(androidx.compose.ui.Modifier,androidx.compose.foundation.layout.Arrangement.Vertical,androidx.compose.ui.Alignment.Horizontal,kotlin.Function1)>) / [`Row`](<https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/package-summary#Row(androidx.compose.ui.Modifier,androidx.compose.foundation.layout.Arrangement.Horizontal,androidx.compose.ui.Alignment.Vertical,kotlin.Function1)>)
 
-- [`ReorderableColumn`](reorderable/src/commonMain/kotlin/sh/calvin/reorderable/demo/ReorderableList.kt)
-- [`ReorderableRow`](reorderable/src/commonMain/kotlin/sh/calvin/reorderable/demo/ReorderableList.kt)
-- [`Modifier.draggableHandle`](reorderable/src/commonMain/kotlin/sh/calvin/reorderable/demo/ReorderableList.kt)
-- [`Modifier.longPressDraggableHandle`](reorderable/src/commonMain/kotlin/sh/calvin/reorderable/demo/ReorderableList.kt)
+- [`ReorderableColumn`](reorderable/src/commonMain/kotlin/sh/calvin/reorderable/ReorderableList.kt)
+- [`ReorderableRow`](reorderable/src/commonMain/kotlin/sh/calvin/reorderable/ReorderableList.kt)
+- [`Modifier.draggableHandle`](reorderable/src/commonMain/kotlin/sh/calvin/reorderable/ReorderableList.kt)
+- [`Modifier.longPressDraggableHandle`](reorderable/src/commonMain/kotlin/sh/calvin/reorderable/ReorderableList.kt)
 
 ## Running the demo app
 
