@@ -7,6 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -27,6 +28,9 @@ internal fun Modifier.draggable(
     val coroutineScope = rememberCoroutineScope()
     var dragInteractionStart by remember { mutableStateOf<DragInteraction.Start?>(null) }
     var dragStarted by remember { mutableStateOf(false) }
+    val onDragStartedState by rememberUpdatedState(onDragStarted)
+    val onDragStoppedState by rememberUpdatedState(onDragStopped)
+    val onDragState by rememberUpdatedState(onDrag)
 
     DisposableEffect(key1) {
         onDispose {
@@ -38,7 +42,7 @@ internal fun Modifier.draggable(
                 }
 
                 if (dragStarted) {
-                    onDragStopped()
+                    onDragStoppedState()
                 }
 
                 dragStarted = false
@@ -61,7 +65,7 @@ internal fun Modifier.draggable(
                         }
                     }
 
-                    onDragStarted(it)
+                    onDragStartedState(it)
                 },
                 onDragEnd = {
                     dragInteractionStart?.also {
@@ -71,7 +75,7 @@ internal fun Modifier.draggable(
                     }
 
                     if (dragStarted) {
-                        onDragStopped()
+                        onDragStoppedState()
                     }
 
                     dragStarted = false
@@ -84,12 +88,12 @@ internal fun Modifier.draggable(
                     }
 
                     if (dragStarted) {
-                        onDragStopped()
+                        onDragStoppedState()
                     }
 
                     dragStarted = false
                 },
-                onDrag = onDrag,
+                onDrag = { change, dragAmount -> onDragState(change, dragAmount) },
             )
         }
     }
