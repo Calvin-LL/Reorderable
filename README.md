@@ -1839,6 +1839,8 @@ To run the desktop demo app, run `./gradlew :demoApp:ComposeApp:run`.
 
 ## Contributing
 
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and pull request guidelines.
+
 Open this project with Android Studio Preview.
 
 You'll want to install the [Kotlin Multiplatform Mobile plugin](https://plugins.jetbrains.com/plugin/14936-kotlin-multiplatform-mobile) in Android Studio before you open this project.
