@@ -54,6 +54,7 @@ fun ComplexReorderableLazyRowScreen() {
         }
 
         haptic.performHapticFeedback(ReorderHapticFeedbackType.MOVE)
+        true
     }
 
     LazyRow(

@@ -54,6 +54,7 @@ fun ComplexReorderableLazyColumnScreen() {
         }
 
         haptic.performHapticFeedback(ReorderHapticFeedbackType.MOVE)
+        true
     }
 
     LazyColumn(

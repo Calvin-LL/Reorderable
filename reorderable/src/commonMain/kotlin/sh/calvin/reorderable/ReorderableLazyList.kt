@@ -74,7 +74,7 @@ fun rememberReorderableLazyColumnState(
         scrollableState = lazyListState,
         pixelAmountProvider = { lazyListState.layoutInfo.mainAxisViewportSize * ScrollAmountMultiplier },
     ),
-    onMove: suspend CoroutineScope.(from: LazyListItemInfo, to: LazyListItemInfo) -> Unit,
+    onMove: suspend CoroutineScope.(from: LazyListItemInfo, to: LazyListItemInfo) -> Boolean,
 ) = rememberReorderableLazyListState(
     lazyListState,
     scrollThresholdPadding,
@@ -110,7 +110,7 @@ fun rememberReorderableLazyRowState(
         scrollableState = lazyListState,
         pixelAmountProvider = { lazyListState.layoutInfo.mainAxisViewportSize * ScrollAmountMultiplier },
     ),
-    onMove: suspend CoroutineScope.(from: LazyListItemInfo, to: LazyListItemInfo) -> Unit,
+    onMove: suspend CoroutineScope.(from: LazyListItemInfo, to: LazyListItemInfo) -> Boolean,
 ) = rememberReorderableLazyListState(
     lazyListState,
     scrollThresholdPadding,
@@ -139,7 +139,7 @@ fun rememberReorderableLazyListState(
         scrollableState = lazyListState,
         pixelAmountProvider = { lazyListState.layoutInfo.mainAxisViewportSize * ScrollAmountMultiplier },
     ),
-    onMove: suspend CoroutineScope.(from: LazyListItemInfo, to: LazyListItemInfo) -> Unit,
+    onMove: suspend CoroutineScope.(from: LazyListItemInfo, to: LazyListItemInfo) -> Boolean,
 ): ReorderableLazyListState {
     val density = LocalDensity.current
     val scrollThresholdPx = with(density) { scrollThreshold.toPx() }
@@ -246,7 +246,7 @@ private fun LazyListState.toLazyCollectionState() =
 class ReorderableLazyListState internal constructor(
     state: LazyListState,
     scope: CoroutineScope,
-    onMoveState: State<suspend CoroutineScope.(from: LazyListItemInfo, to: LazyListItemInfo) -> Unit>,
+    onMoveState: State<suspend CoroutineScope.(from: LazyListItemInfo, to: LazyListItemInfo) -> Boolean>,
 
     /**
      * The threshold in pixels for scrolling the list when dragging an item.
