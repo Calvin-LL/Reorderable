@@ -47,6 +47,7 @@ fun SimpleReorderableLazyRowScreen() {
         }
 
         haptic.performHapticFeedback(ReorderHapticFeedbackType.MOVE)
+        true
     }
 
     LazyRow(

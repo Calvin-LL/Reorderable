@@ -57,6 +57,7 @@ fun TwoReorderableLazyColumnScreen() {
         list2 = combinedList.slice(3..5)
 
         haptic.performHapticFeedback(ReorderHapticFeedbackType.MOVE)
+        true
     }
 
     LazyColumn(

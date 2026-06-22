@@ -50,6 +50,7 @@ fun SimpleReorderableLazyVerticalGridScreen() {
         }
 
         haptic.performHapticFeedback(ReorderHapticFeedbackType.MOVE)
+        true
     }
 
     LazyVerticalGrid(

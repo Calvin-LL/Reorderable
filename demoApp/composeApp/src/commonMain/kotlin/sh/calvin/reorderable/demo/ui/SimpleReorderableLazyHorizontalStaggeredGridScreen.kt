@@ -51,6 +51,7 @@ fun SimpleReorderableLazyHorizontalStaggeredGridScreen() {
             }
 
             haptic.performHapticFeedback(ReorderHapticFeedbackType.MOVE)
+            true
         }
 
     LazyHorizontalStaggeredGrid(

@@ -62,6 +62,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeout
+import kotlin.time.Duration.Companion.milliseconds
 
 object ReorderableLazyCollectionDefaults {
     val ScrollThreshold = 48.dp
@@ -257,7 +258,7 @@ enum class ScrollMoveMode {
 open class ReorderableLazyCollectionState<out T> internal constructor(
     private val state: LazyCollectionState<T>,
     private val scope: CoroutineScope,
-    private val onMoveState: State<suspend CoroutineScope.(from: T, to: T) -> Unit>,
+    private val onMoveState: State<suspend CoroutineScope.(from: T, to: T) -> Boolean>,
 
     /**
      * The threshold in pixels for scrolling the list when dragging an item.
@@ -640,15 +641,15 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
 
                 oldDraggingItemIndex = draggingItem.index
 
-                scope.(onMoveState.value)(draggingItem.data, targetItem.data)
-
-                predictedDraggingItemOffset = if (targetItem.index > draggingItem.index) {
-                    (targetItem.offset + targetItem.size) - draggingItem.size
-                } else {
-                    targetItem.offset
+                if (scope.(onMoveState.value)(draggingItem.data, targetItem.data)) {
+                    predictedDraggingItemOffset = if (targetItem.index > draggingItem.index) {
+                        (targetItem.offset + targetItem.size) - draggingItem.size
+                    } else {
+                        targetItem.offset
+                    }
                 }
 
-                withTimeout(MoveItemsLayoutInfoUpdateMaxWaitDuration) {
+                withTimeout(MoveItemsLayoutInfoUpdateMaxWaitDuration.milliseconds) {
                     // the first result from layoutInfoFlow is the current layoutInfo
                     // the second result is the updated layoutInfo
                     layoutInfoFlow.take(2).collect()
